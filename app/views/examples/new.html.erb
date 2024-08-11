@@ -1,0 +1,17 @@
+<h1>New example</h1>
+
+<%= form_with model: @example do |form|%>
+  <div>
+    <%= form.label :input %><br>
+    <%= form.text_area :input %>
+  </div>
+
+  <div>
+    <%= form.label :output %><br>
+    <%= form.text_area :output %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
