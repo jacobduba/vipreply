@@ -1,0 +1,9 @@
+<h1>Email thingy</h1>
+
+<%= form_with url: "/respond", method: :post do |form|%>
+    <div>
+        <%= form.label :query, "Email to respond to:"%><br>
+        <%= form.text_area :query %><br>
+        <%= form.submit "Generate response"%>
+    </div>
+<% end %>
