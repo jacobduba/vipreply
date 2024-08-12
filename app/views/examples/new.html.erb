@@ -2,11 +2,17 @@
 
 <%= form_with model: @example do |form|%>
   <div>
+    <% @example.errors.full_messages_for(:input).each do |message| %>
+      <div><%= message %></div>
+    <% end %>
     <%= form.label :input %><br>
     <%= form.text_area :input %>
   </div>
 
   <div>
+    <% @example.errors.full_messages_for(:output).each do |message| %>
+      <div><%= message %></div>
+    <% end %>
     <%= form.label :output %><br>
     <%= form.text_area :output %>
   </div>

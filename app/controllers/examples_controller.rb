@@ -32,7 +32,11 @@ class ExamplesController < ApplicationController
 
     @example = Example.new(input: input, output: output, input_embedding: input_embedding)
 
-    @example.save
+    if @example.save
+      redirect_to "/"
+    else
+      render :new, status: :unprocessable_entity
+    end
   end
 
   private
