@@ -6,7 +6,7 @@ class ExamplesController < ApplicationController
     @example = Example.new
   end
 
-  def fetch_embeddings(input)
+  def fetch_embedding(input)
     url = "https://api.openai.com/v1/embeddings"
     headers = {
       "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
@@ -18,7 +18,7 @@ class ExamplesController < ApplicationController
     }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    JSON.parse(response.body)["data"].map { |v| v["embedding"] }
+    JSON.parse(response.body)["data"][0]["embedding"]
   end
 
   def create
@@ -26,7 +26,9 @@ class ExamplesController < ApplicationController
     input = params_n[:input]
     output = params_n[:output]
 
-    input_embedding = fetch_embeddings(input)
+    input_embedding = fetch_embedding(input)
+
+    puts input_embedding
 
     @example = Example.new(input: input, output: output, input_embedding: input_embedding)
 
