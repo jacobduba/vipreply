@@ -1,7 +1,26 @@
 class ResponderController < ApplicationController
-  def search
-    puts "okay"
+  def fetch_embedding(input)
+    url = "https://api.openai.com/v1/embeddings"
+    headers = {
+      "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
+      "Content-Type" => "application/json"
+    }
+    data = {
+      input: input,
+      model: "text-embedding-3-large"
+    }
 
-    redirect_to '/'
+    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
+    JSON.parse(response.body)["data"][0]["embedding"]
+  end
+
+  def search
+    embedding = fetch_embedding(params[:query])
+
+    neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
+
+    pp neighbor
+
+    redirect_to new_example_path
   end
 end

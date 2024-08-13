@@ -28,8 +28,6 @@ class ExamplesController < ApplicationController
 
     input_embedding = fetch_embedding(input)
 
-    puts input_embedding
-
     @example = Example.new(input: input, output: output, input_embedding: input_embedding)
 
     if @example.save
