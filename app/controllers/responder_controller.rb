@@ -14,12 +14,12 @@ class ResponderController < ApplicationController
     JSON.parse(response.body)["data"][0]["embedding"]
   end
 
-  def search
+  def respond
     embedding = fetch_embedding(params[:query])
 
     neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
 
-    pp neighbor
+    puts neighbor
 
     redirect_to new_example_path
   end

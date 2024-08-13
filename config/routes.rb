@@ -10,5 +10,5 @@ Rails.application.routes.draw do
 
   resources :examples
 
-  post "respond", to: "responder#search"
+  post "respond", to: "responder#respond"
 end
