@@ -5,3 +5,4 @@ class Example < ApplicationRecord
   validates :input, uniqueness: true, length: { in: 3..MAX_EMBEDDING_LENGTH}
   validates :output, length: { in: 3..MAX_EMBEDDING_LENGTH}
 end
+

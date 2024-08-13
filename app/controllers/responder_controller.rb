@@ -1,4 +1,7 @@
 class ResponderController < ApplicationController
-  def index
+  def search
+    puts "okay"
+
+    redirect_to '/'
   end
 end
