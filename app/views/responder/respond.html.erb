@@ -1,6 +1,10 @@
 <%= turbo_frame_tag "search-results" do %>
-    <h3>Example email</h3>
-    <p><%= @neighbor.input%></p>
-    <h3>Canned Response</h3>
-    <p><%= @neighbor.output%></p>
+    <% unless @neighbor %>
+        <h2>No results found</h2>
+    <% else %>
+        <h3>Example email</h3>
+        <p><%= @neighbor.input%></p>
+        <h3>Canned Response</h3>
+        <p><%= @neighbor.output%></p>
+    <% end %>
 <% end %>
