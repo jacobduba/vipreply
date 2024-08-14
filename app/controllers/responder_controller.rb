@@ -1,3 +1,5 @@
+require 'net/http'
+
 class ResponderController < ApplicationController
   def fetch_embedding(input)
     url = "https://api.openai.com/v1/embeddings"
