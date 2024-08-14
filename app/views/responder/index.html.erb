@@ -1,9 +1,12 @@
 <h1>Email thingy</h1>
 
-<%= form_with url: "/respond", method: :post do |form|%>
+<%= form_with url: "/respond", method: :post, data: { turbo_frame: "search-results"} do |form|%>
     <div>
-        <%= form.label :query, "Email to respond to:"%><br>
+        <%= form.label :query, "Enter email"%><br>
         <%= form.text_area :query %><br>
-        <%= form.submit "Generate response"%>
+        <%= form.submit "Find response"%>
     </div>
+<% end %>
+
+<%= turbo_frame_tag "search-results" do %>
 <% end %>

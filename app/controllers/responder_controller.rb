@@ -17,10 +17,10 @@ class ResponderController < ApplicationController
   def respond
     embedding = fetch_embedding(params[:query])
 
-    neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
+    @neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
 
-    puts neighbor
+    puts @neighbor
 
-    redirect_to new_example_path
+    # redirect_to new_example_path
   end
 end
