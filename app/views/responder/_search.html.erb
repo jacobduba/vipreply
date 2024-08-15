@@ -1,7 +1,5 @@
 <%= form_with url: "/respond", method: :post, data: { turbo_frame: "search-results"} do |form|%>
-    <div>
-        <%= form.text_area :query, placeholder: "Paste email you want a canned response for...", required: true, class: "block p-2.5 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"%>
-            <%= form.submit "Search for a canned response", class: "text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 my-8 cursor-pointer"%>
-    </div>
-
+    <%= form.text_area :query, placeholder: "Paste email you want a canned response for...", required: true, class: "block p-2.5 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"%>
+    <%= form.submit "Search for a canned response", class: "text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mt-6 mb-4 cursor-pointer"%>
+    <p class="text-xs mb-4 text-gray-500">If the canned response you need doesn't exist yet, please click <%= link_to("here", new_example_path, data: {turbo_frame: '_top'}, class: "text-blue-500 underline hover:text-blue-700 cursor-pointer") %> to create a new one.</p>
 <% end %>
