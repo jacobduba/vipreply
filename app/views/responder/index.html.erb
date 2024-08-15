@@ -1,12 +1,15 @@
-<h1>Email thingy</h1>
+<div class="container mx-auto max-w-xl px-4">
+    <h1 class="text-4xl font-bold text-slate-800 text-center pt-16 pb-8">Email thingy</h1>
 
-<%= form_with url: "/respond", method: :post, data: { turbo_frame: "search-results"} do |form|%>
-    <div>
-        <%= form.label :query, "Enter email"%><br>
-        <%= form.text_area :query %><br>
-        <%= form.submit "Find response"%>
-    </div>
-<% end %>
+    <%= form_with url: "/respond", method: :post, data: { turbo_frame: "search-results"} do |form|%>
+        <div>
+            <%= form.text_area :query, placeholder: "Paste email you want a canned response for...", class: "block p-2.5 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"%>
+            <div class="flex justify-center my-6">
+                <%= form.submit "Search for a canned response", class: "text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 mx-auto cursor-pointer"%>
+            </div>
+        </div>
+    <% end %>
 
-<%= turbo_frame_tag "search-results" do %>
-<% end %>
+    <%= turbo_frame_tag "search-results" do %>
+    <% end %>
+</div>
