@@ -6,6 +6,10 @@ class ExamplesController < ApplicationController
     @example = Example.new
   end
 
+  def index
+    @examples = Example.select(:id, :input, :output).all
+  end
+
   def fetch_embedding(input)
     url = "https://api.openai.com/v1/embeddings"
     headers = {

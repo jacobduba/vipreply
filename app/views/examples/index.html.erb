@@ -1,0 +1,48 @@
+<div class="container mx-auto max-w-md pt-16 px-3 md:max-w-5xl md:px-0">
+  <div class="flex justify-between mb-8">
+    <h1 class="text-4xl font-bold text-slate-800">Training data</h1>
+    <div class="flex">
+      <%= link_to (root_path), class: "text-gray-900 bg-gray-50 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+        </svg>
+        Back to response generator
+      <% end %>
+      <%= link_to (root_path), class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Create new example
+      <% end %>
+    </div>
+  </div>
+  <div class="relative overflow-x-auto sm:rounded-lg border">
+    <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50 ">
+        <tr>
+          <th scope="col" class="px-6 py-3 w-1/2">
+            Example email
+          </th>
+          <th scope="col" class="px-6 py-3 w-1/2">
+            Example response
+          </th>
+          <th scope="col" class="px-6 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @examples.each do |example| %>
+          <tr class="odd:bg-white even:bg-gray-50 border-b">
+            <td class="px-6 py-4 text-gray-700">
+              <%= example.input %>
+            </td>
+            <td class="px-6 py-4 text-gray-700">
+              <%= example.output %>
+            </td>
+            <td class="px-6 py-4 text-right">
+              <a href="#" class="font-medium text-blue-600 hover:underline">Edit</a>
+            </td>
+          </tr>
+        <% end %>
+      </table>
+    </div>
+  </div>

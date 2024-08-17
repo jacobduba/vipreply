@@ -7,6 +7,6 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "responder#index"
-  post "/query", to: "responder#query"
+  post "/query", to: "responder#query" 
   resources :examples
 end
