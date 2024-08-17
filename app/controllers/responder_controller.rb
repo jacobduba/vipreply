@@ -1,6 +1,10 @@
 require 'net/http'
 
 class ResponderController < ApplicationController
+  def index
+    render 'search'
+  end
+
   def fetch_embedding(input)
     url = "https://api.openai.com/v1/embeddings"
     headers = {
@@ -16,13 +20,15 @@ class ResponderController < ApplicationController
     JSON.parse(response.body)["data"][0]["embedding"]
   end
 
-  def respond
-    embedding = fetch_embedding(params[:query])
+  def query
+    query = params[:query]
+
+    embedding = fetch_embedding(query)
 
     @neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
 
     puts @neighbor
 
-    # redirect_to new_example_path
+    render 'search', status: :see_other
   end
 end
