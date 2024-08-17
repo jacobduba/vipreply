@@ -20,6 +20,7 @@ class ResponderController < ApplicationController
 
     puts prompt
 
+    @email = query
     @response = fetch_generation(prompt)
 
     puts @response
