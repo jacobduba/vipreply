@@ -4,7 +4,7 @@
     <div class="w-full md:w-[calc(50%-0.5rem)]">
       <%= form_with url: "/query", method: :post do |form|%>
         <%= form.text_area :query, placeholder: "Paste email you want a canned response for...", required: true, value: @email, class: "block p-2.5 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"%>
-        <%= form.submit "Generate response", class: "text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mt-6 mb-4 cursor-pointer"%>
+        <%= form.submit "Generate response", class: "text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg px-5 py-2.5 mt-4 mb-4 cursor-pointer"%>
       <% end %>
       <% if false %>
         <p class="text-xs mb-4 text-gray-500">If the canned response you need doesn't exist yet, please click <%= link_to("here", new_example_path, data: {turbo_frame: '_top'}, class: "text-blue-500 underline hover:text-blue-700 cursor-pointer") %> to create a new one.</p>
@@ -15,7 +15,7 @@
     <div class="w-full md:w-[calc(50%-0.5rem)]">
       <% if @response %>
         <div class="rounded-lg bg-slate-50 p-8 border border-gray-300" data-controller="clipboard">
-          <h3 class="font-semibold text-slate-700 text-sm mb-2">Response</h3>
+          <h3 class="font-semibold text-slate-700 text-sm mb-2">Generated response</h3>
           <p class="text-slate-950" data-clipboard-target="source" data-text-to-copy="<%=@response%>"><%= simple_format(@response) %></p>
           <button type="button" data-action="clipboard#copy" class="inline-flex text-gray-900 items-center bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 me-2 mt-2">
             <span class="mr-2">Copy to clipboard</span>
