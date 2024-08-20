@@ -56,10 +56,23 @@ class ExamplesController < ApplicationController
     input_embedding = fetch_embedding(input)
 
     if @example.update(input: input, output: output, input_embedding: input_embedding)
-      render turbo_stream: turbo_stream.replace("example-#{@example.id}", partial: "example", locals: { example: @example })
+      render turbo_stream: [
+        turbo_stream.replace("example-#{@example.id}", partial: "example", locals: { example: @example }),
+        turbo_stream.remove("edit-example-modal"),
+      ]
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    @example = Example.find(params[:id])
+    @example.destroy
+
+    render turbo_stream: [
+      turbo_stream.remove("example-#{@example.id}"),
+      turbo_stream.remove("edit-example-modal")
+    ]
   end
 
   private
