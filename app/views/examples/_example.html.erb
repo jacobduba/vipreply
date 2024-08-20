@@ -1,4 +1,4 @@
-<tr class="odd:bg-white even:bg-gray-50 border-b">
+<tr id="<%= "example-#{example.id}" %>" class="odd:bg-white even:bg-gray-50 border-b">
   <td class="px-6 py-4 text-gray-700">
     <%= example.input %>
   </td>
@@ -6,6 +6,6 @@
     <%= example.output %>
   </td>
   <td class="px-6 py-4 text-right">
-    <a href="#" class="font-medium text-blue-600 hover:underline">Edit</a>
+    <%= link_to "Edit", edit_example_path(example), data: {turbo_frame: "edit_example_modal"}, class: "font-medium text-blue-600 hover:underline" %>
   </td>
 </tr>

@@ -5,7 +5,6 @@ class ResponderController < ApplicationController
     render 'search'
   end
 
-
   def query
     query = params[:query]
 

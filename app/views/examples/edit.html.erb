@@ -1,4 +1,4 @@
-<%= turbo_frame_tag "create_example_modal" do %>
+<%= turbo_frame_tag "edit_example_modal" do %>
   <div class="relative z-10" data-controller="turbo-modal" data-action="turbo:submit-end->turbo-modal#submitEnd" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <!--
     Background backdrop, show/hide based on modal state.
@@ -33,7 +33,7 @@
                     <div><%= message %></div>
                   <% end %>
                   <%= form.label :input, "Example email" %><br>
-                  <%= form.text_area :input, class: "w-full"%>
+                  <%= form.text_area :input, class: "w-full" %>
                 </div>
                 <div>
                   <% @example.errors.full_messages_for(:output).each do |message| %>
