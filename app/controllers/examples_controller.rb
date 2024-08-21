@@ -9,7 +9,7 @@ class ExamplesController < ApplicationController
 
   def index
     @collection = Collection.find(params[:collection_id])
-    @examples = Example.select(:id, :input, :output).order(id: :asc).all
+    @examples = Example.where(collection_id: @collection.id).select(:id, :input, :output).order(id: :asc).all
   end
 
   def create
