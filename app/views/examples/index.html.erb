@@ -2,13 +2,13 @@
   <div class="flex justify-between mb-8">
     <h1 class="text-4xl font-bold text-slate-800">Training data</h1>
     <div class="flex">
-      <%= link_to root_path, class: "text-gray-900 bg-gray-50 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
+      <%= link_to collection_path(@collection), class: "text-gray-900 bg-gray-50 border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
         </svg>
         Back to response generator
       <% end %>
-      <%= link_to new_example_path, data: { turbo_frame: 'create_example_modal' }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
+      <%= link_to new_collection_example_path(@collection), data: { turbo_frame: 'create_example_modal' }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>

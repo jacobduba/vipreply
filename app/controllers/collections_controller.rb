@@ -1,16 +1,19 @@
-require 'net/http'
-
-class ResponderController < ApplicationController
+class CollectionsController < ApplicationController
   def index
-    render 'search'
+    @collections = Collection.all
   end
 
-  def query
+  def show
+    @collection = Collection.find(params[:id])
+  end
+
+  def generate_response
+    @collection = Collection.find(params[:collection_id])
     query = params[:query]
 
     embedding = helpers.fetch_embedding(query)
 
-    @neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
+    @neighbor = Example.where(collection_id: @collection.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
 
     example_for_prompt = "Example email:\n\n#{@neighbor.input}\n\n:Example response:\n\n#{@neighbor.output}\n\nExample Output:\n\n"
     email_for_prompt = "Email:\n\n#{query}\n\nResponse:\n\n"
@@ -20,7 +23,7 @@ class ResponderController < ApplicationController
     @email = query
     @response = fetch_generation(prompt)
 
-    render 'search', status: :see_other
+    render 'show', status: :see_other
   end
 
   private
@@ -47,4 +50,5 @@ class ResponderController < ApplicationController
       response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
       JSON.parse(response.body)["choices"][0]["message"]["content"]
     end
+
 end

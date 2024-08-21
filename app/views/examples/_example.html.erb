@@ -6,6 +6,6 @@
     <%= example.output %>
   </td>
   <td class="px-6 py-4 text-right">
-    <%= link_to "Edit", edit_example_path(example), data: {turbo_frame: "edit_example_modal"}, class: "font-medium text-blue-600 hover:underline" %>
+    <%= link_to "Edit", edit_collection_example_path(@collection, example), data: {turbo_frame: "edit_example_modal"}, class: "font-medium text-blue-600 hover:underline" %>
   </td>
 </tr>

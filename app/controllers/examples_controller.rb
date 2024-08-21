@@ -3,21 +3,25 @@ require 'uri'
 
 class ExamplesController < ApplicationController
   def new
+    @collection = Collection.find(params[:collection_id])
     @example = Example.new
   end
 
   def index
+    @collection = Collection.find(params[:collection_id])
     @examples = Example.select(:id, :input, :output).order(id: :asc).all
   end
 
   def create
+    @collection = Collection.find(params[:collection_id])
+
     params_n = example_params
     input = params_n[:input]
     output = params_n[:output]
 
     input_embedding = helpers.fetch_embedding(input)
 
-    @example = Example.new(input: input, output: output, input_embedding: input_embedding)
+    @example = Example.new(input: input, output: output, input_embedding: input_embedding, collection_id: @collection.id)
 
     if @example.save
       render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
@@ -27,11 +31,12 @@ class ExamplesController < ApplicationController
   end
 
   def edit
+    @collection = Collection.find(params[:collection_id])
     @example = Example.find(params[:id])
-
   end
 
   def update
+    @collection = Collection.find(params[:collection_id])
     @example = Example.find(params[:id])
 
     params_n = example_params
