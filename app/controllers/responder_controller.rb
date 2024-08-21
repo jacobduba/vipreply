@@ -8,7 +8,7 @@ class ResponderController < ApplicationController
   def query
     query = params[:query]
 
-    embedding = fetch_embedding(query)
+    embedding = helpers.fetch_embedding(query)
 
     @neighbor = Example.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
 
@@ -17,32 +17,13 @@ class ResponderController < ApplicationController
 
     prompt = "#{example_for_prompt}#{email_for_prompt}"
 
-    puts prompt
-
     @email = query
     @response = fetch_generation(prompt)
-
-    puts @response
 
     render 'search', status: :see_other
   end
 
   private
-    def fetch_embedding(input)
-      url = "https://api.openai.com/v1/embeddings"
-      headers = {
-        "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
-        "Content-Type" => "application/json"
-      }
-      data = {
-        input: input,
-        model: "text-embedding-3-large"
-      }
-
-      response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-      JSON.parse(response.body)["data"][0]["embedding"]
-    end
-
     def fetch_generation(prompt)
       url = "https://api.openai.com/v1/chat/completions"
       headers = {
