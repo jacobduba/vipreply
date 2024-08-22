@@ -1,9 +1,9 @@
 <tr id="<%= "example-#{example.id}" %>" class="odd:bg-white even:bg-gray-50 border-b">
   <td class="px-6 py-4 text-gray-700">
-    <%= example.input %>
+    <%= simple_format example.input %>
   </td>
   <td class="px-6 py-4 text-gray-700">
-    <%= example.output %>
+    <%= simple_format example.output %>
   </td>
   <td class="px-6 py-4 text-right">
     <%= link_to "Edit", edit_model_example_path(@model, example), data: {turbo_frame: "edit_example_modal"}, class: "font-medium text-blue-600 hover:underline" %>
