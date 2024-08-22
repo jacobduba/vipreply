@@ -1,12 +1,20 @@
-<div class="container mx-auto max-w-md pt-16 px-3 md:max-w-5xl md:px-0">
-  <div class="flex justify-between mb-8">
+<div class="container mx-auto max-w-md pt-16 px-3 md:max-w-2xl md:px-0">
+  <div class="flex justify-between mb-6">
     <h1 class="text-4xl font-bold text-slate-800">Collections</h1>
   </div>
-  <div>
-    <ul>
-      <% @collections.each do |collection| %>
-        <li><%= link_to collection.name, collection %></li>
-      <% end %>
-    </ul>
-  </div>
+  <ul class="divide-y divide-slate-300">
+    <% @collections.each do |collection| %>
+      <li class="py-2">
+        <%= link_to collection, class: "flex justify-between items-center group/collection" do %>
+          <p class="text-slate-800 text-lg group-hover/collection:text-blue-500"><%= collection.name %></p>
+          <span class="text-slate-500 flex items-center group-hover/collection:text-blue-500">
+            Open
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
 </div>
