@@ -16,12 +16,18 @@ class ModelsController < ApplicationController
 
     embedding = helpers.fetch_embedding(query)
 
-    @neighbor = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
+    neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(3)
 
-    example_for_prompt = "Example email:\n\n#{@neighbor.input}\n\n:Example response:\n\n#{@neighbor.output}\n\nExample Output:\n\n"
+    example_prompts = neighbors.map do |neighbor|
+      "Example email:\n\n#{neighbor.input}\n\nExample response:\n\n#{neighbor.output}\n\n"
+    end
+
+    examples_for_prompt = example_prompts.join
     email_for_prompt = "Email:\n\n#{query}\n\nResponse:\n\n"
 
-    prompt = "#{example_for_prompt}#{email_for_prompt}"
+    prompt = "#{examples_for_prompt}#{email_for_prompt}"
+
+    puts prompt
 
     @email = query
     @response = fetch_generation(prompt)
@@ -41,7 +47,13 @@ class ModelsController < ApplicationController
           messages: [
             {
               role: "system",
-              content: "You are an help desk technician who answers emails. First the user will give you examples containing and email and a response. Then the user will give you an example and you must generate a response for it. Include salutation, addressing the customer formally. Do not include a closing, such as Best regards or Kind regards."
+              content: <<~HEREDOC
+                You are an help desk technician who answers emails.
+                First the user will give you examples containing and email and a response.
+                Then the user will give you an example and you must generate a response for it.
+                Do not include a salutation such as Hello or Greetings.
+                Do not include a closing, such as Best regards or Kind regards."
+              HEREDOC
             },
             {
               role: "user",
