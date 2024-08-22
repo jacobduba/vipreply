@@ -6,7 +6,7 @@
     <% @collections.each do |collection| %>
       <li class="py-2">
         <%= link_to collection, class: "flex justify-between items-center group/collection" do %>
-          <p class="text-slate-800 text-lg group-hover/collection:text-blue-500"><%= collection.name %></p>
+          <p class="text-slate-800 text-lg group-hover/collection:text-blue-500 underline"><%= collection.name %></p>
           <span class="text-slate-500 flex items-center group-hover/collection:text-blue-500">
             Open
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
