@@ -1,6 +1,3 @@
-# DigitalOcean wanted to use Dockerfile instead of Ruby buildpack
-# So I made this a tmp file. 
-
 # syntax = docker/dockerfile:1
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version and Gemfile
@@ -15,7 +12,6 @@ ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
-
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
