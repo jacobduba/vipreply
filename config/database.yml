@@ -22,8 +22,8 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: emailthingy-test
+  database: emailthingy_test
 
 production:
   <<: *default
-  database: emailthingy-prod
+  database: <%= ENV["POSTGRES_DATABASE"] %>
