@@ -7,9 +7,9 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "responder#index"
-  root "collections#index"
-  resources :collections do
+  root "models#index"
+  resources :models do
     resources :examples
-    post "generate_response", to: "collections#generate_response"
+    post "generate_response", to: "models#generate_response"
   end
 end

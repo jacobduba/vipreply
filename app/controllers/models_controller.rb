@@ -1,19 +1,22 @@
-class CollectionsController < ApplicationController
+require 'net/http'
+require 'uri'
+
+class ModelsController < ApplicationController
   def index
-    @collections = Collection.all
+    @models = Model.all
   end
 
   def show
-    @collection = Collection.find(params[:id])
+    @model = Model.find(params[:id])
   end
 
   def generate_response
-    @collection = Collection.find(params[:collection_id])
+    @model = Model.find(params[:model_id])
     query = params[:query]
 
     embedding = helpers.fetch_embedding(query)
 
-    @neighbor = Example.where(collection_id: @collection.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
+    @neighbor = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
 
     example_for_prompt = "Example email:\n\n#{@neighbor.input}\n\n:Example response:\n\n#{@neighbor.output}\n\nExample Output:\n\n"
     email_for_prompt = "Email:\n\n#{query}\n\nResponse:\n\n"

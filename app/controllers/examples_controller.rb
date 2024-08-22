@@ -3,17 +3,17 @@ require 'uri'
 
 class ExamplesController < ApplicationController
   def new
-    @collection = Collection.find(params[:collection_id])
+    @model = Model.find(params[:model_id])
     @example = Example.new
   end
 
   def index
-    @collection = Collection.find(params[:collection_id])
-    @examples = Example.where(collection_id: @collection.id).select(:id, :input, :output).order(id: :asc).all
+    @model = Model.find(params[:model_id])
+    @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all
   end
 
   def create
-    @collection = Collection.find(params[:collection_id])
+    @model = Model.find(params[:model_id])
 
     params_n = example_params
     input = params_n[:input]
@@ -21,22 +21,22 @@ class ExamplesController < ApplicationController
 
     input_embedding = helpers.fetch_embedding(input)
 
-    @example = Example.new(input: input, output: output, input_embedding: input_embedding, collection_id: @collection.id)
+    @example = Example.new(input: input, output: output, input_embedding: input_embedding, model_id: @model.id)
 
     if @example.save
-      render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
+      render turbo_stream: turbo_stream.append("examples_model", partial: "example", locals: { example: @example })
     else
       render :new, status: :unprocessable_entity
     end
   end
 
   def edit
-    @collection = Collection.find(params[:collection_id])
+    @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
   end
 
   def update
-    @collection = Collection.find(params[:collection_id])
+    @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
 
     params_n = example_params

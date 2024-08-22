@@ -10,16 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_21_021757) do
+ActiveRecord::Schema[7.1].define(version: 2024_08_22_194108) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
-
-  create_table "collections", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
 
   create_table "examples", force: :cascade do |t|
     t.text "input"
@@ -27,9 +21,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_08_21_021757) do
     t.vector "input_embedding", limit: 3072
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "collection_id", null: false
-    t.index ["collection_id"], name: "index_examples_on_collection_id"
+    t.bigint "model_id", null: false
+    t.index ["model_id"], name: "index_examples_on_model_id"
   end
 
-  add_foreign_key "examples", "collections"
+  create_table "models", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_foreign_key "examples", "models"
 end
