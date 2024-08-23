@@ -24,7 +24,7 @@ class ExamplesController < ApplicationController
     @example = Example.new(input: input, output: output, input_embedding: input_embedding, model_id: @model.id)
 
     if @example.save
-      render turbo_stream: turbo_stream.append("examples_model", partial: "example", locals: { example: @example })
+      render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
     else
       render :new, status: :unprocessable_entity
     end
