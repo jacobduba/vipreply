@@ -2,14 +2,17 @@ require 'net/http'
 require 'uri'
 
 class ExamplesController < ApplicationController
-  def new
-    @model = Model.find(params[:model_id])
-    @example = Example.new
-  end
-
   def index
     @model = Model.find(params[:model_id])
     @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all
+  end
+
+  def new
+    @model = Model.find(params[:model_id])
+    @example = Example.new
+
+    @input_errors = [] 
+    @output_errors = []
   end
 
   def create
@@ -26,6 +29,9 @@ class ExamplesController < ApplicationController
     if @example.save
       render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
     else
+      @input_errors = @example.errors.full_messages_for(:input) 
+      @output_errors = @example.errors.full_messages_for(:output) 
+
       render :new, status: :unprocessable_entity
     end
   end
@@ -34,8 +40,8 @@ class ExamplesController < ApplicationController
     @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
 
-    @input_errors = @example.errors.full_messages_for(:input) 
-    @output_errors = @example.errors.full_messages_for(:input) 
+    @input_errors = [] 
+    @output_errors = []
   end
 
   def update
@@ -55,7 +61,7 @@ class ExamplesController < ApplicationController
       ]
     else
       @input_errors = @example.errors.full_messages_for(:input) 
-      @output_errors = @example.errors.full_messages_for(:input) 
+      @output_errors = @example.errors.full_messages_for(:output) 
 
       render :edit, status: :unprocessable_entity
     end
