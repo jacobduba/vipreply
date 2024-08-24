@@ -19,11 +19,9 @@
         <%= form_with model: [@model, @example], class:"p-4 md:p-5" do  |form| %>
           <div class="grid gap-4 mb-4 grid-cols-2">
             <div class="col-span-2">
-              <%= form.label :input, "Example email", class: "block mb-2 text-sm font-medium text-gray-900" %>
-              <% @example.errors.full_messages_for(:input).each do |message| %>
-                <div><%= message %></div>
-              <% end %>
-              <%= form.text_area :input, rows: 6, placeholder: "Write your example email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" %>
+              <%= render 'shared/warning_list', messages: @input_errors %>
+              <%= form.label :input, "Example email", class: ["block mb-2 text-sm font-medium text-gray-900", ("text-red-800" unless @input_errors.empty?)] %>
+              <%= form.text_area :input, rows: 6, placeholder: "Write your example email here", class: ["block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500", ("border-red-300" unless @input_errors.empty?)] %>
             </div>
             <div class="col-span-2">
               <%= form.label :output, "Example response", class: "block mb-2 text-sm font-medium text-gray-900" %>

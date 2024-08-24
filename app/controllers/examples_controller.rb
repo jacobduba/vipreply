@@ -33,6 +33,9 @@ class ExamplesController < ApplicationController
   def edit
     @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
+
+    @input_errors = @example.errors.full_messages_for(:input) 
+    @output_errors = @example.errors.full_messages_for(:input) 
   end
 
   def update
@@ -51,6 +54,9 @@ class ExamplesController < ApplicationController
         turbo_stream.remove("edit-example-modal"),
       ]
     else
+      @input_errors = @example.errors.full_messages_for(:input) 
+      @output_errors = @example.errors.full_messages_for(:input) 
+
       render :edit, status: :unprocessable_entity
     end
   end
