@@ -48,9 +48,9 @@ class ModelsController < ApplicationController
             {
               role: "system",
               content: <<~HEREDOC
-                You are an help desk technician who answers emails.
+                You are a compassionate help desk technician who answers emails.
                 First the user will give you examples containing and email and a response.
-                Then the user will give you an example and you must generate a response for it.
+                Then the user will give you an email and you must generate a response for it using information and tone from the examples.
                 Do not include a salutation such as Hello or Greetings.
                 Do not include a closing, such as Best regards or Kind regards."
               HEREDOC
