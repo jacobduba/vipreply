@@ -2,19 +2,22 @@ require 'net/http'
 require 'uri'
 
 class ModelsController < ApplicationController
-  before_action :find_model, only: [:show, :generate_response]
-  before_action :authenticate_model, only: [:show, :generate_response]
+  # before_action :find_model, only: [:show, :generate_response]
+  # before_action :authenticate_model, only: [:show, :generate_response]
 
   def index
     @models = Model.all
+    session[:current_user_id] = rand(1..100)
+    puts session[:current_user_id] 
   end
 
   def show
-    # @model = Model.find(params[:id])
+    @model = Model.find(params[:id])
+    puts session[:current_user_id] 
   end
 
   def generate_response
-    # @model = Model.find(params[:model_id])
+    @model = Model.find(params[:model_id])
     query = params[:query]
 
     embedding = helpers.fetch_embedding(query)
@@ -39,15 +42,15 @@ class ModelsController < ApplicationController
   end
 
   private
-    def find_model
-      @model = Model.find(params[:model_id] || params[:id])
-    end
+    # def find_model
+    #   @model = Model.find(params[:model_id] || params[:id])
+    # end
 
-    def authenticate_model
-      authenticate_or_request_with_http_basic(Model.name) do |username, password| 
-        username == @model.username && password == @model.password
-      end
-    end
+    # def authenticate_model
+    #   authenticate_or_request_with_http_basic(Model.name) do |username, password| 
+    #     username == @model.username && password == @model.password
+    #   end
+    # end
 
     def fetch_generation(prompt)
       url = "https://api.openai.com/v1/chat/completions"
