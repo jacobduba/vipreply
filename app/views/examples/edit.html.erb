@@ -19,16 +19,16 @@
         <%= form_with model: [@model, @example], class:"p-4 md:p-5" do  |form| %>
           <div class="grid gap-4 mb-4 grid-cols-2">
             <div class="col-span-2">
-              <%= form.label :input, "Example email", class: ["block text-sm font-medium text-gray-900", (@input_errors.empty? ? "mb-2" : "text-red-800")] %>
+              <%= form.label :input, "Example recieved email", class: ["block text-sm font-medium text-gray-900", (@input_errors.empty? ? "mb-2" : "text-red-800")] %>
               <ul class="list-disc list-inside text-red-800 text-sm mb-2">
                 <% @input_errors.each do |message| %>
                   <li><%= message %></li>
                 <% end %>
               </ul>
-              <%= form.text_area :input, rows: 6, placeholder: "Write your example email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" %>
+              <%= form.text_area :input, rows: 6, placeholder: "Write your example recieved email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" %>
             </div>
             <div class="col-span-2">
-              <%= form.label :output, "Example email", class: ["block text-sm font-medium text-gray-900", (@output_errors.empty? ? "mb-2" : "text-red-800")] %>
+              <%= form.label :output, "Example response email", class: ["block text-sm font-medium text-gray-900", (@output_errors.empty? ? "mb-2" : "text-red-800")] %>
               <ul class="list-disc list-inside text-red-800 text-sm mb-2">
                 <% @output_errors.each do |message| %>
                   <li><%= message %></li>

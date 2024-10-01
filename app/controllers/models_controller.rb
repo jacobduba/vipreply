@@ -19,7 +19,7 @@ class ModelsController < ApplicationController
     neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(3)
 
     example_prompts = neighbors.map do |neighbor|
-      "Example email:\n\n#{neighbor.input}\n\nExample response:\n\n#{neighbor.output}\n\n"
+      "Example recieved email:\n\n#{neighbor.input}\n\nExample response email:\n\n#{neighbor.output}\n\n"
     end
 
     examples_for_prompt = example_prompts.join
@@ -49,7 +49,7 @@ class ModelsController < ApplicationController
               role: "system",
               content: <<~HEREDOC
                 You are a help desk technician who answers emails.
-                First the user will give you examples containing and email and a response.
+                First the user will give you examples containing a recieved email and a response email.
                 Then the user will give you an email and you must generate a response for it using information and tone from the examples.
                 Write it in your own words!
                 Be compassionate: emphasize with the customer.
