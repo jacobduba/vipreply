@@ -1,5 +1,5 @@
-require 'net/http'
-require 'uri'
+require "net/http"
+require "uri"
 
 class ExamplesController < ApplicationController
   def index
@@ -11,7 +11,7 @@ class ExamplesController < ApplicationController
     @model = Model.find(params[:model_id])
     @example = Example.new
 
-    @input_errors = [] 
+    @input_errors = []
     @output_errors = []
   end
 
@@ -29,8 +29,8 @@ class ExamplesController < ApplicationController
     if @example.save
       render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
     else
-      @input_errors = @example.errors.full_messages_for(:input) 
-      @output_errors = @example.errors.full_messages_for(:output) 
+      @input_errors = @example.errors.full_messages_for(:input)
+      @output_errors = @example.errors.full_messages_for(:output)
 
       render :new, status: :unprocessable_entity
     end
@@ -40,7 +40,7 @@ class ExamplesController < ApplicationController
     @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
 
-    @input_errors = [] 
+    @input_errors = []
     @output_errors = []
   end
 
@@ -60,8 +60,8 @@ class ExamplesController < ApplicationController
         turbo_stream.remove("edit-example-modal"),
       ]
     else
-      @input_errors = @example.errors.full_messages_for(:input) 
-      @output_errors = @example.errors.full_messages_for(:output) 
+      @input_errors = @example.errors.full_messages_for(:input)
+      @output_errors = @example.errors.full_messages_for(:output)
 
       render :edit, status: :unprocessable_entity
     end
@@ -73,12 +73,13 @@ class ExamplesController < ApplicationController
 
     render turbo_stream: [
       turbo_stream.remove("example-#{@example.id}"),
-      turbo_stream.remove("edit-example-modal")
+      turbo_stream.remove("edit-example-modal"),
     ]
   end
 
   private
-    def example_params
-      params.require(:example).permit(:input, :output)
-    end
+
+  def example_params
+    params.require(:example).permit(:input, :output)
+  end
 end

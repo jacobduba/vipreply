@@ -1,5 +1,5 @@
-require 'net/http'
-require 'uri'
+require "net/http"
+require "uri"
 
 class ModelsController < ApplicationController
   def index
@@ -32,40 +32,40 @@ class ModelsController < ApplicationController
     @email = query
     @response = fetch_generation(prompt)
 
-    render 'show', status: :see_other
+    render "show", status: :see_other
   end
 
   private
-    def fetch_generation(prompt)
-      url = "https://api.openai.com/v1/chat/completions"
-      headers = {
-        "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
-        "Content-Type" => "application/json"
-      }
-      data = {
-          model: "gpt-4o",
-          messages: [
-            {
-              role: "system",
-              content: <<~HEREDOC
-                You are a help desk technician who answers emails.
-                First the user will give you examples containing a recieved email and a response email.
-                Then the user will give you an email and you must generate a response for it using information and tone from the examples.
-                Write it in your own words!
-                Be compassionate: emphasize with the customer.
-                Include a salutation such as Hello or Greetings.
-                Include a closing, such as Best regards or Kind regards."
-              HEREDOC
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ]
-      }
 
-      response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-      JSON.parse(response.body)["choices"][0]["message"]["content"]
-    end
+  def fetch_generation(prompt)
+    url = "https://api.openai.com/v1/chat/completions"
+    headers = {
+      "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
+      "Content-Type" => "application/json",
+    }
+    data = {
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: <<~HEREDOC,
+            You are a help desk technician who answers emails.
+            First the user will give you examples containing a recieved email and a response email.
+            Then the user will give you an email and you must generate a response for it using information and tone from the examples.
+            Write it in your own words!
+            Be compassionate: emphasize with the customer.
+            Include a salutation such as Hello or Greetings.
+            Include a closing, such as Best regards or Kind regards."
+          HEREDOC
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    }
 
+    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
+    JSON.parse(response.body)["choices"][0]["message"]["content"]
+  end
 end
