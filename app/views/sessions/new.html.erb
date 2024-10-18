@@ -1,0 +1,14 @@
+<h1>Login page</h1>
+<%= form_with model: @account, url: login_path do |f| %>
+  <div>
+    <%= f.label :username %><br>
+    <%= f.text_field :username %>
+  </div>
+  <div>
+    <%= f.label :password %><br>
+    <%= f.password_field :password %>
+  </div>
+  <p>
+    <%= f.submit 'Login' %>
+  </p>
+<% end %>

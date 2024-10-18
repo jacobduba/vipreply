@@ -1,0 +1,28 @@
+class SessionsController < ApplicationController
+  def new
+    @account = Account.new
+
+    if session[:account_id]
+      redirect_to root_path
+    end
+  end
+
+  def create
+    params_n = login_params
+
+    @account = Account.find_by(username: params_n[:username])
+
+    if @account && @account.authenticate(params_n[:password])
+      session[:account_id] = @account.id
+      puts "AWESOME"
+      redirect_to root_path
+    else
+      puts "NOT"
+      flash[:alert] = "Login failed"
+    end
+  end
+
+  def login_params
+    params.require(:account).permit(:username, :password)
+  end
+end
