@@ -7,13 +7,10 @@ class ModelsController < ApplicationController
 
   def index
     @models = Model.all
-    session[:current_user_id] = rand(1..100)
-    puts session[:current_user_id]
   end
 
   def show
     @model = Model.find(params[:id])
-    puts session[:current_user_id]
   end
 
   def generate_response
