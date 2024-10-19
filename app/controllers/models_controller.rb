@@ -6,11 +6,30 @@ class ModelsController < ApplicationController
   # before_action :authenticate_model, only: [:show, :generate_response]
 
   def index
-    @models = Model.all
+    unless session[:account_id]
+      redirect_to login_path
+      return
+    end
+
+    account = Account.find(session[:account_id])
+    @models = account.models
   end
 
   def show
-    @model = Model.find(params[:id])
+    account_id = session[:account_id]
+    unless account_id
+      render file: "#{Rails.root}/public/404.html", status: :not_found
+      return
+    end
+
+    id = params[:id]
+
+    unless Account.find(account_id).models.exists?(id)
+      render file: "#{Rails.root}/public/404.html", status: :not_found
+      return
+    end
+    
+    @model = Model.find(id)
   end
 
   def generate_response
