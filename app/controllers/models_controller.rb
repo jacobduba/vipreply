@@ -5,8 +5,7 @@ class ModelsController < ApplicationController
   before_action :authorize_account_has_model, except: [:index]
 
   def index
-    account = Account.find(session[:account_id])
-    @models = account.models
+    @models = @account.models
   end
 
   def show

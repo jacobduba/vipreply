@@ -2,11 +2,11 @@ class SessionsController < ApplicationController
   skip_before_action :authorize_has_account
 
   def new
-    @account = Account.new
-
     if session[:account_id]
       redirect_to root_path
     end
+
+    @account = Account.new
   end
 
   def create
@@ -20,6 +20,11 @@ class SessionsController < ApplicationController
     else
       flash[:alert] = "Login failed"
     end
+  end
+
+  def destroy
+    reset_session
+    redirect_to login_path
   end
 
   def login_params
