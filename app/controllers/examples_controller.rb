@@ -2,13 +2,13 @@ require "net/http"
 require "uri"
 
 class ExamplesController < ApplicationController
+  before_action :authorize_account_has_model 
+
   def index
-    @model = Model.find(params[:model_id])
     @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all
   end
 
   def new
-    @model = Model.find(params[:model_id])
     @example = Example.new
 
     @input_errors = []
@@ -16,8 +16,6 @@ class ExamplesController < ApplicationController
   end
 
   def create
-    @model = Model.find(params[:model_id])
-
     params_n = example_params
     input = params_n[:input]
     output = params_n[:output]
@@ -37,7 +35,6 @@ class ExamplesController < ApplicationController
   end
 
   def edit
-    @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
 
     @input_errors = []
@@ -45,7 +42,6 @@ class ExamplesController < ApplicationController
   end
 
   def update
-    @model = Model.find(params[:model_id])
     @example = Example.find(params[:id])
 
     params_n = example_params

@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  skip_before_action :authorize_has_account
+
   def new
     @account = Account.new
 
@@ -14,10 +16,8 @@ class SessionsController < ApplicationController
 
     if @account && @account.authenticate(params_n[:password])
       session[:account_id] = @account.id
-      puts "AWESOME"
       redirect_to root_path
     else
-      puts "NOT"
       flash[:alert] = "Login failed"
     end
   end
