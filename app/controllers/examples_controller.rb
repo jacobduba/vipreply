@@ -2,7 +2,7 @@ require "net/http"
 require "uri"
 
 class ExamplesController < ApplicationController
-  before_action :authorize_account_has_model 
+  before_action :authorize_account_has_model
 
   def index
     @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all

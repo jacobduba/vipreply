@@ -19,9 +19,7 @@ class ApplicationController < ActionController::Base
       render file: "#{Rails.root}/public/404.html", status: :not_found
       return
     end
-    
+
     @model = Model.find(id)
   end
-
-
 end
