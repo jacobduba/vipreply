@@ -1,10 +1,10 @@
 <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
     <div class="w-full rounded-lg sm:max-w-md xl:p-0">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <% flash.each do |key, message| %>
-                <ul class="bg-red-50 text-red-800 p-3 rounded-lg border-red-200 border">
-                    <li><%= message %></li>
-                </ul>
+            <% if @invalid_username_or_password %>
+                <div class="bg-red-50 text-red-800 p-3 rounded-lg border-red-200 border">
+                    Username or password is invalid.
+                </div>
             <% end %>
             <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
                 Login to your account
@@ -12,7 +12,7 @@
             <%= form_with model: @account, url: login_path, class: "space-y-4 md:space-y-6" do |f| %>
                 <div>
                     <%= f.label :username, class: "block mb-2 text-sm font-medium text-gray-900" %>
-                    <%= f.text_field :username, class: "bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" %>
+                    <%= f.text_field :username, value: @username, class: "bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" %>
                 </div>
                 <div>
                     <%= f.label :password, class: "block mb-2 text-sm font-medium text-gray-900" %>
