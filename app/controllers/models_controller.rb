@@ -2,16 +2,16 @@ require "net/http"
 require "uri"
 
 class ModelsController < ApplicationController
+  before_action :authorize_account_has_model, except: [:index]
+
   def index
-    @models = Model.all
+    @models = @account.models
   end
 
   def show
-    @model = Model.find(params[:id])
   end
 
   def generate_response
-    @model = Model.find(params[:model_id])
     query = params[:query]
 
     embedding = helpers.fetch_embedding(query)

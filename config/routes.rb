@@ -7,7 +7,13 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "responder#index"
+
+  get "login" => "sessions#new", as: :login
+  post "login" => "sessions#create"
+  delete "logout" => "sessions#destroy"
+
   root "models#index"
+
   resources :models do
     resources :examples
     post "generate_response", to: "models#generate_response"

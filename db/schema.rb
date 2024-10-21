@@ -10,10 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_08_22_194108) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_17_233251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
+
+  create_table "accounts", force: :cascade do |t|
+    t.string "username"
+    t.string "password_digest"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "accounts_models", id: false, force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "model_id", null: false
+  end
 
   create_table "examples", force: :cascade do |t|
     t.text "input"
