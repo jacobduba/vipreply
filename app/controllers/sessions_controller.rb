@@ -21,7 +21,7 @@ class SessionsController < ApplicationController
       @invalid_username_or_password = true
       @username = params_n[:username]
       @account = Account.new
-
+ 
       render :new, status: :unprocessable_entity
     end
   end
