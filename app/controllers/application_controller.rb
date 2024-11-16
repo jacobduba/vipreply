@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
     id = params[:model_id] || params[:id]
 
     unless @account.models.exists?(id)
-      render file: "#{Rails.root}/public/404.html", status: :not_found
+      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
       return
     end
 
