@@ -1,0 +1,18 @@
+<div class="relative overflow-x-auto mt-3">
+  <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+    <thead class="text-xs text-gray-700 uppercase border-b">
+      <tr>
+        <th scope="col" class="py-3 pr-3 w-1/2">
+          Example received email
+        </th>
+        <th scope="col" class="py-3 px-6 w-1/2">
+          Example response email
+        </th>
+        <th scope="col" class="py-3 pl-3 "></th>
+      </tr>
+    </thead>
+    <tbody id="examples_collection">
+      <%= render partial: 'nexample', collection: @neighbors, as: :example %>
+    </table>
+  </div>
+</div>
