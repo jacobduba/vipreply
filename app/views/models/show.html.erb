@@ -30,7 +30,7 @@
       <% if @response %>
         <%= render 'example_list', response: true, examples: @neighbors %>
       <% else %>
-        <%= render 'example_list', response: true, examples: @examples %>
+        <%= render 'example_list', response: false, examples: @examples %>
       <% end %>
     </div>
   </div>
