@@ -9,6 +9,7 @@ class ModelsController < ApplicationController
   end
 
   def show
+    @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all
   end
 
   def generate_response
