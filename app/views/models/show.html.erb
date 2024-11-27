@@ -38,6 +38,14 @@
       <% if @response %>
         <%= render 'example_list', response: true, examples: @neighbors %>
       <% else %>
+        <h1 class="text-2xl font-semibold text-slate-800">
+          It's quiet here
+        </h1>
+        <p class="text-slate-700 mb-5">
+          Enter an input email, and we'll generate a response for you.
+          As you do, this space will be filled with reference examples that guided the response.
+        </p>
+        <img src="/images/undraw_empty_street_re_atjq.svg" alt="rss feed" />
       <% end %>
     </div>
   </div>
