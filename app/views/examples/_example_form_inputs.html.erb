@@ -1,0 +1,20 @@
+<div class="grid gap-4 mb-4 grid-cols-2">
+  <div class="col-span-2">
+    <%= form.label :input, "Template recieved email", class: ["block text-sm font-medium text-gray-900", (input_errors.empty? ? "mb-2" : "text-red-800")] %>
+    <ul class="list-disc list-inside text-red-800 text-sm mb-2">
+      <% input_errors.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+    <%= form.text_area :input, rows: 6, placeholder: "Write an example recieved email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+  </div>
+  <div class="col-span-2">
+    <%= form.label :output, "Template response instructions", class: ["block text-sm font-medium text-gray-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
+    <ul class="list-disc list-inside text-red-800 text-sm mb-2">
+      <% output_errors.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+    <%= form.text_area :output, rows: 6, placeholder: "Write instructions on how to respond here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+  </div>
+</div>

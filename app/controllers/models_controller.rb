@@ -12,9 +12,7 @@ class ModelsController < ApplicationController
     @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all
   end
 
-  def generate_response
-    query = params[:query]
-
+  def generate_and_show(query)
     embedding = helpers.fetch_embedding(query)
 
     neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
@@ -35,6 +33,12 @@ class ModelsController < ApplicationController
     @template = neighbors[0]
 
     render "show", status: :see_other
+  end
+
+  def generate_response
+    query = params[:query]
+
+    generate_and_show query
   end
 
   private

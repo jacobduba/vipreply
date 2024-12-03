@@ -44,23 +44,29 @@ class ExamplesController < ApplicationController
   def update
     @example = Example.find(params[:id])
 
-    params_n = example_params
-    input = params_n[:input]
-    output = params_n[:output]
+    strong_params = example_params
+    input = strong_params[:input]
+    output = strong_params[:output]
+    save_and_regenerate = strong_params[:save_and_regenerate]
 
     input_embedding = helpers.fetch_embedding(input)
 
-    if @example.update(input: input, output: output, input_embedding: input_embedding)
-      render turbo_stream: [
-        turbo_stream.replace("example-#{@example.id}", partial: "example", locals: { example: @example }),
-        turbo_stream.remove("edit-example-modal"),
-      ]
-    else
+    unless @example.update(input: input, output: output, input_embedding: input_embedding)
       @input_errors = @example.errors.full_messages_for(:input)
+
       @output_errors = @example.errors.full_messages_for(:output)
 
       render :edit, status: :unprocessable_entity
     end
+
+    if save_and_regenerate
+      generate_and_show "i guess"
+    end
+
+    render turbo_stream: [
+      turbo_stream.replace("example-#{@example.id}", partial: "example", locals: { example: @example }),
+      turbo_stream.remove("edit-example-modal"),
+    ]
   end
 
   def destroy
@@ -76,6 +82,6 @@ class ExamplesController < ApplicationController
   private
 
   def example_params
-    params.require(:example).permit(:input, :output)
+    params.require(:example).permit(:input, :output, :save_and_regenerate)
   end
 end
