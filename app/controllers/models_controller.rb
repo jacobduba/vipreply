@@ -17,9 +17,9 @@ class ModelsController < ApplicationController
 
     embedding = helpers.fetch_embedding(query)
 
-    @neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(3)
+    neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
 
-    example_prompts = @neighbors.map do |neighbor|
+    example_prompts = neighbors.map do |neighbor|
       "Example recieved email:\n\n#{neighbor.input}\n\nExample response email:\n\n#{neighbor.output}\n\n"
     end
 
@@ -32,6 +32,7 @@ class ModelsController < ApplicationController
 
     @email = query
     @response = fetch_generation(prompt)
+    @template = neighbors[0]
 
     render "show", status: :see_other
   end

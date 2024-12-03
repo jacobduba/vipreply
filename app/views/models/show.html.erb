@@ -9,8 +9,8 @@
       Edit training data
     <% end %>
   </div>
-  <div class="flex flex-wrap gap-4">
-    <div class="w-full md:w-[calc(30rem-0.5rem)]">
+  <div class="flex flex-wrap gap-8">
+    <div class="w-full md:w-[calc(50%-1rem)]">
       <%= form_with url: model_generate_response_path(@model), method: :post do |form| %>
         <%= form.text_area :query, placeholder: "Paste email you want to generate a response for...", required: true, value: @email, class: "block p-4 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
         <%= form.submit "Generate response", class: "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg px-5 py-2.5 mt-4 mb-4 cursor-pointer" %>
@@ -34,9 +34,15 @@
         <% end %>
       </div>
     </div>
-    <div class="w-full md:w-[calc(100%-30rem-0.5rem)]">
+    <div class="w-full md:w-[calc(50%-1rem)]">
       <% if @response %>
-        <%= render 'example_list', response: true, examples: @neighbors %>
+        <h1 class="text-2xl font-semibold text-slate-800">
+          Referenced template
+        </h1>
+        <p class="text-slate-700 mb-5">
+          The generated response used this template to provided guidance and structure.
+        </p>
+        <%= render 'examples/example_form', model: @model, example: @template, input_errors: [], output_errors: [], show_delete: false %>
       <% else %>
         <h1 class="text-2xl font-semibold text-slate-800">
           It's quiet here
