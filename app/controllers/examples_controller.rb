@@ -3,6 +3,7 @@ require "uri"
 
 class ExamplesController < ApplicationController
   before_action :authorize_account_has_model
+  include GeneratorConcern
 
   def index
     @examples = Example.where(model_id: @model.id).select(:id, :input, :output).order(id: :asc).all
@@ -26,12 +27,13 @@ class ExamplesController < ApplicationController
 
     if @example.save
       render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
-    else
-      @input_errors = @example.errors.full_messages_for(:input)
-      @output_errors = @example.errors.full_messages_for(:output)
-
-      render :new, status: :unprocessable_entity
+      return
     end
+
+    @input_errors = @example.errors.full_messages_for(:input)
+    @output_errors = @example.errors.full_messages_for(:output)
+
+    render :new, status: :unprocessable_entity
   end
 
   def edit
@@ -57,10 +59,13 @@ class ExamplesController < ApplicationController
       @output_errors = @example.errors.full_messages_for(:output)
 
       render :edit, status: :unprocessable_entity
+      return
     end
 
     if save_and_regenerate
       generate_and_show "i guess"
+      render "models/show", status: :see_other
+      return
     end
 
     render turbo_stream: [
