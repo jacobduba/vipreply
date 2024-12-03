@@ -9,10 +9,10 @@
       Edit templates
     <% end %>
   </div>
-  <div class="flex flex-wrap gap-8">
+  <div class="flex flex-wrap gap-8" data-controller="regenerate">
     <div class="w-full md:w-[calc(50%-1rem)]">
       <%= form_with url: model_generate_response_path(@model), method: :post do |form| %>
-        <%= form.text_area :query, placeholder: "Paste email you want to generate a response for...", required: true, value: @email, class: "block p-4 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+        <%= form.text_area :query, placeholder: "Paste email you want to generate a response for...", required: true, value: @email, data: { regenerate_target: "generateQueryField" }, class: "block p-4 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
         <%= form.submit "Generate response", class: "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg px-5 py-2.5 mt-4 mb-4 cursor-pointer" %>
       <% end %>
       <div class="rounded-lg bg-slate-50 p-5 border border-gray-300 text-sm" data-controller="clipboard">
@@ -43,9 +43,10 @@
           The generated response used this template to provided guidance and structure.
         </p>
         <% if @template %>
-          <%= form_with model: [@model, @template] do |form| %>
+          <%= form_with model: [@model, @template], data: { action: "regenerate#copyQueryToExampleForm"} do |form| %>
             <%= render 'examples/example_form_inputs', input_errors: [], output_errors: [], form: form %>
             <%= form.hidden_field :save_and_regenerate, value: true %>
+            <%= form.hidden_field :query, value: "Now i guess lol", data: { regenerate_target: "exampleQueryField" } %>
             <div class="flex gap-2">
               <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                 <svg class="me-1 -ms-1 w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

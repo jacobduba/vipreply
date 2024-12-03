@@ -63,7 +63,7 @@ class ExamplesController < ApplicationController
     end
 
     if save_and_regenerate
-      generate_and_show "i guess"
+      generate_and_show strong_params[:query]
       render "models/show", status: :see_other
       return
     end
@@ -87,6 +87,6 @@ class ExamplesController < ApplicationController
   private
 
   def example_params
-    params.require(:example).permit(:input, :output, :save_and_regenerate)
+    params.require(:example).permit(:input, :output, :save_and_regenerate, :query)
   end
 end
