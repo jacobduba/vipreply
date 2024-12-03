@@ -62,7 +62,7 @@ class ExamplesController < ApplicationController
       return
     end
 
-    if save_and_regenerate
+    if save_and_regenerate == "true"
       generate_and_show strong_params[:query]
       render "models/show", status: :see_other
       return
