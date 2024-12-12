@@ -12,7 +12,7 @@
   <div class="flex flex-wrap gap-8">
     <div class="w-full md:w-[calc(50%-1rem)]">
       <%= form_with url: model_generate_response_path(@model), method: :post do |form| %>
-        <%= form.text_area :query, placeholder: "Paste email you want to generate a response for...", required: true, value: @email, data: { regenerate_target: "generateQueryField" }, class: "block p-4 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+        <%= form.text_area :query, placeholder: "Paste email you want to generate a response for...", required: true, value: @email, data: { regenerate_target: "generateQueryField" }, id: "query_field", class: "block p-4 h-40 w-full text-sm text-slate-900 bg-slate-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
         <%= form.submit "Generate response", class: "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg px-5 py-2.5 mt-4 mb-4 cursor-pointer" %>
       <% end %>
       <%= render 'generated_response' %>

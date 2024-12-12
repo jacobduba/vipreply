@@ -74,8 +74,6 @@ class ExamplesController < ApplicationController
       return
     end
 
-    debugger
-
     if save_and_regenerate
       generate_and_show strong_params[:query]
       render "models/show", status: :see_other
