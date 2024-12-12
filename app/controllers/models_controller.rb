@@ -1,3 +1,5 @@
+require 'net/http'
+
 class ModelsController < ApplicationController
   before_action :authorize_account_has_model, except: [:index]
   include GeneratorConcern

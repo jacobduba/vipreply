@@ -37,7 +37,11 @@ class ExamplesController < ApplicationController
 
     if create_and_regenerate
       generate_and_show strong_params[:query]
-      render "models/show", status: :ok
+      # render "models/show", status: :ok
+      render turbo_stream: [
+        turbo_stream.replace("generated_response", partial: "models/generated_response"),
+        turbo_stream.replace("referenced_template_form", partial: "models/referenced_template_form")
+      ]
       return
     end
 
