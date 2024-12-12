@@ -4,7 +4,8 @@ export default class extends Controller {
   static targets = ["updateQueryField", "createQueryField"];
 
   copyQueryToUpdateForm() {
-    this.updateQueryFieldTarget.value = this.generateQueryFieldTarget.value;
+    this.updateQueryFieldTarget.value =
+      document.getElementById("query_field").value;
   }
 
   copyQueryToCreateForm() {

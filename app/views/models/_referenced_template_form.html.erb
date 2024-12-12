@@ -1,4 +1,4 @@
-<%= form_with model: [@model, @template], id: "referenced_template_form", data: { action: "regenerate#copyQueryToUpdateForm"} do |form| %>
+<%= form_with model: [@model, @template], id: "referenced_template_form", data: { controller: "regenerate", action: "regenerate#copyQueryToUpdateForm"} do |form| %>
   <%= render 'examples/example_form_inputs', input_errors: [], output_errors: [], form: form %>
   <%= form.hidden_field :save_and_regenerate, value: true %>
   <%= form.hidden_field :query, data: { regenerate_target: "updateQueryField" } %>
