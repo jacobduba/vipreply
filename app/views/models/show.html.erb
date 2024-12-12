@@ -43,10 +43,10 @@
           The generated response used this template to provided guidance and structure.
         </p>
         <% if @template %>
-          <%= form_with model: [@model, @template], data: { action: "regenerate#copyQueryToExampleForm"} do |form| %>
+          <%= form_with model: [@model, @template], data: { action: "regenerate#copyQueryToUpdateForm"} do |form| %>
             <%= render 'examples/example_form_inputs', input_errors: [], output_errors: [], form: form %>
             <%= form.hidden_field :save_and_regenerate, value: true %>
-            <%= form.hidden_field :query, data: { regenerate_target: "exampleQueryField" } %>
+            <%= form.hidden_field :query, data: { regenerate_target: "updateQueryField" } %>
             <div class="flex justify-between">
               <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
@@ -54,7 +54,7 @@
                 </svg>
                 Save changes and regenerate
               </button>
-              <%= link_to new_model_example_path(@model), data: { turbo_frame: "create_example_modal" }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
+              <%= link_to new_model_example_path(@model, regenerate: true), data: { turbo_frame: "create_example_modal" }, class: "text-white bg-green-700 hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 inline-flex items-center gap-2" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>

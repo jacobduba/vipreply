@@ -1,6 +1,3 @@
-require "net/http"
-require "uri"
-
 class ExamplesController < ApplicationController
   before_action :authorize_account_has_model
   include GeneratorConcern
@@ -10,30 +7,41 @@ class ExamplesController < ApplicationController
   end
 
   def new
+    regenerate_query = params[:regenerate]
+
     @example = Example.new
 
     @input_errors = []
     @output_errors = []
+
+    @regenerate = regenerate_query == "true"
   end
 
   def create
-    params_n = example_params
-    input = params_n[:input]
-    output = params_n[:output]
+    strong_params = example_params
+    input = strong_params[:input]
+    output = strong_params[:output]
+    create_and_regenerate = strong_params[:create_and_regenerate] && strong_params[:create_and_regenerate] == "true"
 
     input_embedding = helpers.fetch_embedding(input)
 
     @example = Example.new(input: input, output: output, input_embedding: input_embedding, model_id: @model.id)
 
-    if @example.save
-      render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
+    unless @example.save
+      @input_errors = @example.errors.full_messages_for(:input)
+      @output_errors = @example.errors.full_messages_for(:output)
+
+      render :new, status: :unprocessable_entity
       return
     end
 
-    @input_errors = @example.errors.full_messages_for(:input)
-    @output_errors = @example.errors.full_messages_for(:output)
+    if create_and_regenerate
+      generate_and_show strong_params[:query]
+      render "models/show", status: :ok
+      return
+    end
 
-    render :new, status: :unprocessable_entity
+    render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
   end
 
   def edit
@@ -49,7 +57,7 @@ class ExamplesController < ApplicationController
     strong_params = example_params
     input = strong_params[:input]
     output = strong_params[:output]
-    save_and_regenerate = strong_params[:save_and_regenerate]
+    save_and_regenerate = strong_params[:save_and_regenerate] && strong_params[:save_and_regenerate] == "true"
 
     input_embedding = helpers.fetch_embedding(input)
 
@@ -62,7 +70,9 @@ class ExamplesController < ApplicationController
       return
     end
 
-    if save_and_regenerate == "true"
+    debugger
+
+    if save_and_regenerate
       generate_and_show strong_params[:query]
       render "models/show", status: :see_other
       return
@@ -87,6 +97,6 @@ class ExamplesController < ApplicationController
   private
 
   def example_params
-    params.require(:example).permit(:input, :output, :save_and_regenerate, :query)
+    params.require(:example).permit(:input, :output, :save_and_regenerate, :query, :create_and_regenerate)
   end
 end
