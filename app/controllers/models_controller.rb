@@ -1,4 +1,4 @@
-require 'net/http'
+require "net/http"
 
 class ModelsController < ApplicationController
   before_action :authorize_account_has_model, except: [:index]
@@ -20,7 +20,4 @@ class ModelsController < ApplicationController
     # :see_other forces turbo to reload page
     render "show", status: :see_other
   end
-
-  private
-
 end

@@ -7,7 +7,7 @@ module GeneratorConcern
     neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
 
     example_prompts = neighbors.map do |neighbor|
-      "Template example recieved email:\n\n#{neighbor.input}\n\nTemplate response instructions:\n\n#{neighbor.output}\n\n"
+      "Example recieved email:\n\n#{neighbor.input}\n\nExample response email:\n\n#{neighbor.output}\n\n"
     end
 
     examples_for_prompt = example_prompts.join
@@ -37,8 +37,8 @@ module GeneratorConcern
           role: "system",
           content: <<~HEREDOC,
             You are a Customer Support Representative who answers emails.
-            You will be given a template containing a recieved template example email and instructions for responding to it.
-            Then you will given an email and you must generate a response for it using the instructions from the template.
+            You will be given a template containing a example recieved email and an example response email.
+            Then you will given an email and you must generate a response for it using the template.
             Write it in your own words!
             Be compassionate: emphasize with the customer.
             Include a salutation such as Hello or Greetings.
