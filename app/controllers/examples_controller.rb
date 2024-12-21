@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ExamplesController < ApplicationController
   before_action :authorize_account_has_model
   include GeneratorConcern
@@ -44,7 +46,7 @@ class ExamplesController < ApplicationController
       return
     end
 
-    render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: { example: @example })
+    render turbo_stream: turbo_stream.append("examples_collection", partial: "example", locals: {example: @example})
   end
 
   def edit
@@ -83,8 +85,8 @@ class ExamplesController < ApplicationController
     end
 
     render turbo_stream: [
-      turbo_stream.replace("example-#{@example.id}", partial: "example", locals: { example: @example }),
-      turbo_stream.remove("edit-example-modal"),
+      turbo_stream.replace("example-#{@example.id}", partial: "example", locals: {example: @example}),
+      turbo_stream.remove("edit-example-modal")
     ]
   end
 
@@ -94,7 +96,7 @@ class ExamplesController < ApplicationController
 
     render turbo_stream: [
       turbo_stream.remove("example-#{@example.id}"),
-      turbo_stream.remove("edit-example-modal"),
+      turbo_stream.remove("edit-example-modal")
     ]
   end
 

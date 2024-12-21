@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 module GeneratorConcern
   extend ActiveSupport::Concern
 
   def generate_and_show(query)
     embedding = helpers.fetch_embedding(query)
 
-    neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first(1)
+    neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding,
+      distance: "euclidean").first(1)
 
     example_prompts = neighbors.map do |neighbor|
       "Example recieved email:\n\n#{neighbor.input}\n\nExample response email:\n\n#{neighbor.output}\n\n"
@@ -28,14 +31,14 @@ module GeneratorConcern
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
       "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
-      "Content-Type" => "application/json",
+      "Content-Type" => "application/json"
     }
     data = {
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: <<~HEREDOC,
+          content: <<~HEREDOC
             You are a Customer Support Representative who answers emails.
             You will be given a template containing a example recieved email and an example response email.
             Then you will given an email and you must generate a response for it using the template.
@@ -47,13 +50,12 @@ module GeneratorConcern
         },
         {
           role: "user",
-          content: prompt,
-        },
-      ],
+          content: prompt
+        }
+      ]
     }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     JSON.parse(response.body)["choices"][0]["message"]["content"]
   end
-
 end
