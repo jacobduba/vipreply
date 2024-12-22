@@ -28,9 +28,11 @@ module GeneratorConcern
   private
 
   def fetch_generation(prompt)
+    openai_api_key = Rails.application.credentials.openai_api_key
+
     url = "https://api.openai.com/v1/chat/completions"
     headers = {
-      "Authorization" => "Bearer #{ENV.fetch("OPENAI_API_KEY")}",
+      "Authorization" => "Bearer #{openai_api_key}",
       "Content-Type" => "application/json"
     }
     data = {
