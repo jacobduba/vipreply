@@ -47,7 +47,7 @@ module GeneratorConcern
             Write it in your own words!
             Be compassionate: emphasize with the customer.
             Include a salutation such as Hello or Greetings.
-            Include a closing, such as Best regards or Kind regards."
+            DO NOT include a closing, such as Best regards or Kind regards."
           HEREDOC
         },
         {
