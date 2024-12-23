@@ -48,21 +48,39 @@ Things you may want to cover:
     bundle install
     ```
 
-5. Set up the database:
+4. Set up the master key (get it from a team member):
+    ```sh
+    touch config/master.key
+    chmod 600 config/master.key  # Set correct permissions
+    ```
+   Then paste the master key into `config/master.key` (never commit this file)
+
+5. Start Postgres:
+    ```sh
+    docker-compose up
+    ```
+
+6. In another terminal, set up the database:
     ```sh
     bin/rails db:setup
     ```
 
 ### Running the Application
 
-Start the Rails server:
-```sh
-bin/rails server
-```
+In three seperate terminals:
 
-Start TailwindCSS:
-```sh
-bin/rails tailwindcss:watch
-```
+1. Start Postgres
+    ```sh
+    docker-compose up
+    ```
+2. Start TailwindCSS:
+    ```sh
+    bin/rails tailwindcss:watch
+    ```
+
+3. Start the Rails server:
+    ```sh
+    bin/rails server
+    ```
 
 Visit `http://localhost:3000` in your browser to see the application running.
