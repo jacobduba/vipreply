@@ -20,4 +20,6 @@ Rails.application.routes.draw do
     resources :examples
     post "generate_response", to: "models#generate_response"
   end
+
+  get "inbox" => "inboxes#index"
 end
