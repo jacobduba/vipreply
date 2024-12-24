@@ -22,4 +22,8 @@ Rails.application.routes.draw do
   end
 
   get "inbox" => "inboxes#index"
+
+  # Routes for Google authentication
+  get "auth/:provider/callback", to: "sessions#googleAuth"
+  get "auth/failure", to: redirect("/")
 end
