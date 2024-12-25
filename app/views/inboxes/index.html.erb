@@ -14,5 +14,8 @@
   </div>
   <% if @no_inboxes %>
     <p>You don't have an inbox connected.</p>
+    <%= form_tag('/auth/google_oauth2', method: 'post', data: {turbo: false}) do %>
+      <button type='submit'>Connect google account</button>
+    <% end %>
   <% end %>
 </div>

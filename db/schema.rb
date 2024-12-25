@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_24_205815) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_25_035836) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -20,11 +20,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_24_205815) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "accounts_inboxes", id: false, force: :cascade do |t|
-    t.bigint "account_id", null: false
-    t.bigint "inbox_id", null: false
+    t.bigint "inbox_id"
+    t.index ["inbox_id"], name: "index_accounts_on_inbox_id"
   end
 
   create_table "accounts_models", id: false, force: :cascade do |t|
@@ -47,6 +44,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_24_205815) do
     t.string "refresh_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "account_id", null: false
+    t.index ["account_id"], name: "index_inboxes_on_account_id"
   end
 
   create_table "models", force: :cascade do |t|
@@ -55,5 +54,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_24_205815) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "accounts", "inboxes"
   add_foreign_key "examples", "models"
+  add_foreign_key "inboxes", "accounts"
 end

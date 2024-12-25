@@ -31,6 +31,16 @@ class SessionsController < ApplicationController
     redirect_to login_path
   end
 
+  def googleAuth
+    user_info = request.env["omniauth.auth"]
+
+    # @account
+
+    redirect "/inbox"
+  end
+
+  private
+
   def login_params
     params.require(:account).permit(:username, :password)
   end
