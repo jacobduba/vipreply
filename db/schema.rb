@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_25_041633) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_25_203936) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -23,7 +23,15 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_25_041633) do
     t.bigint "inbox_id"
     t.string "access_token"
     t.string "refresh_token"
+    t.string "provider"
+    t.string "uid"
+    t.string "email"
+    t.string "name"
+    t.string "first_name"
+    t.string "last_name"
+    t.datetime "expires_at"
     t.index ["inbox_id"], name: "index_accounts_on_inbox_id"
+    t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 
   create_table "accounts_models", id: false, force: :cascade do |t|

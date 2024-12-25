@@ -32,13 +32,19 @@ class SessionsController < ApplicationController
   end
 
   def googleAuth
+    # https://github.com/zquestz/omniauth-google-oauth2?tab=readme-ov-file#auth-hash
     user_info = request.env["omniauth.auth"]
 
-    # if @account.inbox
-    #   @account.inbox.update!(google_auth_token: user_info.credentials.token, google_refresh_token: user_info.credentials.refresh_token)
-    # else
-    #   @account.create_inbox!(google_auth_token: user_info.credentials.token)
-    # end
+    account = Account.find_by(provider: "google_oauth2", uid: user_info.credentials)
+
+    unless account
+      account.
+      session[:account_id] = @account.id
+      redirect_to "/inbox"
+      return
+    end
+
+    @account.update(account_token: user_info.credentials.token, refresh_token: user_info.credentials.refresh_token)
 
     redirect "/inbox"
   end

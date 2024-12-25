@@ -12,10 +12,9 @@
       </span>
     <% end %>
   </div>
-  <% if @no_inboxes %>
+  <% if @inbox %>
+    <p>Inbox connected.</p>
+  <% else %>
     <p>You don't have an inbox connected.</p>
-    <%= form_tag('/auth/google_oauth2', method: 'post', data: {turbo: false}) do %>
-      <button type='submit'>Connect google account</button>
-    <% end %>
   <% end %>
 </div>
