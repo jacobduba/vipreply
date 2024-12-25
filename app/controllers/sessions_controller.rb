@@ -34,7 +34,11 @@ class SessionsController < ApplicationController
   def googleAuth
     user_info = request.env["omniauth.auth"]
 
-    # @account
+    # if @account.inbox
+    #   @account.inbox.update!(google_auth_token: user_info.credentials.token, google_refresh_token: user_info.credentials.refresh_token)
+    # else
+    #   @account.create_inbox!(google_auth_token: user_info.credentials.token)
+    # end
 
     redirect "/inbox"
   end

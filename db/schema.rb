@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_25_035836) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_25_041633) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -21,6 +21,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_25_035836) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "inbox_id"
+    t.string "access_token"
+    t.string "refresh_token"
     t.index ["inbox_id"], name: "index_accounts_on_inbox_id"
   end
 
@@ -40,8 +42,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_25_035836) do
   end
 
   create_table "inboxes", force: :cascade do |t|
-    t.string "access_token"
-    t.string "refresh_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "account_id", null: false
