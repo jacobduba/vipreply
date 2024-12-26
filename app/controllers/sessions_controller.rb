@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "google/apis/gmail_v1"
+
 class SessionsController < ApplicationController
   skip_before_action :authorize_has_account
 
@@ -31,8 +33,6 @@ class SessionsController < ApplicationController
     account.first_name = auth_hash.info.first_name
     account.last_name = auth_hash.info.last_name
 
-    debugger
-
     begin
       account.save!
       setup_inbox account
@@ -51,7 +51,7 @@ class SessionsController < ApplicationController
     gmail = Google::Apis::GmailV1::GmailService.new
     gmail.authorization = account.google_credentials
     begin
-      puts gmail.list_user_threads
+      puts gmail.list_user_threads("me")
     rescue Google::Apis::AuthorizationError
       account.refresh_google_token!
       gmail.authorization = account.google_credentials

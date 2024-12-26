@@ -9,6 +9,7 @@ class Account < ApplicationRecord
   encrypts :access_token
   encrypts :refresh_token
 
+  # Will have to do this with auth
   def refresh_google_token!
     credentials = Google::Auth::UserRefreshCredentials.new(
       client_id: Rails.application.credentials.google_client_id,
