@@ -5,25 +5,6 @@ class SessionsController < ApplicationController
 
   def new
     redirect_to root_path if session[:account_id]
-
-    @account = Account.new
-  end
-
-  def create
-    params_n = login_params
-
-    @account = Account.find_by(username: params_n[:username])
-
-    if @account&.authenticate(params_n[:password])
-      session[:account_id] = @account.id
-      redirect_to root_path
-    else
-      @invalid_username_or_password = true
-      @username = params_n[:username]
-      @account = Account.new
-
-      render :new, status: :unprocessable_entity
-    end
   end
 
   def destroy
