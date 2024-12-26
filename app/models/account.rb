@@ -6,4 +6,6 @@ class Account < ApplicationRecord
   validates :provider, presence: true
   validates :uid, presence: true, uniqueness: {scope: :provider}
   validates :email, presence: true, format: {with: URI::MailTo::EMAIL_REGEXP}
+  encrypts :access_token
+  encrypts :refresh_token
 end

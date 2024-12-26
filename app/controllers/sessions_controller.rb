@@ -41,8 +41,9 @@ class SessionsController < ApplicationController
 
     account.provider = auth_hash.provider # google_oauth2
     account.uid = auth_hash.uid
-    account.access_token = auth_hash.credentials.access_token
-    account.refresh_token = auth_hash.credentials.refresh_token
+    account.access_token = auth_hash.credentials.token
+    # Refresh tokens are only given when the user consents (typically the first time) thus ||=
+    account.refresh_token ||= auth_hash.credentials.refresh_token
     account.expires_at = Time.at(auth_hash.credentials.expires_at)
     account.email = auth_hash.info.email
     account.name = auth_hash.info.name
