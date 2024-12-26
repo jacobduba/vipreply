@@ -31,8 +31,11 @@ class SessionsController < ApplicationController
     account.first_name = auth_hash.info.first_name
     account.last_name = auth_hash.info.last_name
 
+    debugger
+
     begin
       account.save!
+      setup_inbox account
       session[:account_id] = account.id
       redirect_to "/inbox"
     rescue ActiveRecord::RecordInvalid => e
@@ -42,6 +45,19 @@ class SessionsController < ApplicationController
   end
 
   private
+
+  def setup_inbox(account)
+    puts "setting up inbox"
+    gmail = Google::Apis::GmailV1::GmailService.new
+    gmail.authorization = account.google_credentials
+    begin
+      puts gmail.list_user_threads
+    rescue Google::Apis::AuthorizationError
+      account.refresh_google_token!
+      gmail.authorization = account.google_credentials
+      retry
+    end
+  end
 
   def login_params
     params.require(:account).permit(:auth_hashname, :password)
