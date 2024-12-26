@@ -33,25 +33,35 @@ class SessionsController < ApplicationController
 
   def googleAuth
     # https://github.com/zquestz/omniauth-google-oauth2?tab=readme-ov-file#auth-hash
-    user_info = request.env["omniauth.auth"]
+    auth_hash = request.env["omniauth.auth"]
 
-    account = Account.find_by(provider: "google_oauth2", uid: user_info.credentials)
+    account = Account.find_by(provider: auth_hash.provider, uid: auth_hash.uid)
 
-    unless account
-      account.
-      session[:account_id] = @account.id
+    account ||= Account.new
+
+    account.provider = auth_hash.provider # google_oauth2
+    account.uid = auth_hash.uid
+    account.access_token = auth_hash.credentials.access_token
+    account.refresh_token = auth_hash.credentials.refresh_token
+    account.expires_at = Time.at(auth_hash.credentials.expires_at)
+    account.email = auth_hash.info.email
+    account.name = auth_hash.info.name
+    account.first_name = auth_hash.info.first_name
+    account.last_name = auth_hash.info.last_name
+
+    begin
+      account.save!
+      session[:account_id] = account.id
       redirect_to "/inbox"
-      return
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error e
+      redirect_to "/login"
     end
-
-    @account.update(account_token: user_info.credentials.token, refresh_token: user_info.credentials.refresh_token)
-
-    redirect "/inbox"
   end
 
   private
 
   def login_params
-    params.require(:account).permit(:username, :password)
+    params.require(:account).permit(:auth_hashname, :password)
   end
 end
