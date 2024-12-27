@@ -27,6 +27,7 @@ Things you may want to cover:
 
 ### Prerequisites
 
+- Git
 - Docker (for PostgreSQL)
 
 ### Installation
@@ -65,6 +66,14 @@ Things you may want to cover:
     bin/rails db:setup
     ```
 
+### VSCode Extensions
+
+I highly recommend installing the following VS Code extensions:
+
+*   **Ruby LSP:** [https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp)
+
+*   **Standard:** [https://marketplace.visualstudio.com/items?itemName=testdouble.vscode-standard-ruby](https://marketplace.visualstudio.com/items?itemName=testdouble.vscode-standard-ruby)
+
 ### Running the Application
 
 In three seperate terminals:
@@ -73,6 +82,7 @@ In three seperate terminals:
     ```sh
     docker-compose up
     ```
+
 2. Start TailwindCSS:
     ```sh
     bin/rails tailwindcss:watch
