@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_26_024444) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_27_223137) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -54,8 +54,33 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_26_024444) do
     t.index ["account_id"], name: "index_inboxes_on_account_id"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.string "message_id"
+    t.datetime "date"
+    t.string "subject"
+    t.string "from"
+    t.string "to"
+    t.text "body"
+    t.bigint "topic_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["topic_id"], name: "index_messages_on_topic_id"
+  end
+
   create_table "models", force: :cascade do |t|
     t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "topics", force: :cascade do |t|
+    t.string "thread_id"
+    t.string "snippet"
+    t.text "messages"
+    t.datetime "date"
+    t.string "subject"
+    t.string "from"
+    t.string "to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -63,4 +88,5 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_26_024444) do
   add_foreign_key "accounts", "inboxes"
   add_foreign_key "examples", "models"
   add_foreign_key "inboxes", "accounts"
+  add_foreign_key "messages", "topics"
 end
