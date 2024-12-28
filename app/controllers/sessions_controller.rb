@@ -77,18 +77,19 @@ class SessionsController < ApplicationController
           if err
             puts "Error fetching thread #{thread[:id]}: #{err.message}"
           else
-            parse_batch_response(res, thread[:snippet], inbox)
+            cache_topic(res, thread[:snippet], inbox)
           end
         end
       end
     end
   end
 
-  def parse_batch_response(response_body, snippet, inbox)
+  def cache_topic(response_body, snippet, inbox)
     # Extract fields
     thread_id = response_body.id
     last_message = response_body.messages.last
     headers = last_message.payload.headers
+    messages = response_body.messages
 
     # Extract relevant fields
     date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
@@ -98,10 +99,9 @@ class SessionsController < ApplicationController
 
     # Save thread details
     begin
-      inbox.topics.create!(
+      topic = inbox.topics.create!(
         thread_id: thread_id,
         snippet: snippet,
-        messages: response_body.messages.map(&:id), # Store message IDs
         date: date,
         subject: subject,
         from: from,
@@ -109,7 +109,20 @@ class SessionsController < ApplicationController
       )
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error "Failed to save topic: #{e.message}"
+      return
     end
+
+    messages.each do |message|
+      cache_message(topic, message)
+    end
+  end
+
+  def cache_message(topic, message)
+    topic.messages.create!(
+      message_id: message.message_id,
+      internal_date: Time.at(message.internal_date / 1000).to_datetime
+    )
+  rescue ActiveRecord::RecordInvalid => each
   end
 
   def login_params

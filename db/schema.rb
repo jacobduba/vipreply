@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_28_042300) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_28_213917) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -58,10 +58,12 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_042300) do
     t.string "subject"
     t.string "from"
     t.string "to"
-    t.text "body"
     t.bigint "topic_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "internal_date"
+    t.text "plaintext"
+    t.text "html"
     t.index ["topic_id"], name: "index_messages_on_topic_id"
   end
 
@@ -74,7 +76,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_042300) do
   create_table "topics", force: :cascade do |t|
     t.string "thread_id"
     t.string "snippet"
-    t.text "messages"
     t.datetime "date"
     t.string "subject"
     t.string "from"
