@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_27_223137) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_28_042300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -18,7 +18,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_27_223137) do
   create_table "accounts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "inbox_id"
     t.string "access_token", limit: 1020
     t.string "refresh_token", limit: 1020
     t.string "provider"
@@ -28,7 +27,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_27_223137) do
     t.string "first_name"
     t.string "last_name"
     t.datetime "expires_at"
-    t.index ["inbox_id"], name: "index_accounts_on_inbox_id"
     t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 
@@ -83,10 +81,12 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_27_223137) do
     t.string "to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "inbox_id", null: false
+    t.index ["inbox_id"], name: "index_topics_on_inbox_id"
   end
 
-  add_foreign_key "accounts", "inboxes"
   add_foreign_key "examples", "models"
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "messages", "topics"
+  add_foreign_key "topics", "inboxes"
 end

@@ -1,3 +1,4 @@
 class Inbox < ApplicationRecord
-  has_one :accounts
+  belongs_to :account
+  has_many :topics, dependent: :destroy
 end

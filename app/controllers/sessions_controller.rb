@@ -36,19 +36,29 @@ class SessionsController < ApplicationController
 
     begin
       account.save!
-      setup_inbox account
-      session[:account_id] = account.id
-      redirect_to "/inbox"
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error e
       redirect_to "/login"
     end
+
+    # Supposed to only setup inbox if not setup...
+    # unless account.inbox
+    #   setup_inbox account
+    # end
+
+    # ... but for testing delete inbox and setup every time
+    account&.inbox&.destroy
+    setup_inbox account
+
+    session[:account_id] = account.id
+    redirect_to "/inbox"
   end
 
   private
 
   def setup_inbox(account)
     puts "Setting up inbox"
+    inbox = account.create_inbox
 
     # Initialize Gmail API client
     gmail_service = Google::Apis::GmailV1::GmailService.new
@@ -67,14 +77,14 @@ class SessionsController < ApplicationController
           if err
             puts "Error fetching thread #{thread[:id]}: #{err.message}"
           else
-            parse_batch_response(res, thread[:snippet])
+            parse_batch_response(res, thread[:snippet], inbox)
           end
         end
       end
     end
   end
 
-  def parse_batch_response(response_body, snippet)
+  def parse_batch_response(response_body, snippet, inbox)
     # Extract fields
     thread_id = response_body.id
     last_message = response_body.messages.last
@@ -88,7 +98,7 @@ class SessionsController < ApplicationController
 
     # Save thread details
     begin
-      Topic.create!(
+      inbox.topics.create!(
         thread_id: thread_id,
         snippet: snippet,
         messages: response_body.messages.map(&:id), # Store message IDs
