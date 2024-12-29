@@ -87,15 +87,17 @@ class SessionsController < ApplicationController
   def cache_topic(response_body, snippet, inbox)
     # Extract fields
     thread_id = response_body.id
+    first_message = response_body.messages.first
+    first_message_headers = first_message.payload.headers
     last_message = response_body.messages.last
-    headers = last_message.payload.headers
+    last_message_headers = last_message.payload.headers
     messages = response_body.messages
 
     # Extract relevant fields
-    date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
-    subject = headers.find { |h| h.name.downcase == "subject" }.value
-    from = headers.find { |h| h.name.downcase == "from" }.value
-    to = headers.find { |h| h.name.downcase == "to" }.value
+    date = DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value)
+    subject = first_message_headers.find { |h| h.name.downcase == "subject" }.value
+    from = last_message_headers.find { |h| h.name.downcase == "from" }.value
+    to = last_message_headers.find { |h| h.name.downcase == "to" }.value
 
     # Save thread details
     begin
