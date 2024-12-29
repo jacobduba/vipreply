@@ -1,4 +1,4 @@
-<div class="container mx-auto max-w-md pt-16 px-3 md:max-w-2xl md:px-0">
+<div class="container mx-auto pt-16 px-3">
   <div class="flex justify-between mb-6">
     <h1 class="text-4xl font-bold text-slate-800">Inbox</h1>
     <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-1.5 group/logout " do %>
@@ -13,7 +13,25 @@
     <% end %>
   </div>
   <% if @inbox %>
-    <p>Inbox connected.</p>
+    <ul class="divide-y divide-slate-300">
+      <% @topics.each do |topic| %>
+        <li class="py-2">
+          <%= link_to "#", class: "flex justify-between items-center gap-3 group/model" do %>
+            <div class="truncate">
+              <p class="text-slate-800 text-lg group-hover/model:text-blue-500 underline"><%= topic.subject %></p>
+              <p class="text-slate-500 group-hover/model:text-blue-500 truncate"><%= topic.from %> — <%= topic.snippet.html_safe %> </p>
+            </div>
+            <span class="text-slate-400 flex items-center group-hover/model:text-blue-500">
+              <% if topic.date.to_date == Date.today %>
+                <%= topic.date.strftime("%l:%M %p") %>
+              <% else %>
+                <%= topic.date.strftime("%b %d") %>
+              <% end %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
   <% else %>
     <p>You don't have an inbox connected.</p>
   <% end %>
