@@ -16,18 +16,20 @@
     <ul class="divide-y divide-slate-300">
       <% @topics.each do |topic| %>
         <li class="py-2">
-          <%= link_to "#", class: "flex justify-between items-center gap-3 group/model" do %>
-            <div class="truncate">
+          <%= link_to "#", class: "group/model" do %>
+            <div class="flex justify-between items-center gap-3">
               <p class="text-slate-800 text-lg group-hover/model:text-blue-500 underline"><%= topic.subject %></p>
+              <span class="text-slate-400 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
+                <% if topic.date.to_date == Date.today %>
+                  <%= topic.date.strftime("%l:%M %p") %>
+                <% else %>
+                  <%= topic.date.strftime("%b %d") %>
+                <% end %>
+              </span>
+            </div>
+            <div class="truncate">
               <p class="text-slate-500 group-hover/model:text-blue-500 truncate"><%= topic.from %> — <%= topic.snippet.html_safe %> </p>
             </div>
-            <span class="text-slate-400 flex items-center group-hover/model:text-blue-500">
-              <% if topic.date.to_date == Date.today %>
-                <%= topic.date.strftime("%l:%M %p") %>
-              <% else %>
-                <%= topic.date.strftime("%b %d") %>
-              <% end %>
-            </span>
           <% end %>
         </li>
       <% end %>
