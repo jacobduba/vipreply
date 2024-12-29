@@ -114,21 +114,82 @@ class SessionsController < ApplicationController
       return
     end
 
-    put("Adding messages")
-    # Todo use stuff from schema
-    # messages.each do |message|
-    #   cache_message(topic, message)
-    # end
+    puts("Adding messages")
+
+    messages.each do |message|
+      cache_message(topic, message)
+    end
   end
 
-  # def cache_message(topic, message)
-  #   topic.messages.create!(
-  #     message_id: message.message_id,
-  #     internal_date: Time.at(message.internal_date / 1000).to_datetime
-  #   )
-  # rescue ActiveRecord::RecordInvalid => e
-  #   Rails.logger.error "Failed to save message: #{e.message}"
-  # end
+  def cache_message(topic, message)
+    headers = message.payload.headers
+    message_id = message.id
+    date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
+    subject = headers.find { |h| h.name.downcase == "subject" }.value
+    from = headers.find { |h| h.name.downcase == "from" }.value
+    to = headers.find { |h| h.name.downcase == "to" }.value
+    internal_date = Time.at(message.internal_date / 1000).to_datetime
+
+    collected_parts = extract_parts(message.payload)
+
+    plaintext = collected_parts[:plain]
+    html = collected_parts[:html]
+    attachments = collected_parts[:attachments]
+
+    begin
+      msg = topic.messages.create!(
+        message_id: message_id,
+        date: date,
+        subject: subject,
+        from: from,
+        to: to,
+        internal_date: internal_date,
+        plaintext: plaintext,
+        html: html
+      )
+      attachments.each do |attachment|
+        msg.attachments.create!(
+          attachment_id: attachment[:attachment_id],
+          filename: attachment[:filename],
+          mime_type: attachment[:mime_type],
+          size: attachment[:size]
+        )
+      end
+    end
+  end
+
+  def extract_parts(part)
+    result = {
+      plain: nil,
+      html: nil,
+      attachments: []
+    }
+
+    if part.mime_type.start_with?("multipart/")
+      part.parts.each do |subpart|
+        subresult = extract_parts(subpart)
+        result[:plain] ||= subresult[:plain]
+        result[:html] ||= subresult[:html]
+        result[:attachments].concat(subresult[:attachments])
+      end
+    elsif part.mime_type == "text/plain"
+      result[:plain] = part.body.data
+    elsif part.mime_type == "text/html"
+      result[:html] = part.body.data
+    else
+      content_disposition = part.headers.find { |h| h.name == "Content-Disposition" }&.value
+      if content_disposition&.start_with?("attachment") || part.filename
+        result[:attachments] << {
+          attachment_id: part.body.attachment_id,
+          filename: part.filename,
+          mime_type: part.mime_type,
+          size: (part.body.size / 1024.0).round
+        }
+      end
+    end
+
+    result
+  end
 
   def login_params
     params.require(:account).permit(:auth_hashname, :password)

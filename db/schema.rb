@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_28_213917) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_29_221252) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -33,6 +33,17 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_213917) do
   create_table "accounts_models", id: false, force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "model_id", null: false
+  end
+
+  create_table "attachments", force: :cascade do |t|
+    t.string "attachment_id"
+    t.bigint "message_id", null: false
+    t.string "filename"
+    t.string "mime_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "size"
+    t.index ["message_id"], name: "index_attachments_on_message_id"
   end
 
   create_table "examples", force: :cascade do |t|
@@ -86,6 +97,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_213917) do
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
   end
 
+  add_foreign_key "attachments", "messages"
   add_foreign_key "examples", "models"
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "messages", "topics"

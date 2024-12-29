@@ -1,4 +1,4 @@
 class Topic < ApplicationRecord
   belongs_to :inbox
-  has_many :message, dependent: :destroy
+  has_many :messages, dependent: :destroy
 end
