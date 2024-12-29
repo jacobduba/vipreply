@@ -112,18 +112,21 @@ class SessionsController < ApplicationController
       return
     end
 
-    messages.each do |message|
-      cache_message(topic, message)
-    end
+    put("Adding messages")
+    # Todo use stuff from schema
+    # messages.each do |message|
+    #   cache_message(topic, message)
+    # end
   end
 
-  def cache_message(topic, message)
-    topic.messages.create!(
-      message_id: message.message_id,
-      internal_date: Time.at(message.internal_date / 1000).to_datetime
-    )
-  rescue ActiveRecord::RecordInvalid => each
-  end
+  # def cache_message(topic, message)
+  #   topic.messages.create!(
+  #     message_id: message.message_id,
+  #     internal_date: Time.at(message.internal_date / 1000).to_datetime
+  #   )
+  # rescue ActiveRecord::RecordInvalid => e
+  #   Rails.logger.error "Failed to save message: #{e.message}"
+  # end
 
   def login_params
     params.require(:account).permit(:auth_hashname, :password)
