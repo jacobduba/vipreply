@@ -13,7 +13,7 @@
     <% end %>
   </div>
   <% if @inbox %>
-    <h1 class="text-2xl font-bold text-slate-700 mt-7 mb-3">Needs Reply</h1>
+    <h1 class="text-2xl font-bold text-slate-700 mt-7 mb-1">Awaiting Reply</h1>
     <ul class="divide-y divide-slate-300">
       <% @to_do_topics.each do |topic| %>
         <li class="py-2">
@@ -35,7 +35,7 @@
         </li>
       <% end %>
     </ul>
-    <h1 class="text-2xl font-bold text-slate-500 mt-7 mb-3">Has Reply</h1>
+    <h1 class="text-2xl font-bold text-slate-500 mt-6 mb-1">Replied To</h1>
     <ul class="divide-y divide-slate-300">
       <% @done_topics.each do |topic| %>
         <li class="py-2">
