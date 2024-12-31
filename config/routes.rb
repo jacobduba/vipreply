@@ -7,23 +7,22 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", :as => :rails_health_check
 
-  # Defines the root path route ("/")
-  # root "responder#index"
-
   get "login" => "sessions#new", :as => :login
-  post "login" => "sessions#create"
+  # post "login" => "sessions#create"
   delete "logout" => "sessions#destroy"
+  # Routes for Google authentication
+  get "auth/:provider/callback", to: "sessions#googleAuth"
+  get "auth/failure", to: redirect("/")
 
-  root "models#index"
+  # root "models#index"
 
   resources :models do
     resources :examples
     post "generate_response", to: "models#generate_response"
   end
 
-  get "inbox" => "inboxes#index"
+  root "inboxes#index"
+  resources :templates
 
-  # Routes for Google authentication
-  get "auth/:provider/callback", to: "sessions#googleAuth"
-  get "auth/failure", to: redirect("/")
+  resources :templates
 end
