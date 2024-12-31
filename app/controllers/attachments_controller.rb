@@ -3,13 +3,13 @@
 require "google/apis/gmail_v1"
 
 class AttachmentsController < ApplicationController
-  before_action :set_account
+  before_action :initialize_gmail_service
 
   def show
-    # Find the attachment by ID
+    # Find the attachment by ID or return a 404 error page
     attachment = Attachment.find_by(id: params[:id])
 
-    if attachment.nil?
+    unless attachment
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
       return
     end
@@ -39,13 +39,7 @@ class AttachmentsController < ApplicationController
 
   private
 
-  def set_account
-    @account = Account.find(session[:account_id])
-    unless @account
-      redirect_to login_path, alert: "Please log in to access this resource."
-      return
-    end
-
+  def initialize_gmail_service
     @gmail_service = Google::Apis::GmailV1::GmailService.new
     @gmail_service.authorization = @account.google_credentials
   end
