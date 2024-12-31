@@ -65,6 +65,10 @@ class SessionsController < ApplicationController
     gmail_service.authorization = account.google_credentials
     user_id = "me"
 
+    # Fetch the user's profile to get the latest history_id
+    profile = gmail_service.get_user_profile(user_id)
+    inbox.update!(history_id: profile.history_id.to_i)
+
     # Fetch thread IDs with a single request
     threads_response = gmail_service.list_user_threads(user_id, max_results: 50)
     thread_info = threads_response.threads.map do |thread|
