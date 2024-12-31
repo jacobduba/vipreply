@@ -19,7 +19,19 @@
         <li class="py-2">
           <%= link_to "#", class: "group/model" do %>
             <div class="flex justify-between items-center gap-3">
-              <p class="text-slate-800 text-lg group-hover/model:text-blue-500 underline"><%= topic.subject %></p>
+              <div class="flex items-center gap-1">
+                <p class="text-slate-800 text-lg group-hover/model:text-blue-500 underline"><%= topic.subject %></p>
+                <% if topic.message_count > 1 %>
+                  <p class="text-slate-500 text-lg group-hover/model:text-blue-500">(<%= topic.message_count %>)</p>
+                <% end %>
+                <% if topic.attachments.size > 0%>
+                  <span class="text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                    </svg>
+                  </span>
+                <% end %>
+              </div>
               <span class="text-slate-400 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
                 <% if topic.date.to_date == Date.today %>
                   <%= topic.date.strftime("%l:%M %p") %>
@@ -29,7 +41,9 @@
               </span>
             </div>
             <div class="truncate">
-              <p class="text-slate-500 group-hover/model:text-blue-500 truncate"><%= topic.from %> — <%= topic.snippet.html_safe %> </p>
+              <p class="text-slate-500 group-hover/model:text-blue-500 truncate">
+                <%= topic.from == @account.email ? "Me → #{topic.to}" : topic.from %> — <%= topic.snippet.html_safe %>
+              </p>
             </div>
           <% end %>
         </li>
@@ -41,7 +55,19 @@
         <li class="py-2">
           <%= link_to "#", class: "group/model" do %>
             <div class="flex justify-between items-center gap-3">
-              <p class="text-slate-500 text-lg group-hover/model:text-blue-400 underline"><%= topic.subject %></p>
+              <div class="flex items-center gap-1">
+                <p class="text-slate-500 text-lg group-hover/model:text-blue-400 underline"><%= topic.subject %></p>
+                <% if topic.message_count > 1 %>
+                  <p class="text-slate-400 text-lg group-hover/model:text-blue-400">(<%= topic.message_count %>)</p>
+                <% end %>
+                <% if topic.attachments.size > 0%>
+                  <span class="text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 -ml-0.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" />
+                    </svg>
+                  </span>
+                <% end %>
+              </div>
               <span class="text-slate-400 flex items-center whitespace-nowrap group-hover/model:text-blue-400">
                 <% if topic.date.to_date == Date.today %>
                   <%= topic.date.strftime("%l:%M %p") %>
@@ -51,7 +77,9 @@
               </span>
             </div>
             <div class="truncate">
-              <p class="text-slate-400 group-hover/model:text-blue-400 truncate"><%= topic.from %> — <%= topic.snippet.html_safe %> </p>
+              <p class="text-slate-400 group-hover/model:text-blue-400 truncate">
+                <%= topic.from == @account.email ? "Me → #{topic.to}" : topic.from  %> — <%= topic.snippet.html_safe %>
+              </p>
             </div>
           <% end %>
         </li>
