@@ -1,0 +1,25 @@
+<%= turbo_frame_tag "create_template_modal" do %>
+  <div data-controller="turbo-modal regenerate" data-action="turbo:submit-end->turbo-modal#submitEnd" class="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50">
+    <div class="relative p-4 w-full max-w-lg max-h-full">
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+          <h3 class="text-lg font-semibold text-gray-900">
+            Create new template
+          </h3>
+          <button type="button" data-action="turbo-modal#hideModal" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-modal">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 23 23" stroke-width="1.5" stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <div class="p-4 md:p-5">
+          <%= render 'template_form', template: @template, input_errors: @input_errors, output_errors: @output_errors, show_delete: false %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

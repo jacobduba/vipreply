@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_31_194905) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_31_213916) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -85,6 +85,16 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_31_194905) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "templates", force: :cascade do |t|
+    t.text "input"
+    t.text "output"
+    t.vector "input_embedding", limit: 3072
+    t.bigint "inbox_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["inbox_id"], name: "index_templates_on_inbox_id"
+  end
+
   create_table "topics", force: :cascade do |t|
     t.string "thread_id"
     t.string "snippet"
@@ -104,5 +114,6 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_31_194905) do
   add_foreign_key "examples", "models"
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "messages", "topics"
+  add_foreign_key "templates", "inboxes"
   add_foreign_key "topics", "inboxes"
 end
