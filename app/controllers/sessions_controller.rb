@@ -162,6 +162,7 @@ class SessionsController < ApplicationController
           size: attachment[:size]
         )
       end
+      puts message.replace_cids_with_urls(request)
     end
   end
 
@@ -190,7 +191,7 @@ class SessionsController < ApplicationController
         cid = cid_header&.value
         result[:attachments] << {
           attachment_id: part.body.attachment_id,
-          content_id: cid ? "cid:" + cid[1..-2] + "\\" : nil,
+          content_id: cid ? "cid:" + cid[1..-2] : nil,
           filename: part.filename,
           mime_type: part.mime_type,
           size: (part.body.size / 1024.0).round
