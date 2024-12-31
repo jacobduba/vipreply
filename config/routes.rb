@@ -26,4 +26,6 @@ Rails.application.routes.draw do
   # Routes for Google authentication
   get "auth/:provider/callback", to: "sessions#googleAuth"
   get "auth/failure", to: redirect("/")
+
+  get "attachments/:id", to: "attachments#show", as: :attachment
 end

@@ -156,6 +156,7 @@ class SessionsController < ApplicationController
       attachments.each do |attachment|
         msg.attachments.create!(
           attachment_id: attachment[:attachment_id],
+          content_id: attachment[:content_id],
           filename: attachment[:filename],
           mime_type: attachment[:mime_type],
           size: attachment[:size]
@@ -185,8 +186,11 @@ class SessionsController < ApplicationController
     else
       content_disposition = part.headers.find { |h| h.name == "Content-Disposition" }&.value
       if content_disposition&.start_with?("attachment") || part.filename
+        cid_header = part.headers.find { |h| h.name == "Content-ID" }
+        cid = cid_header&.value
         result[:attachments] << {
           attachment_id: part.body.attachment_id,
+          content_id: cid ? "cid:" + cid[1..-2] + "\\" : nil,
           filename: part.filename,
           mime_type: part.mime_type,
           size: (part.body.size / 1024.0).round
