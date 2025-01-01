@@ -1,0 +1,16 @@
+<div class="container mx-auto pt-16 px-3">
+  <h1 class="text-4xl font-bold text-slate-800"><%= @topic.subject %></h1>
+  <p class="text-slate-600"><%= @topic.from %> to <%= @topic.to %></p>
+  <p class="text-slate-600"><%= @topic.date.strftime("%B %d, %Y %I:%M %p") %></p>
+  <div class="mt-6">
+    <% @messages.each do |message| %>
+      <div class="mb-4 p-4 border rounded-lg">
+        <p class="text-slate-800 font-bold"><%= message.from %> to <%= message.to %></p>
+        <p class="text-slate-600"><%= message.date.strftime("%B %d, %Y %I:%M %p") %></p>
+        <div class="mt-2">
+          <%= message.replace_cids_with_urls.html_safe %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

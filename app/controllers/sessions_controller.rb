@@ -51,13 +51,13 @@ class SessionsController < ApplicationController
     setup_inbox account
 
     session[:account_id] = account.id
-    redirect_to "/inbox"
+    redirect_to root_path
   end
 
   private
 
   def setup_inbox(account)
-    puts "Setting up inbox"
+    Rails.logger.info "Setting up inbox for #{account.email}."
     inbox = account.create_inbox
 
     # Initialize Gmail API client
@@ -79,7 +79,7 @@ class SessionsController < ApplicationController
       thread_info.each do |thread|
         gmail_service.get_user_thread("me", thread[:id]) do |res, err|
           if err
-            puts "Error fetching thread #{thread[:id]}: #{err.message}"
+            Rails.logger.error "Error fetching thread #{thread[:id]}: #{err.message}"
           else
             cache_topic(res, thread[:snippet], inbox)
           end
@@ -124,8 +124,6 @@ class SessionsController < ApplicationController
       return
     end
 
-    puts("Adding messages")
-
     messages.each do |message|
       cache_message(topic, message)
     end
@@ -166,7 +164,6 @@ class SessionsController < ApplicationController
           size: attachment[:size]
         )
       end
-      puts message.replace_cids_with_urls(request)
     end
   end
 
