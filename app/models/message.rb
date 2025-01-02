@@ -2,7 +2,7 @@ class Message < ApplicationRecord
   belongs_to :topic
   has_many :attachments, dependent: :destroy
 
-  def replace_cids_with_urls
+  def replace_cids_with_urls(host)
     return html unless html
 
     updated_html = html.dup
@@ -10,7 +10,7 @@ class Message < ApplicationRecord
     attachments.each do |attachment|
       next unless attachment.content_id
 
-      attachment_url = "/attachments/#{attachment.id}"
+      attachment_url = "#{host}/attachments/#{attachment.id}"
 
       updated_html.gsub!(attachment.content_id, attachment_url)
     end
