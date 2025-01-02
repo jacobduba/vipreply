@@ -3,16 +3,37 @@
   <h1 class="text-4xl font-bold text-slate-800"><%= @topic.subject %></h1>
   <p class="text-slate-600"><%= @topic.from %> to <%= @topic.to %></p>
   <p class="text-slate-600"><%= @topic.date.strftime("%B %d, %Y %I:%M %p") %></p>
-  <div class="mt-6">
-    <% @messages.each do |message| %>
-      <div class="mb-4 p-4 border rounded-lg">
-        <p class="text-slate-800 font-bold"><%= message.from %> to <%= message.to %></p>
-        <p class="text-slate-600"><%= message.date.strftime("%B %d, %Y %I:%M %p") %></p>
-        <div class="mt-2">
-          <%# <%= message.replace_cids_with_urls.html_safe %>
-          <%= simple_format(message.plaintext) %>
+  <div class="mt-6 flex flex-wrap gap-8">
+    <div class="w-full md:w-[calc(50%-1rem)]">
+      <% @messages.each do |message| %>
+        <div class="mb-4 p-4 border rounded-lg">
+          <p class="text-slate-800 font-bold"><%= message.from %> to <%= message.to %></p>
+          <p class="text-slate-600"><%= message.date.strftime("%B %d, %Y %I:%M %p") %></p>
+          <div class="mt-2">
+            <iframe 
+            srcdoc="<%= message.html %>" 
+            sandbox="allow-same-origin"
+            style="border: none; width: 100%; height: auto;">
+            </iframe>
+          </div>
         </div>
-      </div>
-    <% end %>
+      <% end %>
+    </div>
+    <div class="w-full md:w-[calc(50%-1rem)]">
+      <h1 class="text-2xl font-semibold text-slate-800">
+        Referenced template
+      </h1>
+      <p class="text-slate-700 mb-5">
+        The generated response used this template to provided guidance and structure.
+      </p>
+      <% if @template %>
+        <%= render "referenced_template_form" %>
+      <% else %>
+        <p class="text-slate-700 mb-5">
+          Model doesn't have any templates...
+          Add some!
+        </p>
+      <% end %>
+    </div>
   </div>
 </div>
