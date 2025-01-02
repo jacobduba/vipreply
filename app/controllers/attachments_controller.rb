@@ -22,19 +22,29 @@ class AttachmentsController < ApplicationController
     begin
       # Fetch the raw attachment data
       response = @gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
-      attachment_data = response.data
-
-      disposition_type = attachment.content_id ? "inline" : "attachment"
-
-      # Send the file to the browser
-      send_data attachment_data,
-        filename: attachment.filename,
-        type: attachment.mime_type,
-        disposition: disposition_type
+    rescue Signet::AuthorizationError
+      Rails.logger.info "Google access token is invalid, getting refresh token"
+      # Refresh token fails
+      unless @account.refresh_google_token!
+        reset_session
+        redirect_to login_path
+        return
+      end
+      retry
     rescue => e
-      puts e
+      Rails.logger.error e
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+      return
     end
+
+    attachment_data = response.data
+    disposition_type = attachment.content_id ? "inline" : "attachment"
+
+    # Send the file to the browser
+    send_data attachment_data,
+      filename: attachment.filename,
+      type: attachment.mime_type,
+      disposition: disposition_type
   end
 
   private

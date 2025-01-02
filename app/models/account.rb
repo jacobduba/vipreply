@@ -18,7 +18,11 @@ class Account < ApplicationRecord
       scope: ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
     )
 
-    credentials.refresh!
+    begin
+      credentials.refresh!
+    rescue Signet::AuthorizationError
+      return false
+    end
 
     update!(
       access_token: credentials.access_token,
