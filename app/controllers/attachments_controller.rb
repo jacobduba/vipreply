@@ -27,7 +27,8 @@ class AttachmentsController < ApplicationController
       # Refresh token fails
       unless @account.refresh_google_token!
         reset_session
-        redirect_to login_path
+        # Prompt for consent to get new refresh token
+        redirect_to login_path(refresh_token_expired: true)
         return
       end
       retry

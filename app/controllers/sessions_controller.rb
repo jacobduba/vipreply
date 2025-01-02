@@ -8,6 +8,17 @@ class SessionsController < ApplicationController
 
   def new
     redirect_to root_path if session[:account_id]
+
+    permitted_params = login_params
+
+    refresh_token_expired = permitted_params["refresh_token_expired"]
+
+    # we set refresh_token_expired when refresh token fails to get new refresh token
+    @oauth_url = if refresh_token_expired
+      "/auth/google_oauth2?prompt=consent"
+    else
+      "/auth/google_oauth2"
+    end
   end
 
   def destroy
@@ -204,6 +215,6 @@ class SessionsController < ApplicationController
   end
 
   def login_params
-    params.require(:account).permit(:auth_hashname, :password)
+    params.permit(:refresh_token_expired)
   end
 end

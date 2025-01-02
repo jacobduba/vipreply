@@ -21,6 +21,8 @@ class Account < ApplicationRecord
     begin
       credentials.refresh!
     rescue Signet::AuthorizationError
+      # Clear refresh token
+      update!(refresh_token: nil)
       return false
     end
 
