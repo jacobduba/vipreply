@@ -4,27 +4,31 @@ export default class extends Controller {
   static targets = ["iframe"];
 
   connect() {
-    console.log("Started")
-    this.setIframeHeight(); // Set height on page load
-    window.addEventListener("resize", this.setIframeHeight); // Adjust on resize
+    this.setAllIframeHeight(); // Set height on page load
+    window.addEventListener("resize", this.setAllIframeHeight); // Adjust on resize
     this.iframeTargets.forEach((iframe) => {
-      iframe.addEventListener("load", () => this.setIframeHeight);
+      console.log(iframe)
+      iframe.addEventListener("load", () => this.setIframeHeight(iframe));
     });
   }
 
   disconnect() {
-    window.removeEventListener("resize", this.setIframeHeight); // Clean up
+    window.removeEventListener("resize", this.setAllIframeHeight); // Clean up
     this.iframeTargets.forEach((iframe) => {
-      iframe.removeEventListener("load", () => this.setIframeHeight);
+      iframe.removeEventListener("load", () => this.setIframeHeight(iframe));
     })
   }
 
-  setIframeHeight = async () => {
+  setAllIframeHeight = async () => {
     this.iframeTargets.forEach((iframe) => {
-      const height = iframe.contentWindow.document.body.scrollHeight;
-
-      iframe.style.height = `${height}px`;
-      console.log(`Iframe height set to: ${height}px for`, iframe);
+      this.setIframeHeight(iframe);
     });
+  }
+
+  setIframeHeight = async (iframe) => {
+    const document = iframe.contentWindow.document;
+    const html = document.documentElement;
+    iframe.style.height = `${html.scrollHeight}px`;
+    console.log(`Iframe height set to: ${height}px for`, iframe);
   };
 }

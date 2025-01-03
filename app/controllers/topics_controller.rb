@@ -4,6 +4,10 @@ class TopicsController < ApplicationController
 
   def show
     @messages = @topic.messages.order(date: :asc)
+
+    # iframes are used to isolate email code
+    # Why??? I do not trust myself to securely sanitize emails
+    # More: https://security.stackexchange.com/questions/134520/why-dont-web-email-clients-put-emails-in-an-iframe
   end
 
   private
