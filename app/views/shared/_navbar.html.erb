@@ -1,5 +1,5 @@
-<nav>
-  <div class="flex flex-wrap items-center justify-between mx-auto py-4">
+<nav class="bg-gray-100">
+  <div class="flex flex-wrap items-center justify-between container mx-auto px-3 py-4">
     <span class="self-center text-xl font-semibold whitespace-nowrap text-slate-600">VipReply.ai</span>
     <%= link_to logout_path, data: { turbo_method: :delete }, class: "flex items-center gap-x-1.5 group/logout " do %>
       <span class="text-slate-500 group-hover/logout:text-red-400">
