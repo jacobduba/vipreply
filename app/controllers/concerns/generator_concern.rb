@@ -42,7 +42,7 @@ module GeneratorConcern
           role: "system",
           content: <<~HEREDOC
             You are a Customer Support Representative who answers emails.
-            You will be given a template containing a example recieved email and an example response email.
+            You will be given a template containing a example received email and an example response email.
             Then you will given an email and you must generate a response for it using the template.
             Write it in your own words!
             Be compassionate: emphasize with the customer.
