@@ -1,19 +1,18 @@
 <%= render 'shared/navbar' %>
-<div class="bg-gray-100 border-b border-gray-200">
-  <div class="container mx-auto px-3 flex gap-4 align-center text-slate-500">
-    <%= link_to root_path, class: "flex items-center pb-3" do %>
+<div class="bg-gray-100 border-b border-gray-200 min-h-[41px]">
+  <div class="container mx-auto px-3 flex align-center text-slate-500 divide-x divide-gray-300 pb-2">
+    <%= link_to root_path, class: "flex items-center bg-gray-50 border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg px-2 py-0.5 me-3" do %>
       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
       </svg>
       <p class="pl-2 font-medium">Inbox</p>
     <% end %>
-    <p class="font-semibold text-slate-800"><%= @topic.subject %></p>
+    <div>
+      <p class="text-lg text-slate-600 font-semibold ms-3"><%= @topic.subject %></p>
+    </div>
   </div>
 </div>
 <div class="container mx-auto px-3">
-  <h1 class="text-4xl font-bold text-slate-800"><%= @topic.subject %></h1>
-  <p class="text-slate-600"><%= @topic.from %> to <%= @topic.to %></p>
-  <p class="text-slate-600"><%= @topic.date.strftime("%B %d, %Y %I:%M %p") %></p>
   <div class="mt-6 flex flex-wrap gap-8">
     <div class="w-full md:w-[calc(50%-1rem)]" data-controller="iframe-resize">
       <% @messages.each do |message| %>
