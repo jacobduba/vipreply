@@ -16,10 +16,21 @@
   <div class="mt-6 flex flex-wrap gap-8">
     <div class="w-full md:w-[calc(50%-1rem)]" data-controller="iframe-resize">
       <% @messages.each do |message| %>
-        <div class="mb-4 p-4 border rounded-lg">
-          <p class="text-slate-800 font-bold"><%= message.from %> to <%= message.to %></p>
-          <p class="text-slate-600"><%= message.date.strftime("%B %d, %Y %I:%M %p") %></p>
-          <div class="mt-2">
+        <div class="mb-4 border border-gray-200 rounded shadow-gray-200 shadow-sm">
+          <div class="m-2">
+            <div class="flex justify-between">
+              <p class="text-slate-700 font-semibold"><%= message.from %></p>
+              <p class="text-slate-500">
+                <% if message.date.to_date == Date.today %>
+                  <%= message.date.strftime("%l:%M %p") %>
+                <% else %>
+                  <%= message.date.strftime("%b %d") %>
+                <% end %>
+              </p>
+            </div>
+            <p class="text-slate-500"> to <%= message.to %></p>
+          </div>
+          <div class="mt-2 border-t border-gray-200">
             <div class="text-center" data-iframe-resize-target="loader">
               <div role="status">
                 <svg aria-hidden="true" class="inline w-8 h-8 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -32,7 +43,7 @@
             <iframe 
               srcdoc="<%= message.replace_cids_with_urls request.base_url %>" 
               sandbox="allow-same-origin"
-              class="border-none; w-full hidden"
+              class="w-full hidden rounded-b"
               data-iframe-resize-target="iframe">
             </iframe>
           </div>
