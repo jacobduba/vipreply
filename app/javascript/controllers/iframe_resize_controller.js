@@ -11,6 +11,10 @@ export default class extends Controller {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
       });
+      if (iframe.contentWindow?.document.readyState === 'complete') {
+        this.hideLoaderShowIframe(index);
+        this.setIframeHeight(iframe);
+      }
     });
   }
 
@@ -37,6 +41,5 @@ export default class extends Controller {
     const html = document.documentElement;
     const height = html.scrollHeight
     iframe.style.height = `${height}px`;
-    console.log(`Iframe height set to: ${height}px for`, iframe);
   };
 }
