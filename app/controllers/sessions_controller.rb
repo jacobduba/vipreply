@@ -59,7 +59,7 @@ class SessionsController < ApplicationController
     # end
 
     # ... but for testing delete inbox and setup every time
-    account&.inbox&.destroy
+    # account&.inbox&.destroy
     setup_inbox account
 
     session[:account_id] = account.id

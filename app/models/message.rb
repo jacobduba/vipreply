@@ -17,4 +17,15 @@ class Message < ApplicationRecord
 
     updated_html
   end
+
+  def to_s
+    <<~HEREDOC
+      Date: #{date}
+      From: #{from}
+      To: #{to}
+      Subject: #{subject}
+
+      #{plaintext}
+    HEREDOC
+  end
 end

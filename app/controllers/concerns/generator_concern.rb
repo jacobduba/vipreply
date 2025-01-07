@@ -3,10 +3,29 @@
 module GeneratorConcern
   extend ActiveSupport::Concern
 
-  def generate_and_show(query)
-    embedding = helpers.fetch_embedding(query)
+  def fetch_embedding(input)
+    openai_api_key = Rails.application.credentials.openai_api_key
 
-    neighbors = Example.where(model_id: @model.id).nearest_neighbors(:input_embedding, embedding,
+    url = "https://api.openai.com/v1/embeddings"
+    headers = {
+      "Authorization" => "Bearer #{openai_api_key}",
+      "Content-Type" => "application/json"
+    }
+    data = {
+      input: input,
+      model: "text-embedding-3-large"
+    }
+
+    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
+    JSON.parse(response.body)["data"][0]["embedding"]
+  end
+
+  def gen_reply(message, inbox)
+    message_str = message.to_s
+
+    embedding = fetch_embedding(message_str)
+
+    neighbors = inbox.templates.nearest_neighbors(:input_embedding, embedding,
       distance: "euclidean").first(1)
 
     example_prompts = neighbors.map do |neighbor|
@@ -14,15 +33,20 @@ module GeneratorConcern
     end
 
     examples_for_prompt = example_prompts.join
-    email_for_prompt = "Email:\n\n#{query}\n\nResponse:\n\n"
+    email_for_prompt = "Email:\n\n#{message}\n\nResponse:\n\n"
 
     prompt = "#{examples_for_prompt}#{email_for_prompt}"
 
     puts prompt
 
-    @email = query
-    @response = fetch_generation(prompt)
-    @template = neighbors[0]
+    reply = fetch_generation(prompt)
+    first_template = neighbors[0]
+
+    {
+      email: message_str,
+      reply: reply,
+      template: first_template
+    }
   end
 
   private
@@ -36,7 +60,7 @@ module GeneratorConcern
       "Content-Type" => "application/json"
     }
     data = {
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",

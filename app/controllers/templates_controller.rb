@@ -24,7 +24,7 @@ class TemplatesController < ApplicationController
     output = strong_params[:output]
     create_and_regenerate = strong_params[:create_and_regenerate] && strong_params[:create_and_regenerate] == "true"
 
-    input_embedding = helpers.fetch_embedding(input)
+    input_embedding = fetch_embedding(input)
 
     @template = @account.inbox.templates.new(input: input, output: output, input_embedding: input_embedding)
 

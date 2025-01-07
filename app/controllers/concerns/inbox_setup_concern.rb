@@ -1,5 +1,6 @@
 module InboxSetupConcern
   extend ActiveSupport::Concern
+  include GeneratorConcern
 
   included do
     private
@@ -75,8 +76,13 @@ module InboxSetupConcern
       messages.each do |message|
         cache_message(topic, message)
       end
+
+      newest_message = topic.messages.order(date: :desc).first
+      gen_reply_map = gen_reply(newest_message, inbox)
+      topic.update!(generated_reply: gen_reply_map[:reply], template: gen_reply_map[:template])
     end
 
+    # Returns Message
     def cache_message(topic, message)
       headers = message.payload.headers
       message_id = message.id
@@ -113,6 +119,8 @@ module InboxSetupConcern
           )
         end
       end
+
+      msg
     end
 
     def extract_parts(part)

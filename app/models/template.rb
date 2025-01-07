@@ -9,6 +9,7 @@ class Template < ApplicationRecord
   validates :input, uniqueness: true, length: {in: 3..MAX_INPUT_OUTPUT_SIZE}
   validates :output, length: {in: 3..MAX_INPUT_OUTPUT_SIZE}
   belongs_to :inbox
+  has_many :topics
 
   def to_s
     "Template[input: '#{input}', output: '#{output}']"
