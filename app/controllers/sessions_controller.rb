@@ -53,14 +53,13 @@ class SessionsController < ApplicationController
       redirect_to "/login"
     end
 
-    # Supposed to only setup inbox if not setup...
-    # unless account.inbox
-    #   setup_inbox account
-    # end
+    unless account.inbox
+      account.create_inbox
+    end
 
-    # ... but for testing delete inbox and setup every time
-    # account&.inbox&.destroy
-    setup_inbox account
+    # Delete all topics and repopulate.
+    # Will only happen when creating inbox... but we're testing rn
+    setup_inbox account.inbox
 
     session[:account_id] = account.id
     redirect_to root_path

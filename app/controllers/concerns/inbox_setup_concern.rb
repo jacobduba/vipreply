@@ -5,9 +5,12 @@ module InboxSetupConcern
   included do
     private
 
-    def setup_inbox(account)
+    def setup_inbox(inbox)
+      account = inbox.account
+
       Rails.logger.info "Setting up inbox for #{account.email}."
-      inbox = account.create_inbox
+
+      inbox.topics.destroy_all
 
       # Initialize Gmail API client
       gmail_service = Google::Apis::GmailV1::GmailService.new
