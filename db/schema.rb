@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_31_224630) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_07_204943) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -108,7 +108,10 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_31_224630) do
     t.bigint "inbox_id", null: false
     t.boolean "do_not_reply"
     t.integer "message_count"
+    t.bigint "template_id"
+    t.string "generated_email"
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
+    t.index ["template_id"], name: "index_topics_on_template_id"
   end
 
   add_foreign_key "attachments", "messages"
@@ -117,4 +120,5 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_31_224630) do
   add_foreign_key "messages", "topics"
   add_foreign_key "templates", "inboxes"
   add_foreign_key "topics", "inboxes"
+  add_foreign_key "topics", "templates"
 end

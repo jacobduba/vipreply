@@ -56,6 +56,9 @@ gem "omniauth"
 gem "omniauth-rails_csrf_protection"
 gem "omniauth-google-oauth2"
 
+# For interacting with Gmail api
+gem "google-api-client", "~> 0.53.0"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows]
@@ -71,6 +74,10 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+
+  # Run ruby-lsp within bundle context
+  # More on that here https://zed.dev/docs/languages/ruby#setting-up-ruby-lsp
+  gem "ruby-lsp"
 end
 
 group :test do
@@ -78,5 +85,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-gem "google-api-client", "~> 0.53.0"
