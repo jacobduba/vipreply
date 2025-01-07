@@ -60,7 +60,7 @@ module GeneratorConcern
       "Content-Type" => "application/json"
     }
     data = {
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
