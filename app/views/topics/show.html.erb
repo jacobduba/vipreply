@@ -1,6 +1,6 @@
 <%= render 'shared/navbar' %>
-<div class="bg-gray-100 border-b border-gray-200 min-h-[41px]">
-  <div class="container mx-auto px-3 flex align-center text-slate-500 divide-x divide-gray-300 pb-2">
+<div class="bg-gray-100 border-b border-gray-200 min-h-[41px] sticky top-0 z-10">
+  <div class="container mx-auto px-3 py-2 flex align-center text-slate-500 divide-x divide-gray-300">
     <%= link_to root_path, class: "flex items-center bg-gray-50 border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg px-2 py-0.5 me-3" do %>
       <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
@@ -65,7 +65,7 @@
         </ul>
       </div>
     </div>
-    <div class="flex flex-wrap gap-8">
+    <div class="flex flex-wrap gap-8 mb-4">
       <div class="w-full mt-6 md:w-[calc(50%-1rem)]">
         <%= form.label :output, "Example response email", class: "block text-sm font-medium text-gray-900 mb-2" %>
         <%= form.text_area :output, rows: 6, placeholder: "Write a template response email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
