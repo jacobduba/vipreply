@@ -9,6 +9,9 @@ class TopicsController < ApplicationController
     # Why??? I do not trust myself to securely sanitize emails
     # Yes. this makes the user experience worse
     # More: https://security.stackexchange.com/a/134587
+
+    @template = @topic.template
+    @generated_reply = @topic.generated_reply
   end
 
   private
