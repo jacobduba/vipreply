@@ -15,18 +15,16 @@
 <div class="container mx-auto px-3">
   <%= form_with model: [@template], id: "referenced_template_form", data: { controller: "regenerate", action: "regenerate#copyQueryToUpdateForm"} do |form| %>
     <div class="mt-2 flex flex-wrap gap-8">
-      <div class="w-full md:w-[calc(50%-1rem)] relative flex flex-col">
+      <div class="w-full md:w-[calc(50%-1rem)] relative flex flex-col" id="template">
         <div class="flex-1"></div>
-        <div class="sticky bottom-4">
-          <h1 class="text-2xl font-semibold text-slate-800">
-            Referenced template
-          </h1>
-          <p class="text-slate-700 mb-5">
-            The generated response used this template to provided guidance and structure.
-          </p>
-          <%= form.label :input, "Example recieved email", class: "block text-sm font-medium text-gray-900 mb-2" %>
-          <%= form.text_area :input, rows: 6, placeholder: "Write a template recieved email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
-        </div>
+        <h1 class="text-2xl font-semibold text-slate-800">
+          Referenced template
+        </h1>
+        <p class="text-slate-700 mb-5">
+          The generated response used this template to provided guidance and structure.
+        </p>
+        <%= form.label :input, "Example recieved email", class: "block text-sm font-medium text-gray-900 mb-2" %>
+        <%= form.text_area :input, rows: 6, placeholder: "Write a template recieved email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
       </div>
       <div class="w-full md:w-[calc(50%-1rem)] mt-auto" data-controller="iframe-resize">
         <ul class="divide-y divide-y-gray-300">
@@ -65,7 +63,7 @@
         </ul>
       </div>
     </div>
-    <div class="flex flex-wrap gap-8 mb-4">
+    <div class="flex flex-wrap gap-8 mb-96 pb-96">
       <div class="w-full mt-6 md:w-[calc(50%-1rem)]">
         <%= form.label :output, "Example response email", class: "block text-sm font-medium text-gray-900 mb-2" %>
         <%= form.text_area :output, rows: 6, placeholder: "Write a template response email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
