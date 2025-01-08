@@ -15,8 +15,9 @@
 <div class="container mx-auto px-3">
   <%= form_with model: [@template], id: "referenced_template_form", data: { controller: "regenerate", action: "regenerate#copyQueryToUpdateForm"} do |form| %>
     <div class="mt-2 flex flex-wrap gap-8">
-      <div class="w-full md:w-[calc(50%-1rem)] relative">
-        <div class="sticky top-4">
+      <div class="w-full md:w-[calc(50%-1rem)] relative flex flex-col">
+        <div class="flex-1"></div>
+        <div class="sticky bottom-4">
           <h1 class="text-2xl font-semibold text-slate-800">
             Referenced template
           </h1>
