@@ -30,4 +30,8 @@ Rails.application.routes.draw do
   resources :topics
 
   get "attachments/:id", to: "attachments#show", as: :attachment
+
+  get 'update', to: 'inboxes#update'
+
+  post '/pubsub/notifications', to: 'pubsub#notifications'
 end
