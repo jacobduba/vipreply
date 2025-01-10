@@ -66,13 +66,67 @@ Things you may want to cover:
     bin/rails db:setup
     ```
 
-### VSCode Extensions
+### VSCode Setup
 
-I highly recommend installing the following VS Code extensions:
 
-*   **Ruby LSP:** [https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp)
+Install **Ruby LSP:** [https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp)
 
-*   **Standard:** [https://marketplace.visualstudio.com/items?itemName=testdouble.vscode-standard-ruby](https://marketplace.visualstudio.com/items?itemName=testdouble.vscode-standard-ruby)
+Add this to your `settings.json` to use StandardRB as the formatter and linter:
+```json
+{
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp"
+  },
+  "rubyLsp.formatter": "standard",
+  "rubyLsp.linters": [
+    "standard"
+  ]
+}
+```
+
+### Zed Setup
+
+If you're using Zed, you can configure Ruby LSP with StandardRB formating for Ruby and HTMLBeautifier linting for ERB with:
+
+```sh
+gem install ruby-lsp htmlbeautifier
+```
+
+```json
+{
+  "languages": {
+    "HTML": {
+      "tab_size": 2
+    },
+    "ERB": {
+      "format_on_save": "on",
+      "tab_size": 2,
+      "formatter": {
+        "external": {
+          "command": "htmlbeautifier",
+          "arguments": []
+        }
+      }
+    },
+    "Ruby": {
+      "language_servers": ["ruby-lsp", "!solargraph", "!rubocop"],
+      "formatter": "language_server",
+      "format_on_save": "on"
+    }
+  },
+  "lsp": {
+    "ruby-lsp": {
+      "initialization_options": {
+        "enabledFeatures": {
+          "diagnostics": false,
+          "formatting": true
+        },
+        "formatter": "standard"
+      }
+    }
+  }
+}
+```
 
 ### Running the Application
 

@@ -63,7 +63,7 @@ class TemplatesController < ApplicationController
     output = strong_params[:output]
     save_and_regenerate = strong_params[:save_and_regenerate] && strong_params[:save_and_regenerate] == "true"
 
-    input_embedding = helpers.fetch_embedding(input)
+    input_embedding = fetch_embedding(input)
 
     unless @template.update(input: input, output: output, input_embedding: input_embedding)
       @input_errors = @template.errors.full_messages_for(:input)
