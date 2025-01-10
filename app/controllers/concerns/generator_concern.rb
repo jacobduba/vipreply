@@ -20,7 +20,8 @@ module GeneratorConcern
     JSON.parse(response.body)["data"][0]["embedding"]
   end
 
-  def gen_reply(message, inbox)
+  def gen_reply(topic, inbox)
+    message = topic.messages.order(date: :desc).first # Newest message
     message_str = message.to_s
 
     embedding = fetch_embedding(message_str)
@@ -37,10 +38,10 @@ module GeneratorConcern
 
     prompt = "#{examples_for_prompt}#{email_for_prompt}"
 
-    puts prompt
-
     reply = fetch_generation(prompt)
     first_template = neighbors[0]
+
+    topic.update!(generated_reply: reply, template: first_template) # Cache result in DB
 
     {
       email: message_str,

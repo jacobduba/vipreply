@@ -80,9 +80,7 @@ module InboxSetupConcern
         cache_message(topic, message)
       end
 
-      newest_message = topic.messages.order(date: :desc).first
-      gen_reply_map = gen_reply(newest_message, inbox)
-      topic.update!(generated_reply: gen_reply_map[:reply], template: gen_reply_map[:template])
+      gen_reply(topic, inbox)
     end
 
     # Returns Message

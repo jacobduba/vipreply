@@ -61,7 +61,7 @@ class TemplatesController < ApplicationController
     strong_params = template_params
     input = strong_params[:input]
     output = strong_params[:output]
-    save_and_regenerate = strong_params[:save_and_regenerate] && strong_params[:save_and_regenerate] == "true"
+    regenerate_reply = strong_params[:regenerate_reply] == "true"
 
     input_embedding = fetch_embedding(input)
 
@@ -74,11 +74,15 @@ class TemplatesController < ApplicationController
       return
     end
 
-    if save_and_regenerate
-      generate_and_show strong_params[:query]
+    if regenerate_reply
+      topic_id = strong_params[:topic_id]
+
+      topic = Topic.find(topic_id)
+      reply = gen_reply(topic, @account.inbox)[:reply]
+
       render turbo_stream: [
-        turbo_stream.replace("generated_response", partial: "models/generated_response"),
-        turbo_stream.replace("referenced_template_form", partial: "models/referenced_template_form")
+        turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {template: @template, generated_reply: reply}),
+        turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic_id: topic_id})
       ]
       return
     end
@@ -102,6 +106,6 @@ class TemplatesController < ApplicationController
   private
 
   def template_params
-    params.require(:template).permit(:input, :output, :save_and_regenerate, :query, :create_and_regenerate)
+    params.require(:template).permit(:input, :output, :topic_id, :regenerate_reply)
   end
 end
