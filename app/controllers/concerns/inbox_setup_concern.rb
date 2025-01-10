@@ -94,6 +94,7 @@ module InboxSetupConcern
       from = headers.find { |h| h.name.downcase == "from" }.value
       to = headers.find { |h| h.name.downcase == "to" }.value
       internal_date = Time.at(message.internal_date / 1000).to_datetime
+      snippet = message.snippet
 
       collected_parts = extract_parts(message.payload)
 
@@ -110,7 +111,8 @@ module InboxSetupConcern
           to: to,
           internal_date: internal_date,
           plaintext: plaintext,
-          html: html
+          html: html,
+          snippet: snippet
         )
         attachments.each do |attachment|
           msg.attachments.create!(

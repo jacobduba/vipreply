@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["iframe", "loader"];
+  static targets = ["iframe", "loader", "lastMessage"];
 
   connect() {
     this.setAllIframeHeight();
@@ -10,10 +10,12 @@ export default class extends Controller {
       iframe.addEventListener("load", () => {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
+        this.lastMessageTarget.scrollIntoView();
       });
-      if (iframe.contentWindow?.document.readyState === 'complete') {
+      if (iframe.contentWindow?.document.readyState === "complete") {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
+        this.lastMessageTarget.scrollIntoView();
       }
     });
   }
@@ -22,24 +24,24 @@ export default class extends Controller {
     window.removeEventListener("resize", this.setAllIframeHeight);
     this.iframeTargets.forEach((iframe) => {
       iframe.removeEventListener("load", () => this.setIframeHeight(iframe));
-    })
+    });
   }
 
   setAllIframeHeight = async () => {
     this.iframeTargets.forEach((iframe) => {
       this.setIframeHeight(iframe);
     });
-  }
+  };
 
   hideLoaderShowIframe = async (index) => {
     this.loaderTargets[index].style.display = "none";
     this.iframeTargets[index].style.display = "block";
-  }
+  };
 
   setIframeHeight = async (iframe) => {
     const document = iframe.contentWindow.document;
     const html = document.documentElement;
-    const height = html.scrollHeight
+    const height = html.scrollHeight;
     iframe.style.height = `${height}px`;
   };
 }
