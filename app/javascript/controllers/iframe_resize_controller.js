@@ -10,12 +10,12 @@ export default class extends Controller {
       iframe.addEventListener("load", () => {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
-        this.lastMessageTarget.scrollIntoView();
+        this.scrollToLastMessage();
       });
       if (iframe.contentWindow?.document.readyState === "complete") {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
-        this.lastMessageTarget.scrollIntoView();
+        this.scrollToLastMessage();
       }
     });
   }
@@ -36,6 +36,16 @@ export default class extends Controller {
   hideLoaderShowIframe = async (index) => {
     this.loaderTargets[index].style.display = "none";
     this.iframeTargets[index].style.display = "block";
+  };
+
+  scrollToLastMessage = async () => {
+    // I want to show a little of the previous message so the user knows there is more above
+    const distFromTop = 80;
+    const elementPosition =
+      this.lastMessageTarget.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({
+      top: elementPosition - distFromTop,
+    });
   };
 
   setIframeHeight = async (iframe) => {
