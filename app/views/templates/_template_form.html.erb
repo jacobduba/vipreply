@@ -1,4 +1,4 @@
-<%= form_with model: [template], data: (@regenerate ? { action: "regenerate#copyQueryToCreateForm" } : {}) do |form| %>
+<%= form_with model: [template] do |form| %>
   <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
     <div class="col-span-2">
       <%= form.label :input, "Template recieved email", class: ["block text-sm font-medium text-gray-900", (input_errors.empty? ? "mb-2" : "text-red-800")] %>
@@ -19,8 +19,10 @@
       <%= form.text_area :output, rows: 6, placeholder: "Write a template response email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
     </div>
   </div>
-  <%= form.hidden_field :query, data: { regenerate_target: "createQueryField" } %>
-  <%= form.hidden_field :create_and_regenerate, value: @regenerate %>
+  <%= form.hidden_field :regenerate_reply, value: @regenerate_reply %>
+  <% if @regenerate_reply %>
+    <%= form.hidden_field :topic_id, value: @topic_id %>
+  <% end %>
   <div class="flex gap-2">
     <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
       <% if @regenerate %>

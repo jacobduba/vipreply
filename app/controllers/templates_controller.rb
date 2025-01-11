@@ -8,21 +8,20 @@ class TemplatesController < ApplicationController
   end
 
   def new
-    regenerate_query = params[:regenerate]
-
     @template = Template.new
 
     @input_errors = []
     @output_errors = []
 
-    @regenerate = regenerate_query == "true"
+    @regenerate_reply = params[:regenerate_reply] == "true"
+    @topic_id = params[:topic_id]
   end
 
   def create
     strong_params = template_params
     input = strong_params[:input]
     output = strong_params[:output]
-    create_and_regenerate = strong_params[:create_and_regenerate] && strong_params[:create_and_regenerate] == "true"
+    regenerate_reply = strong_params[:regenerate_reply] == "true"
 
     input_embedding = fetch_embedding(input)
 
@@ -32,15 +31,24 @@ class TemplatesController < ApplicationController
       @input_errors = @template.errors.full_messages_for(:input)
       @output_errors = @template.errors.full_messages_for(:output)
 
+      @regenerate_reply = regenerate_reply
+      if @regenerate_reply
+        @topic_id = strong_params[:topic_id]
+      end
+
       render :new, status: :unprocessable_entity
       return
     end
 
-    if create_and_regenerate
-      generate_and_show strong_params[:query]
+    if regenerate_reply
+      topic_id = strong_params[:topic_id]
+
+      topic = Topic.find(topic_id)
+      reply = gen_reply(topic, @account.inbox)[:reply]
+
       render turbo_stream: [
-        turbo_stream.replace("generated_response", partial: "models/generated_response"),
-        turbo_stream.replace("referenced_template_form", partial: "models/referenced_template_form")
+        turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {template: @template, generated_reply: reply}),
+        turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic_id: topic_id})
       ]
       return
     end
