@@ -1,4 +1,4 @@
-<%= form_with model: [template], id: "generated_reply_form" do |form| %>
+<%= form_with model: [topic], id: "generated_reply_form" do |form| %>
   <%= form.label :email, "Generated reply", class: "block text-sm font-medium text-gray-900 mb-2" %>
   <%= form.text_area :email, rows: 6, value: generated_reply, placeholder: "Write a template recieved email here", class: "block p-4 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
   <div class="flex justify-start">

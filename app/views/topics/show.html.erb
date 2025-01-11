@@ -29,8 +29,12 @@
             Create new template
           <% end %>
         </div>
-        <%= render "topics/template_form", input_errors: [], output_errors: [], topic_id: @topic.id %>
-        <%= render "topics/generated_reply_form", generated_reply: @generated_reply, template: @template %>
+        <% if @template %>
+          <%= render "topics/template_form", input_errors: [], output_errors: [], topic_id: @topic.id %>
+        <% else %>
+          <p class="mb-2" id="template_form">TODO: Topic isn't connected to a template.</p>
+        <% end %>
+        <%= render "topics/generated_reply_form", generated_reply: @generated_reply, topic: @topic %>
       </div>
     </div>
     <div class="w-full md:w-[calc(50%-1rem)]" data-controller="iframe-resize">
