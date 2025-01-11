@@ -1,4 +1,6 @@
-module InboxSetupConcern
+require "google/apis/gmail_v1"
+
+module InboxManagementConcern
   extend ActiveSupport::Concern
   include GeneratorConcern
 
@@ -41,7 +43,6 @@ module InboxSetupConcern
     end
 
     def cache_topic(response_body, snippet, inbox)
-      # Extract fields
       thread_id = response_body.id
       first_message = response_body.messages.first
       first_message_headers = first_message.payload.headers
@@ -59,26 +60,28 @@ module InboxSetupConcern
 
       do_not_reply = from == inbox.account.email
       message_count = response_body.messages.count
-      # Save thread details
-      begin
-        topic = inbox.topics.create!(
-          thread_id: thread_id,
-          snippet: snippet,
-          date: date,
-          subject: subject,
-          from: from,
-          to: to,
-          do_not_reply: do_not_reply,
-          message_count: message_count
-        )
-      rescue ActiveRecord::RecordInvalid => e
-        Rails.logger.error "Failed to save topic: #{e.message}"
-        return
+
+      # Find or create topic
+      topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+      topic.assign_attributes(
+        snippet: snippet,
+        date: date,
+        subject: subject,
+        from: from,
+        to: to,
+        do_not_reply: do_not_reply,
+        message_count: message_count
+      )
+
+      if topic.changed?
+        topic.save!
+        Rails.logger.info "Updated topic: #{topic.id}"
+      else
+        Rails.logger.info "No changes for topic: #{topic.id}"
       end
 
-      messages.each do |message|
-        cache_message(topic, message)
-      end
+      # Cache messages
+      messages.each { |message| cache_message(topic, message) }
 
       gen_reply(topic, inbox)
     end
@@ -100,26 +103,41 @@ module InboxSetupConcern
       html = collected_parts[:html]
       attachments = collected_parts[:attachments]
 
-      begin
-        msg = topic.messages.create!(
-          message_id: message_id,
-          date: date,
-          subject: subject,
-          from: from,
-          to: to,
-          internal_date: internal_date,
-          plaintext: plaintext,
-          html: html,
-          snippet: snippet
+      # Find or create message
+      msg = topic.messages.find_or_initialize_by(message_id: message_id)
+      msg.assign_attributes(
+        date: date,
+        subject: subject,
+        from: from,
+        to: to,
+        internal_date: internal_date,
+        plaintext: plaintext,
+        html: html,
+        snippet: snippet
+      )
+
+      if msg.changed?
+        msg.save!
+        Rails.logger.info "Saved message: #{msg.id}"
+      else
+        Rails.logger.info "No changes for message: #{msg.id}"
+      end
+
+      # Save or update attachments
+      attachments.each do |attachment|
+        existing_attachment = msg.attachments.find_or_initialize_by(attachment_id: attachment[:attachment_id])
+        existing_attachment.assign_attributes(
+          content_id: attachment[:content_id],
+          filename: attachment[:filename],
+          mime_type: attachment[:mime_type],
+          size: attachment[:size]
         )
-        attachments.each do |attachment|
-          msg.attachments.create!(
-            attachment_id: attachment[:attachment_id],
-            content_id: attachment[:content_id],
-            filename: attachment[:filename],
-            mime_type: attachment[:mime_type],
-            size: attachment[:size]
-          )
+
+        if existing_attachment.changed?
+          existing_attachment.save!
+          Rails.logger.info "Saved attachment: #{existing_attachment.id}"
+        else
+          Rails.logger.info "No changes for attachment: #{existing_attachment.id}"
         end
       end
 
@@ -147,19 +165,68 @@ module InboxSetupConcern
       else
         content_disposition = part.headers.find { |h| h.name == "Content-Disposition" }&.value
         if content_disposition&.start_with?("attachment") || part.filename
-          cid_header = part.headers.find { |h| h.name == "Content-ID" }
-          cid = cid_header&.value
+          cid_header = part.headers.find { |h| h.name == "Content-ID" }&.value
+          x_attachment_id = part.headers.find { |h| h.name == "X-Attachment-Id" }&.value
+          cid = if x_attachment_id
+            "cid:#{x_attachment_id}"
+          elsif cid_header
+            "cid:#{cid_header[1..-2]}"
+          end
           result[:attachments] << {
             attachment_id: part.body.attachment_id,
-            content_id: cid ? "cid:" + cid[1..-2] : nil,
+            content_id: cid,
             filename: part.filename,
             mime_type: part.mime_type,
             size: (part.body.size / 1024.0).round
           }
         end
       end
-
       result
+    end
+
+    def update_from_history(inbox)
+      account = inbox.account
+      gmail_service = Google::Apis::GmailV1::GmailService.new
+      gmail_service.authorization = account.google_credentials
+
+      user_id = "me"
+      history_id = inbox.history_id
+
+      Rails.logger.info "Updating inbox from history_id: #{history_id} for inbox #{inbox.id}"
+
+      begin
+        # Fetch history since the last `history_id`
+        history_response = gmail_service.list_user_histories(
+          user_id,
+          start_history_id: history_id,
+          history_types: ["messageAdded"]
+        )
+
+        if history_response.history.present?
+          history_response.history.each do |history|
+            history.messages_added&.each do |message_meta|
+              next if message_meta.message.label_ids&.include?("DRAFT")
+
+              thread_id = message_meta.message.thread_id
+
+              # Fetch the entire thread from Gmail
+              thread_response = gmail_service.get_user_thread(user_id, thread_id)
+
+              # Recreate the thread and its messages
+              cache_topic(thread_response, thread_response.messages.last.snippet, inbox)
+            end
+          end
+        else
+          Rails.logger.info "No new history changes for inbox #{inbox.id}."
+        end
+
+        # Update the latest history_id
+        if history_response.history_id
+          inbox.update!(history_id: history_response.history_id.to_i)
+        end
+      rescue Google::Apis::ClientError => e
+        Rails.logger.error "Failed to update inbox from history: #{e.message}"
+      end
     end
   end
 end

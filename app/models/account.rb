@@ -42,4 +42,33 @@ class Account < ApplicationRecord
       scope: ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
     )
   end
+
+  def setup_gmail_watch
+    puts "Trying with provider #{provider} and google_credentials #{google_credentials}"
+
+    return unless provider == "google_oauth2" && google_credentials.present?
+
+    Rails.logger.info "Setting up Gmail watch for #{email}"
+    puts "Setting up Gmail watch for #{email}"
+
+    gmail_service = Google::Apis::GmailV1::GmailService.new
+    gmail_service.authorization = google_credentials
+
+    watch_request = Google::Apis::GmailV1::WatchRequest.new(
+      label_ids: ["INBOX"],
+      topic_name: "projects/emailthingy-445622/topics/gmail-updates"
+    )
+
+    begin
+      response = gmail_service.watch_user("me", watch_request)
+      if inbox.present?
+        inbox.update!(history_id: response.history_id)
+        Rails.logger.info "Gmail watch started for #{email}, history_id: #{response.history_id}"
+      else
+        Rails.logger.error "Inbox not found for account #{email}."
+      end
+    rescue Google::Apis::ClientError => e
+      Rails.logger.error "Failed to start Gmail watch for #{email}: #{e.message}"
+    end
+  end
 end

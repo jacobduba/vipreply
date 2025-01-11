@@ -4,7 +4,7 @@ require "google/apis/gmail_v1"
 require "date"
 
 class SessionsController < ApplicationController
-  include InboxSetupConcern
+  include InboxManagementConcern
   skip_before_action :authorize_has_account
 
   def new
@@ -49,17 +49,19 @@ class SessionsController < ApplicationController
     begin
       account.save!
     rescue ActiveRecord::RecordInvalid => e
-      Rails.logger.error e
-      redirect_to "/login"
+      Rails.logger.error e.message
+      redirect_to "/login", alert: "Failed to link your Gmail account."
+      return
     end
 
-    unless account.inbox
-      account.create_inbox
-    end
+    # Create inbox if it doesn't exist
+    account.create_inbox unless account.inbox
 
     # Delete all topics and repopulate.
     # Will only happen when creating inbox... but we're testing rn
-    setup_inbox account.inbox
+    setup_inbox(account.inbox)
+    puts("INBOX SETUP, TRYING WATCH NOW")
+    account.setup_gmail_watch
 
     session[:account_id] = account.id
     redirect_to root_path
