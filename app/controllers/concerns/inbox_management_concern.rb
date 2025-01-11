@@ -83,9 +83,9 @@ module InboxManagementConcern
       # Cache messages
       messages.each { |message| cache_message(topic, message) }
 
-      newest_message = topic.messages.order(date: :desc).first
-      gen_reply_map = gen_reply(newest_message, inbox)
-      topic.update!(generated_reply: gen_reply_map[:reply], template: gen_reply_map[:template])
+      # newest_message = topic.messages.order(date: :desc).first
+      # gen_reply_map = gen_reply(newest_message, inbox)
+      # topic.update!(generated_reply: gen_reply_map[:reply], template: gen_reply_map[:template])
     end
 
     # Returns Message
@@ -208,10 +208,6 @@ module InboxManagementConcern
               next if message_meta.message.label_ids&.include?("DRAFT")
 
               thread_id = message_meta.message.thread_id
-
-              # Delete the existing thread if it exists
-              topic = inbox.topics.find_by(thread_id: thread_id)
-              topic&.destroy
 
               # Fetch the entire thread from Gmail
               thread_response = gmail_service.get_user_thread(user_id, thread_id)

@@ -60,6 +60,7 @@ class SessionsController < ApplicationController
     # Delete all topics and repopulate.
     # Will only happen when creating inbox... but we're testing rn
     setup_inbox(account.inbox)
+    puts("INBOX SETUP, TRYING WATCH NOW")
     account.setup_gmail_watch
 
     session[:account_id] = account.id

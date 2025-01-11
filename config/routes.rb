@@ -31,7 +31,7 @@ Rails.application.routes.draw do
 
   get "attachments/:id", to: "attachments#show", as: :attachment
 
-  get 'update', to: 'inboxes#update'
+  get "update", to: "inboxes#update"
 
-  post '/pubsub/notifications', to: 'pubsub#notifications'
+  post "/pubsub/notifications", to: "pubsub#notifications"
 end
