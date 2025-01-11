@@ -84,7 +84,8 @@ module GeneratorConcern
     }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    JSON.parse(response.body)["choices"][0]["message"]["content"]
+    generated_text = JSON.parse(response.body)["choices"][0]["message"]["content"]
+    generated_text.strip
   end
 
   # This method is called when a user clicks the "Regenerate Reply" button
