@@ -40,8 +40,9 @@ module GeneratorConcern
 
     reply = fetch_generation(prompt)
     first_template = neighbors[0]
+    template_status = neighbors.empty? ? :no_templates_exist_at_generation : :template_attached
 
-    topic.update!(generated_reply: reply, template: first_template) # Cache result in DB
+    topic.update!(generated_reply: reply, template: first_template, template_status: template_status) # Cache result in DB
 
     {
       email: message_str,
@@ -84,5 +85,16 @@ module GeneratorConcern
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     JSON.parse(response.body)["choices"][0]["message"]["content"]
+  end
+
+  # This method is called when a user clicks the "Regenerate Reply" button
+  def handle_regenerate_reply(topic_id)
+    topic = Topic.find(topic_id)
+    gen_reply(topic, @account.inbox)
+
+    render turbo_stream: [
+      turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic}),
+      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic: topic})
+    ]
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_11_000615) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_11_181251) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -111,6 +111,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_11_000615) do
     t.integer "message_count"
     t.bigint "template_id"
     t.string "generated_reply"
+    t.integer "template_status", default: 0
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["template_id"], name: "index_topics_on_template_id"
   end
@@ -121,5 +122,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_11_000615) do
   add_foreign_key "messages", "topics"
   add_foreign_key "templates", "inboxes"
   add_foreign_key "topics", "inboxes"
-  add_foreign_key "topics", "templates", on_delete: :nullify
+  add_foreign_key "topics", "templates"
 end

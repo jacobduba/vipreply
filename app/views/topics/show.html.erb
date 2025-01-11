@@ -32,11 +32,7 @@
             Create new template
           <% end %>
         </div>
-        <% if @template %>
-          <%= render "topics/template_form", input_errors: [], output_errors: [], topic_id: @topic.id %>
-        <% else %>
-          <p class="mb-2" id="template_form">TODO: Topic isn't connected to a template.</p>
-        <% end %>
+        <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
         <%= render "topics/generated_reply_form", generated_reply: @generated_reply, topic: @topic %>
       </div>
     </div>

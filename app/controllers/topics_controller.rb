@@ -1,6 +1,8 @@
 class TopicsController < ApplicationController
-  before_action :set_topic, only: [:show]
-  before_action :authorize_account_owns_topic, only: [:show]
+  before_action :set_topic
+  before_action :authorize_account_owns_topic
+
+  include GeneratorConcern
 
   def show
     @messages = @topic.messages.order(date: :asc)
@@ -12,6 +14,10 @@ class TopicsController < ApplicationController
 
     @template = @topic.template
     @generated_reply = @topic.generated_reply
+  end
+
+  def regenerate_reply
+    handle_regenerate_reply(params[:id])
   end
 
   private

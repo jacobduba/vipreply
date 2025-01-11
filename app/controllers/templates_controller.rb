@@ -41,15 +41,7 @@ class TemplatesController < ApplicationController
     end
 
     if regenerate_reply
-      topic_id = strong_params[:topic_id]
-
-      topic = Topic.find(topic_id)
-      reply = gen_reply(topic, @account.inbox)[:reply]
-
-      render turbo_stream: [
-        turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: reply}),
-        turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic_id: topic_id})
-      ]
+      handle_regenerate_reply(strong_params[:topic_id])
       return
     end
 
@@ -83,15 +75,7 @@ class TemplatesController < ApplicationController
     end
 
     if regenerate_reply
-      topic_id = strong_params[:topic_id]
-
-      topic = Topic.find(topic_id)
-      reply = gen_reply(topic, @account.inbox)[:reply]
-
-      render turbo_stream: [
-        turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: reply}),
-        turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic_id: topic_id})
-      ]
+      handle_regenerate_reply(strong_params[:topic_id])
       return
     end
 
