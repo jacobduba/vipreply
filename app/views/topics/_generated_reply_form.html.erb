@@ -1,6 +1,6 @@
 <%= form_with id: "generated_reply_form" do |form| %>
   <%= form.label :email, "Email reply", class: "block text-sm font-medium text-gray-900 mb-2" %>
-  <%= form.text_area :email, rows: 6, value: generated_reply, placeholder: "Compose your reply here...", class: "block p-4 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+  <%= form.text_area :email, rows: 3, value: generated_reply, data: { controller: "textbox-autoresize" }, placeholder: "Compose your reply here...", class: "block p-4 w-full text-sm text-gray-900 bg-white rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
   <div class="flex justify-start">
     <button type="submit" class="text-white mt-4 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
