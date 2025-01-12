@@ -13,7 +13,7 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @template = @topic.template
-    @generated_reply = if @topic.all_taken_care_of?
+    @generated_reply = if @topic.skipped_no_reply_needed?
       ""
     else
       @topic.generated_reply
