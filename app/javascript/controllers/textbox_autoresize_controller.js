@@ -10,7 +10,7 @@ export default class extends Controller {
 
   resize() {
     this.element.style.height = "auto";
-    this.element.style.height = `${this.element.scrollHeight + 5}px`;
+    this.element.style.height = `${this.element.scrollHeight + 2}px`;
   }
 
   disconnect() {
