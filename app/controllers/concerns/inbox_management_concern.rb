@@ -84,7 +84,7 @@ module InboxManagementConcern
       messages.each { |message| cache_message(topic, message) }
 
       if all_taken_care_of
-        topic.update!(template_status: :all_taken_care_of)
+        topic.update!(template_status: :skipped_no_reply_needed)
       else
         gen_reply(topic, inbox)
       end
