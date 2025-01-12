@@ -74,10 +74,6 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
-
-  # Run ruby-lsp within bundle context
-  # More on that here https://zed.dev/docs/languages/ruby#setting-up-ruby-lsp
-  gem "ruby-lsp"
 end
 
 group :test do
