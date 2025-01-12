@@ -58,7 +58,7 @@ module InboxManagementConcern
       to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
       to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-      do_not_reply = from == inbox.account.email
+      all_taken_care_of = from == inbox.account.email
       message_count = response_body.messages.count
 
       # Find or create topic
@@ -69,7 +69,7 @@ module InboxManagementConcern
         subject: subject,
         from: from,
         to: to,
-        do_not_reply: do_not_reply,
+        all_taken_care_of: all_taken_care_of,
         message_count: message_count
       )
 
@@ -83,7 +83,11 @@ module InboxManagementConcern
       # Cache messages
       messages.each { |message| cache_message(topic, message) }
 
-      gen_reply(topic, inbox)
+      if all_taken_care_of
+        topic.update!(template_status: :all_taken_care_of)
+      else
+        gen_reply(topic, inbox)
+      end
     end
 
     # Returns Message

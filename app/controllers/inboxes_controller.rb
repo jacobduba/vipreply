@@ -2,8 +2,8 @@ class InboxesController < ApplicationController
   include InboxManagementConcern
   def index
     @inbox = @account.inbox
-    @to_do_topics = @inbox.topics.where(do_not_reply: false).order(date: :asc)
-    @done_topics = @inbox.topics.where(do_not_reply: true).order(date: :desc)
+    @to_do_topics = @inbox.topics.where(all_taken_care_of: false).order(date: :asc)
+    @done_topics = @inbox.topics.where(all_taken_care_of: true).order(date: :desc)
   end
 
   def update

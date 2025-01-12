@@ -13,7 +13,11 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @template = @topic.template
-    @generated_reply = @topic.generated_reply
+    @generated_reply = if @topic.all_taken_care_of?
+      ""
+    else
+      @topic.generated_reply
+    end
   end
 
   def regenerate_reply
