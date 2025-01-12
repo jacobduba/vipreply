@@ -40,7 +40,7 @@
         <% elsif topic.template_removed? %>
           Attached template was deleted.
         <% elsif topic.skipped_no_reply_needed? %>
-          No templated used because you send the last reply.
+          Auto-generation skipped because waiting for customer reply.
         <% end %>
       </p>
     </div>
