@@ -142,9 +142,14 @@ In three seperate terminals:
     bin/rails tailwindcss:watch
     ```
 
-3. Start the Rails server:
+3. Start Solid Queue:
     ```sh
-    bin/rails server
+    bin/jobs
+    ```
+
+4. Start the Rails server:
+    ```sh
+    bin/dev
     ```
 
 Visit `http://localhost:3000` in your browser to see the application running.

@@ -4,28 +4,44 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 3 } %>
 
 development:
-  <<: *default
-  database: emailthingy_local
-  host: localhost
-  port: 5432
-  username: postgres
-  password: password
+  primary: &primary_local
+    <<: *default
+    database: vipreply_local
+    host: localhost
+    port: 5432
+    username: postgres
+    password: password
+  queue:
+    <<: *primary_local
+    database: vipreply_local_queue
+    migrations_paths: db/queue_migrate
+    # Solid queue needs 5 db connection minimum
+    # 3 per worker + 1 for dispatcher + 1 for heartbeat
+    pool: 5
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: emailthingy_test
+  database: vipreply_test
   host: localhost
   port: 5432
   username: postgres
   password: password
 
 production:
-  <<: *default
-  database: <%= ENV["POSTGRES_DATABASE"] %>
-  host: <%= ENV["POSTGRES_HOST"] %>
-  port: <%= ENV["POSTGRES_PORT"] %>
-  username: <%= ENV["POSTGRES_USER"] %>
-  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  primary: &primary_production
+    <<: *default
+    database: vipreply_production
+    host: <%= ENV["POSTGRES_HOST"] %>
+    port: <%= ENV["POSTGRES_PORT"] %>
+    username: <%= ENV["POSTGRES_USER"] %>
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+  queue:
+    <<: *primary_production
+    database: vipreply_production_queue
+    migrations_paths: db/queue_migrate
+    # Solid queue needs 5 db connection minimum
+    # 3 per worker + 1 for dispatcher + 1 for heartbeat
+    pool: 5
