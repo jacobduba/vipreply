@@ -268,15 +268,4 @@ class SetupInboxJob < ApplicationJob
     generated_text = JSON.parse(response.body)["choices"][0]["message"]["content"]
     generated_text.strip
   end
-
-  # This method is called when a user clicks the "Regenerate Reply" button
-  def handle_regenerate_reply(topic_id)
-    topic = Topic.find(topic_id)
-    gen_reply(topic, @account.inbox)
-
-    render turbo_stream: [
-      turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: topic.generated_reply}),
-      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic: topic})
-    ]
-  end
 end
