@@ -137,14 +137,9 @@ In three seperate terminals:
     docker-compose up
     ```
 
-2. Start TailwindCSS:
+2. Start the Rails server:
     ```sh
-    bin/rails tailwindcss:watch
-    ```
-
-3. Start the Rails server:
-    ```sh
-    bin/rails server
+    bin/dev
     ```
 
 Visit `http://localhost:3000` in your browser to see the application running.

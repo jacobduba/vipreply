@@ -4,7 +4,6 @@ require "google/apis/gmail_v1"
 require "date"
 
 class SessionsController < ApplicationController
-  include InboxManagementConcern
   skip_before_action :authorize_has_account
 
   def new
@@ -59,8 +58,13 @@ class SessionsController < ApplicationController
 
     # Delete all topics and repopulate.
     # Will only happen when creating inbox... but we're testing rn
-    setup_inbox(account.inbox)
-    puts("INBOX SETUP, TRYING WATCH NOW")
+    Rails.logger.info "Deleting inbox for #{account.email}."
+    account.inbox.topics.destroy_all
+    # SetupInboxJob.perform_later account.inbox.id
+    SetupInboxJob.perform_later account.inbox.id
+
+    Rails.logger.info "Inbox setup done for #{account.email}."
+    # TODO MOVE THIS TO A JOB
     account.setup_gmail_watch
 
     session[:account_id] = account.id

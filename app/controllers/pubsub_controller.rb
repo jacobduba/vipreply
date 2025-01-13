@@ -19,7 +19,7 @@ class PubsubController < ApplicationController
     # Find the account by email and use the associated inbox
     account = Account.find_by(email: email)
     if account&.inbox
-      update_from_history(account.inbox)
+      UpdateFromHistoryJob.perform_later account.inbox.id
     else
       Rails.logger.error "Account or inbox not found for email: #{email}"
     end
