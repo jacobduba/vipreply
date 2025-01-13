@@ -1,11 +1,14 @@
 class PubsubController < ApplicationController
   skip_before_action :verify_authenticity_token
+  skip_before_action :authorize_has_account
+  include InboxManagementConcern
 
   def notifications
-    debugger
+    Rails.logger.info "Received Pub/Sub notification"
 
     # Decode the Pub/Sub message
     message = params[:message][:data]
+    message = JSON.parse(Base64.decode64(message))
 
     # Extract email and history ID
     email = message["emailAddress"]
@@ -13,12 +16,12 @@ class PubsubController < ApplicationController
 
     Rails.logger.info "Received notification for email: #{email}, history ID: #{history_id}"
 
-    # Process the notification
-    inbox = Inbox.find_by(email: email)
-    if inbox
-      update_from_history(inbox)
+    # Find the account by email and use the associated inbox
+    account = Account.find_by(email: email)
+    if account&.inbox
+      update_from_history(account.inbox)
     else
-      Rails.logger.error "Inbox not found for email: #{email}"
+      Rails.logger.error "Account or inbox not found for email: #{email}"
     end
 
     head :ok
