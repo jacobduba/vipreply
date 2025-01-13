@@ -1,5 +1,4 @@
 class InboxesController < ApplicationController
-  include InboxManagementConcern
   def index
     @inbox = @account.inbox
     @to_do_topics = @inbox.topics.where(all_taken_care_of: false).order(date: :asc)
@@ -10,7 +9,7 @@ class InboxesController < ApplicationController
     inbox = @account.inbox
 
     if inbox.present?
-      update_from_history(inbox)
+      UpdateFromHistoryJob.perform_later inbox.id
       flash[:notice] = "Inbox updated successfully!"
     else
       flash[:alert] = "Failed to update inbox."

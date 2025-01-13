@@ -16,7 +16,7 @@ class PubsubController < ApplicationController
     # Process the notification
     inbox = Inbox.find_by(email: email)
     if inbox
-      update_from_history(inbox)
+      UpdateFromHistoryJob.perform_later inbox.id
     else
       Rails.logger.error "Inbox not found for email: #{email}"
     end

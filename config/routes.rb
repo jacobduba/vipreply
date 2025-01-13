@@ -38,4 +38,6 @@ Rails.application.routes.draw do
   get "update", to: "inboxes#update"
 
   post "/pubsub/notifications", to: "pubsub#notifications"
+
+  mount MissionControl::Jobs::Engine, at: "/jobs"
 end

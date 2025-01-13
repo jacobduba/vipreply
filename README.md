@@ -137,17 +137,7 @@ In three seperate terminals:
     docker-compose up
     ```
 
-2. Start TailwindCSS:
-    ```sh
-    bin/rails tailwindcss:watch
-    ```
-
-3. Start Solid Queue:
-    ```sh
-    bin/jobs
-    ```
-
-4. Start the Rails server:
+2. Start the Rails server:
     ```sh
     bin/dev
     ```

@@ -61,6 +61,7 @@ gem "google-api-client", "~> 0.53.0"
 
 # Solid Queue for background jobs like generating replies
 gem "solid_queue", "~> 1.1"
+gem "mission_control-jobs", "~> 1.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
