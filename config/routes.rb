@@ -27,7 +27,11 @@ Rails.application.routes.draw do
 
   resources :templates
 
-  resources :topics
+  resources :topics do
+    member do
+      get :regenerate_reply
+    end
+  end
 
   get "attachments/:id", to: "attachments#show", as: :attachment
 

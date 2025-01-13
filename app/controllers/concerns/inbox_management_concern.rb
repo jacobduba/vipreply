@@ -58,7 +58,7 @@ module InboxManagementConcern
       to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
       to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-      do_not_reply = from == inbox.account.email
+      all_taken_care_of = from == inbox.account.email
       message_count = response_body.messages.count
 
       # Find or create topic
@@ -69,7 +69,7 @@ module InboxManagementConcern
         subject: subject,
         from: from,
         to: to,
-        do_not_reply: do_not_reply,
+        all_taken_care_of: all_taken_care_of,
         message_count: message_count
       )
 
@@ -83,9 +83,11 @@ module InboxManagementConcern
       # Cache messages
       messages.each { |message| cache_message(topic, message) }
 
-      # newest_message = topic.messages.order(date: :desc).first
-      # gen_reply_map = gen_reply(newest_message, inbox)
-      # topic.update!(generated_reply: gen_reply_map[:reply], template: gen_reply_map[:template])
+      if all_taken_care_of
+        topic.update!(template_status: :skipped_no_reply_needed)
+      else
+        gen_reply(topic, inbox)
+      end
     end
 
     # Returns Message
@@ -97,6 +99,7 @@ module InboxManagementConcern
       from = headers.find { |h| h.name.downcase == "from" }.value
       to = headers.find { |h| h.name.downcase == "to" }.value
       internal_date = Time.at(message.internal_date / 1000).to_datetime
+      snippet = message.snippet
 
       collected_parts = extract_parts(message.payload)
 
@@ -113,7 +116,8 @@ module InboxManagementConcern
         to: to,
         internal_date: internal_date,
         plaintext: plaintext,
-        html: html
+        html: html,
+        snippet: snippet
       )
 
       if msg.changed?

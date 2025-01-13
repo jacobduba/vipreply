@@ -20,7 +20,8 @@ module GeneratorConcern
     JSON.parse(response.body)["data"][0]["embedding"]
   end
 
-  def gen_reply(message, inbox)
+  def gen_reply(topic, inbox)
+    message = topic.messages.order(date: :desc).first # Newest message
     message_str = message.to_s
 
     embedding = fetch_embedding(message_str)
@@ -37,10 +38,11 @@ module GeneratorConcern
 
     prompt = "#{examples_for_prompt}#{email_for_prompt}"
 
-    puts prompt
-
     reply = fetch_generation(prompt)
     first_template = neighbors[0]
+    template_status = neighbors.empty? ? :no_templates_exist_at_generation : :template_attached
+
+    topic.update!(generated_reply: reply, template: first_template, template_status: template_status) # Cache result in DB
 
     {
       email: message_str,
@@ -82,6 +84,18 @@ module GeneratorConcern
     }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    JSON.parse(response.body)["choices"][0]["message"]["content"]
+    generated_text = JSON.parse(response.body)["choices"][0]["message"]["content"]
+    generated_text.strip
+  end
+
+  # This method is called when a user clicks the "Regenerate Reply" button
+  def handle_regenerate_reply(topic_id)
+    topic = Topic.find(topic_id)
+    gen_reply(topic, @account.inbox)
+
+    render turbo_stream: [
+      turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: topic.generated_reply}),
+      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic: topic})
+    ]
   end
 end

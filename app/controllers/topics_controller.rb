@@ -1,6 +1,8 @@
 class TopicsController < ApplicationController
-  before_action :set_topic, only: [:show]
-  before_action :authorize_account_owns_topic, only: [:show]
+  before_action :set_topic
+  before_action :authorize_account_owns_topic
+
+  include GeneratorConcern
 
   def show
     @messages = @topic.messages.order(date: :asc)
@@ -11,7 +13,15 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @template = @topic.template
-    @generated_reply = @topic.generated_reply
+    @generated_reply = if @topic.skipped_no_reply_needed?
+      ""
+    else
+      @topic.generated_reply
+    end
+  end
+
+  def regenerate_reply
+    handle_regenerate_reply(params[:id])
   end
 
   private

@@ -8,21 +8,20 @@ class TemplatesController < ApplicationController
   end
 
   def new
-    regenerate_query = params[:regenerate]
-
     @template = Template.new
 
     @input_errors = []
     @output_errors = []
 
-    @regenerate = regenerate_query == "true"
+    @regenerate_reply = params[:regenerate_reply] == "true"
+    @topic_id = params[:topic_id]
   end
 
   def create
     strong_params = template_params
     input = strong_params[:input]
     output = strong_params[:output]
-    create_and_regenerate = strong_params[:create_and_regenerate] && strong_params[:create_and_regenerate] == "true"
+    regenerate_reply = strong_params[:regenerate_reply] == "true"
 
     input_embedding = fetch_embedding(input)
 
@@ -32,16 +31,17 @@ class TemplatesController < ApplicationController
       @input_errors = @template.errors.full_messages_for(:input)
       @output_errors = @template.errors.full_messages_for(:output)
 
+      @regenerate_reply = regenerate_reply
+      if @regenerate_reply
+        @topic_id = strong_params[:topic_id]
+      end
+
       render :new, status: :unprocessable_entity
       return
     end
 
-    if create_and_regenerate
-      generate_and_show strong_params[:query]
-      render turbo_stream: [
-        turbo_stream.replace("generated_response", partial: "models/generated_response"),
-        turbo_stream.replace("referenced_template_form", partial: "models/referenced_template_form")
-      ]
+    if regenerate_reply
+      handle_regenerate_reply(strong_params[:topic_id])
       return
     end
 
@@ -61,9 +61,9 @@ class TemplatesController < ApplicationController
     strong_params = template_params
     input = strong_params[:input]
     output = strong_params[:output]
-    save_and_regenerate = strong_params[:save_and_regenerate] && strong_params[:save_and_regenerate] == "true"
+    regenerate_reply = strong_params[:regenerate_reply] == "true"
 
-    input_embedding = helpers.fetch_embedding(input)
+    input_embedding = fetch_embedding(input)
 
     unless @template.update(input: input, output: output, input_embedding: input_embedding)
       @input_errors = @template.errors.full_messages_for(:input)
@@ -74,12 +74,8 @@ class TemplatesController < ApplicationController
       return
     end
 
-    if save_and_regenerate
-      generate_and_show strong_params[:query]
-      render turbo_stream: [
-        turbo_stream.replace("generated_response", partial: "models/generated_response"),
-        turbo_stream.replace("referenced_template_form", partial: "models/referenced_template_form")
-      ]
+    if regenerate_reply
+      handle_regenerate_reply(strong_params[:topic_id])
       return
     end
 
@@ -102,6 +98,6 @@ class TemplatesController < ApplicationController
   private
 
   def template_params
-    params.require(:template).permit(:input, :output, :save_and_regenerate, :query, :create_and_regenerate)
+    params.require(:template).permit(:input, :output, :topic_id, :regenerate_reply)
   end
 end
