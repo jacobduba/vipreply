@@ -85,3 +85,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "mail", "~> 2.8"

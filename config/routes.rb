@@ -40,4 +40,8 @@ Rails.application.routes.draw do
   post "/pubsub/notifications", to: "pubsub#notifications"
 
   mount MissionControl::Jobs::Engine, at: "/jobs"
+
+  resources :topics do
+    post "send_email", on: :member
+  end
 end

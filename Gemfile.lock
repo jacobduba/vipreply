@@ -424,6 +424,7 @@ DEPENDENCIES
   google-api-client (~> 0.53.0)
   importmap-rails
   jbuilder
+  mail (~> 2.8)
   mission_control-jobs (~> 1.0)
   neighbor
   omniauth
