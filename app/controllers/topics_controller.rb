@@ -44,47 +44,44 @@ class TopicsController < ApplicationController
       redirect_to topic_path(topic) and return
     end
 
-    # Fetch Gmail message metadata to get accurate headers
+    # Determine the 'from' and 'to' fields using the most recent message
+    from_email = @account.email
+    to_email = (most_recent_message.from == @account.email) ? most_recent_message.to : most_recent_message.from
+
+    # Fetch Gmail credentials
     gmail_service = Google::Apis::GmailV1::GmailService.new
     gmail_service.authorization = @account.google_credentials
-
-    gmail_metadata = gmail_service.get_user_message("me", most_recent_message.message_id, format: "metadata", metadata_headers: ["Message-ID", "References"])
-    message_id_header = gmail_metadata.payload.headers.find { |h| h.name == "Message-ID" }&.value
-    references_header = gmail_metadata.payload.headers.find { |h| h.name == "References" }&.value
-
-    # Determine the 'from' and 'to' fields using the most recent message
-    from_email = @account.email # Always use the logged-in account's email as the sender
-    to_email = if most_recent_message.from == @account.email
-      most_recent_message.to # If the most recent message was sent by us, reply to the recipient
-    else
-      most_recent_message.from # Otherwise, reply to the sender of the most recent message
-    end
 
     # Build the email message
     email = Mail.new do
       from from_email
       to to_email
-      subject "Re: #{topic.subject}" # Match the original subject for threading
-      body email_body
+      subject "Re: #{topic.subject}"
+
+      text_part do
+        body email_body # Plain text version
+      end
+
+      html_part do
+        content_type "text/html; charset=UTF-8"
+        body "<p>#{email_body}</p>" # HTML version
+      end
 
       # Add headers to attach the email to the thread
-      if message_id_header
-        header["In-Reply-To"] = message_id_header
-        header["References"] = references_header ? "#{references_header} #{message_id_header}" : message_id_header
+      if most_recent_message.message_id
+        header["In-Reply-To"] = most_recent_message.message_id
+        header["References"] = most_recent_message.message_id
       end
     end
 
     # Encode the email message
     raw_message = email.encoded
 
-    puts "Sending email:"
-    puts raw_message
-
     # Attach the email to the thread by setting `threadId`
     begin
       message_object = Google::Apis::GmailV1::Message.new(
         raw: raw_message,
-        thread_id: topic.thread_id # Use the correct thread ID
+        thread_id: topic.thread_id
       )
       gmail_service.send_user_message("me", message_object)
       flash[:notice] = "Email sent successfully to #{to_email}!"
