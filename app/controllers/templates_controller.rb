@@ -23,9 +23,7 @@ class TemplatesController < ApplicationController
     output = strong_params[:output]
     regenerate_reply = strong_params[:regenerate_reply] == "true"
 
-    input_embedding = fetch_embedding(input)
-
-    @template = @account.inbox.templates.new(input: input, output: output, input_embedding: input_embedding)
+    @template = @account.inbox.templates.new(input: input, output: output)
 
     unless @template.save
       @input_errors = @template.errors.full_messages_for(:input)
@@ -63,9 +61,7 @@ class TemplatesController < ApplicationController
     output = strong_params[:output]
     regenerate_reply = strong_params[:regenerate_reply] == "true"
 
-    input_embedding = fetch_embedding(input)
-
-    unless @template.update(input: input, output: output, input_embedding: input_embedding)
+    unless @template.update(input: input, output: output)
       @input_errors = @template.errors.full_messages_for(:input)
 
       @output_errors = @template.errors.full_messages_for(:output)

@@ -24,30 +24,36 @@ module GeneratorConcern
     message = topic.messages.order(date: :desc).first # Newest message
     message_str = message.to_s
 
-    embedding = fetch_embedding(message_str)
+    neighbor = Template.find_similar(message_str)
 
-    neighbors = inbox.templates.nearest_neighbors(:input_embedding, embedding,
-      distance: "euclidean").first(1)
-
-    example_prompts = neighbors.map do |neighbor|
-      "Example recieved email:\n\n#{neighbor.input}\n\nExample response email:\n\n#{neighbor.output}\n\n"
+    example_prompt = if neighbor
+      <<~HEREDOC
+        Example recieved email:
+        #{neighbor.input}
+        Example response email:
+        #{neighbor.output}
+      HEREDOC
+    else
+      ""
     end
 
-    examples_for_prompt = example_prompts.join
-    email_for_prompt = "Email:\n\n#{message}\n\nResponse:\n\n"
+    email_for_prompt = <<~HEREDOC
+      Email:
+      #{message}
+      Response:
+    HEREDOC
 
-    prompt = "#{examples_for_prompt}#{email_for_prompt}"
+    prompt = "#{example_prompt}#{email_for_prompt}"
 
     reply = fetch_generation(prompt)
-    first_template = neighbors[0]
-    template_status = neighbors.empty? ? :no_templates_exist_at_generation : :template_attached
+    template_status = neighbor ? :template_attached : :no_templates_exist_at_generation
 
-    topic.update!(generated_reply: reply, template: first_template, template_status: template_status) # Cache result in DB
+    topic.update!(generated_reply: reply, template: neighbor, template_status: template_status) # Cache result in DB
 
     {
       email: message_str,
       reply: reply,
-      template: first_template
+      template: neighbor
     }
   end
 
