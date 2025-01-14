@@ -16,10 +16,6 @@ class Template < ApplicationRecord
 
   before_destroy :remove_template_from_topics
 
-  def to_s
-    "Template[input: '#{input}', output: '#{output}']"
-  end
-
   # @param email [String] Email to find similiar template
   # @return [Template] Most similiar template to email
   def self.find_similar(email)
