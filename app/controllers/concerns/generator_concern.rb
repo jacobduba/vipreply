@@ -3,101 +3,11 @@
 module GeneratorConcern
   extend ActiveSupport::Concern
 
-  def fetch_embedding(input)
-    openai_api_key = Rails.application.credentials.openai_api_key
-
-    url = "https://api.openai.com/v1/embeddings"
-    headers = {
-      "Authorization" => "Bearer #{openai_api_key}",
-      "Content-Type" => "application/json"
-    }
-    data = {
-      input: input,
-      model: "text-embedding-3-large"
-    }
-
-    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    JSON.parse(response.body)["data"][0]["embedding"]
-  end
-
-  def gen_reply(topic, inbox)
-    message = topic.messages.order(date: :desc).first # Newest message
-    message_str = message.to_s
-
-    neighbor = Template.find_similar(message_str)
-
-    example_prompt = if neighbor
-      <<~HEREDOC
-        Example recieved email:
-        #{neighbor.input}
-        Example response email:
-        #{neighbor.output}
-      HEREDOC
-    else
-      ""
-    end
-
-    email_for_prompt = <<~HEREDOC
-      Email:
-      #{message}
-      Response:
-    HEREDOC
-
-    prompt = "#{example_prompt}#{email_for_prompt}"
-
-    reply = fetch_generation(prompt)
-    template_status = neighbor ? :template_attached : :no_templates_exist_at_generation
-
-    topic.update!(generated_reply: reply, template: neighbor, template_status: template_status) # Cache result in DB
-
-    {
-      email: message_str,
-      reply: reply,
-      template: neighbor
-    }
-  end
-
-  private
-
-  def fetch_generation(prompt)
-    openai_api_key = Rails.application.credentials.openai_api_key
-
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {
-      "Authorization" => "Bearer #{openai_api_key}",
-      "Content-Type" => "application/json"
-    }
-    data = {
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: <<~HEREDOC
-            You are a Customer Support Representative who answers emails.
-            You will be given a template containing a example received email and an example response email.
-            Then you will given an email and you must generate a response for it using the template.
-            Write it in your own words!
-            Be compassionate: emphasize with the customer.
-            Include a salutation such as Hello or Greetings.
-            DO NOT include a closing, such as Best regards or Kind regards."
-          HEREDOC
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    }
-
-    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    generated_text = JSON.parse(response.body)["choices"][0]["message"]["content"]
-    generated_text.strip
-  end
-
   # This method is called when a user clicks the "Regenerate Reply" button
   def handle_regenerate_reply(topic_id)
     topic = Topic.find(topic_id)
-    gen_reply(topic, @account.inbox)
+    topic.generate_reply
+    topic.save!
 
     render turbo_stream: [
       turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: topic.generated_reply}),
