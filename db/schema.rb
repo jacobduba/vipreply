@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_15_215312) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_15_224719) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -70,6 +70,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_15_215312) do
     t.string "snippet"
     t.string "from_name"
     t.string "to_name"
+    t.string "gmail_message_id", limit: 64
+    t.index ["message_id"], name: "index_messages_on_message_id", unique: true
     t.index ["topic_id"], name: "index_messages_on_topic_id"
   end
 

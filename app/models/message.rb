@@ -58,13 +58,14 @@ class Message < ApplicationRecord
   # Returns Message
   def self.cache_from_gmail(topic, message)
     headers = message.payload.headers
-    message_id = message.id
+    gmail_message_id = message.id
     date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
     subject = headers.find { |h| h.name.downcase == "subject" }.value
     from_header = headers.find { |h| h.name.downcase == "from" }.value
     from_name, from_email = parse_email_header(from_header)
     to_header = headers.find { |h| h.name.downcase == "to" }.value
     to_name, to_email = parse_email_header(to_header)
+    message_id = headers.find { |h| h.name.downcase == "message-id" }.value
     internal_date = Time.at(message.internal_date / 1000).to_datetime
     snippet = message.snippet
 
@@ -86,7 +87,8 @@ class Message < ApplicationRecord
       internal_date: internal_date,
       plaintext: plaintext,
       html: html,
-      snippet: snippet
+      snippet: snippet,
+      gmail_message_id: gmail_message_id
     )
 
     if msg.changed?

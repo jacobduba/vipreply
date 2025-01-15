@@ -29,38 +29,34 @@ class TopicsController < ApplicationController
   end
 
   def send_email
-    # Find the topic and ensure ownership
-    topic = Topic.find(params[:id])
-    unless topic.inbox.account == @account
-      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
-      return
-    end
-
     # Extract the email body directly from params[:email]
     email_body = params[:email]
 
     # Get the most recent message in the topic
-    most_recent_message = topic.messages.order(date: :desc).first
+    most_recent_message = @topic.messages.order(date: :desc).first
     if most_recent_message.nil?
       flash[:alert] = "Cannot send email: No messages found in this topic."
-      redirect_to topic_path(topic) and return
+      redirect_to topic_path(@topic) and return
     end
 
     # Determine the 'from' and 'to' fields using the most recent message
-    from_email = @account.email
-    to_email = (most_recent_message.from == @account.email) ? most_recent_message.to_email : most_recent_message.from_email
+    from = "#{@account.name} <#{@account.email}>"
+    to = (most_recent_message.from == @account.email) ? most_recent_message.to : most_recent_message.from
 
-    # Fetch Gmail credentials
+    email_body_html = simple_format(email_body)
+    subject = "Re: #{@topic.subject}"
+
+    in_reply_to = most_recent_message.message_id
+    references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
+
     gmail_service = Google::Apis::GmailV1::GmailService.new
     gmail_service.authorization = @account.google_credentials
 
-    email_body_html = simple_format(email_body)
-
     # Build the email message
     email = Mail.new do
-      from from_email
-      to to_email
-      subject "Re: #{topic.subject}"
+      from from
+      to to
+      subject subject
 
       text_part do
         body email_body # Plain text version
@@ -73,8 +69,8 @@ class TopicsController < ApplicationController
 
       # Add headers to attach the email to the thread
       if most_recent_message.message_id
-        header["In-Reply-To"] = most_recent_message.message_id
-        header["References"] = most_recent_message.message_id
+        header["In-Reply-To"] = in_reply_to
+        header["References"] = references
       end
     end
 
@@ -85,16 +81,16 @@ class TopicsController < ApplicationController
     begin
       message_object = Google::Apis::GmailV1::Message.new(
         raw: raw_message,
-        thread_id: topic.thread_id
+        thread_id: @topic.thread_id
       )
       gmail_service.send_user_message("me", message_object)
-      flash[:notice] = "Email sent successfully to #{to_email}!"
+      flash[:notice] = "Email sent successfully to #{to}!"
     rescue Google::Apis::ClientError => e
       flash[:alert] = "Failed to send email: #{e.message}"
     end
 
     # Redirect back to the topic page
-    redirect_to topic_path(topic)
+    redirect_to topic_path(@topic)
   end
 
   private
