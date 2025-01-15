@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   resources :topics do
     member do
       get :regenerate_reply
+      post "send_email"
     end
   end
 

@@ -35,8 +35,10 @@ class Message < ApplicationRecord
     message_id = message.id
     date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
     subject = headers.find { |h| h.name.downcase == "subject" }.value
-    from = headers.find { |h| h.name.downcase == "from" }.value
-    to = headers.find { |h| h.name.downcase == "to" }.value
+    from_header = headers.find { |h| h.name.downcase == "from" }.value
+    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
+    to_header = headers.find { |h| h.name.downcase == "to" }.value
+    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
     internal_date = Time.at(message.internal_date / 1000).to_datetime
     snippet = message.snippet
 
