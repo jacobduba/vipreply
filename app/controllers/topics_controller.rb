@@ -48,7 +48,7 @@ class TopicsController < ApplicationController
 
     # Determine the 'from' and 'to' fields using the most recent message
     from_email = @account.email
-    to_email = (most_recent_message.from == @account.email) ? most_recent_message.to : most_recent_message.from
+    to_email = (most_recent_message.from == @account.email) ? most_recent_message.to_email : most_recent_message.from_email
 
     # Fetch Gmail credentials
     gmail_service = Google::Apis::GmailV1::GmailService.new

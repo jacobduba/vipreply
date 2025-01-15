@@ -18,6 +18,22 @@ class Message < ApplicationRecord
     updated_html
   end
 
+  def from
+    if from_name
+      "#{from_name} <#{from_email}>"
+    else
+      "#{from_email}"
+    end
+  end
+
+  def to
+    if to_name
+      "#{to_name} <#{to_email}>"
+    else
+      "#{to_email}"
+    end
+  end
+
   def to_s
     <<~HEREDOC
       Date: #{date}
@@ -29,6 +45,16 @@ class Message < ApplicationRecord
     HEREDOC
   end
 
+  def self.parse_email_header(header)
+    if header.include?("<")
+      name = header.split("<").first.strip
+      email = header[/<(.+?)>/, 1]
+      [name, email]
+    else
+      [nil, header]
+    end
+  end
+
   # Returns Message
   def self.cache_from_gmail(topic, message)
     headers = message.payload.headers
@@ -36,9 +62,9 @@ class Message < ApplicationRecord
     date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
     subject = headers.find { |h| h.name.downcase == "subject" }.value
     from_header = headers.find { |h| h.name.downcase == "from" }.value
-    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
+    from_name, from_email = parse_email_header(from_header)
     to_header = headers.find { |h| h.name.downcase == "to" }.value
-    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
+    to_name, to_email = parse_email_header(to_header)
     internal_date = Time.at(message.internal_date / 1000).to_datetime
     snippet = message.snippet
 
@@ -53,8 +79,10 @@ class Message < ApplicationRecord
     msg.assign_attributes(
       date: date,
       subject: subject,
-      from: from,
-      to: to,
+      from_name: from_name,
+      from_email: from_email,
+      to_email: to_email,
+      to_name: to_name,
       internal_date: internal_date,
       plaintext: plaintext,
       html: html,

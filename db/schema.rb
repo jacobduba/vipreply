@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_15_015900) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_15_215312) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -59,8 +59,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_15_015900) do
     t.string "message_id"
     t.datetime "date"
     t.string "subject"
-    t.string "from"
-    t.string "to"
+    t.string "from_email"
+    t.string "to_email"
     t.bigint "topic_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -68,6 +68,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_15_015900) do
     t.text "plaintext"
     t.text "html"
     t.string "snippet"
+    t.string "from_name"
+    t.string "to_name"
     t.index ["topic_id"], name: "index_messages_on_topic_id"
   end
 
