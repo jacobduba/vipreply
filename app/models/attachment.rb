@@ -2,24 +2,22 @@ class Attachment < ApplicationRecord
   belongs_to :message
 
   def self.cache_from_gmail(message, attachment_data)
-    existing_attachment = msg.attachments.find_or_initialize_by(
-      attachment_id: attachment[:attachment_id]
+    attachment = message.attachments.find_or_initialize_by(
+      attachment_id: attachment_data[:attachment_id]
     )
 
-    existing_attachment.assign_attributes(
-      content_id: attachment[:content_id],
-      filename: attachment[:filename],
-      mime_type: attachment[:mime_type],
-      size: attachment[:size]
+    attachment.assign_attributes(
+      content_id: attachment_data[:content_id],
+      filename: attachment_data[:filename],
+      mime_type: attachment_data[:mime_type],
+      size: attachment_data[:size]
     )
 
-    if existing_attachment.changed?
-      existing_attachment.save!
-      Rails.logger.info "Saved attachment: #{existing_attachment.id}"
+    if attachment.changed?
+      attachment.save!
+      Rails.logger.info "Saved attachment: #{attachment.id}"
     else
-      Rails.logger.info "No changes for attachment: #{existing_attachment.id}"
+      Rails.logger.info "No changes for attachment: #{attachment.id}"
     end
-
-    existing_attachment
   end
 end
