@@ -21,31 +21,32 @@ class UpdateFromHistoryJob < ApplicationJob
         start_history_id: history_id,
         history_types: ["messageAdded"]
       )
-
-      if history_response.history.present?
-        history_response.history.each do |history|
-          history.messages_added&.each do |message_meta|
-            next if message_meta.message.label_ids&.include?("DRAFT")
-
-            thread_id = message_meta.message.thread_id
-
-            # Fetch the entire thread from Gmail
-            thread_response = gmail_service.get_user_thread(user_id, thread_id)
-
-            # Recreate the thread and its messages
-            Topic.cache_from_gmail(thread_response, thread_response.messages.last.snippet, inbox)
-          end
-        end
-      else
-        Rails.logger.info "No new history changes for inbox #{inbox.id}."
-      end
-
-      # Update the latest history_id
-      if history_response.history_id
-        inbox.update!(history_id: history_response.history_id.to_i)
-      end
     rescue Google::Apis::ClientError => e
       Rails.logger.error "Failed to update inbox from history: #{e.message}"
+      return
+    end
+
+    if history_response.history.present?
+      history_response.history.each do |history|
+        history.messages_added&.each do |message_meta|
+          next if message_meta.message.label_ids&.include?("DRAFT")
+
+          thread_id = message_meta.message.thread_id
+
+          # Fetch the entire thread from Gmail
+          thread_response = gmail_service.get_user_thread(user_id, thread_id)
+
+          # Recreate the thread and its messages
+          Topic.cache_from_gmail(thread_response, thread_response.messages.last.snippet, inbox)
+        end
+      end
+    else
+      Rails.logger.info "No new history changes for inbox #{inbox.id}."
+    end
+
+    # Update the latest history_id
+    if history_response.history_id
+      inbox.update!(history_id: history_response.history_id.to_i)
     end
   end
 end

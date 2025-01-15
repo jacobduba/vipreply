@@ -98,6 +98,7 @@ class Topic < ApplicationRecord
 
     # Find or create topic
     topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+
     topic.assign_attributes(
       snippet: snippet,
       date: date,
@@ -108,7 +109,7 @@ class Topic < ApplicationRecord
       message_count: message_count
     )
 
-    topic.save! if topic.new_record?
+    topic.save!
 
     # Cache messages
     messages.each { |message| Message.cache_from_gmail(topic, message) }
