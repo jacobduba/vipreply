@@ -1,6 +1,8 @@
 require "google/apis/gmail_v1"
 
 class TopicsController < ApplicationController
+  include ActionView::Helpers::TextHelper
+
   before_action :set_topic
   before_action :authorize_account_owns_topic
 
@@ -52,6 +54,8 @@ class TopicsController < ApplicationController
     gmail_service = Google::Apis::GmailV1::GmailService.new
     gmail_service.authorization = @account.google_credentials
 
+    email_body_html = simple_format(email_body)
+
     # Build the email message
     email = Mail.new do
       from from_email
@@ -64,7 +68,7 @@ class TopicsController < ApplicationController
 
       html_part do
         content_type "text/html; charset=UTF-8"
-        body "<p>#{email_body}</p>" # HTML version
+        body email_body_html
       end
 
       # Add headers to attach the email to the thread
