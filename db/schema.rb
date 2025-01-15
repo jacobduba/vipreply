@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_11_231134) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_15_015900) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -47,16 +47,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_11_231134) do
     t.index ["message_id"], name: "index_attachments_on_message_id"
   end
 
-  create_table "examples", force: :cascade do |t|
-    t.text "input"
-    t.text "output"
-    t.vector "input_embedding", limit: 3072
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "model_id", null: false
-    t.index ["model_id"], name: "index_examples_on_model_id"
-  end
-
   create_table "inboxes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -79,12 +69,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_11_231134) do
     t.text "html"
     t.string "snippet"
     t.index ["topic_id"], name: "index_messages_on_topic_id"
-  end
-
-  create_table "models", force: :cascade do |t|
-    t.string "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "templates", force: :cascade do |t|
@@ -117,7 +101,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_11_231134) do
   end
 
   add_foreign_key "attachments", "messages"
-  add_foreign_key "examples", "models"
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "messages", "topics"
   add_foreign_key "templates", "inboxes"
