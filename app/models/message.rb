@@ -28,4 +28,89 @@ class Message < ApplicationRecord
       #{plaintext}
     HEREDOC
   end
+
+  # Returns Message
+  def self.cache_from_gmail(topic, message)
+    headers = message.payload.headers
+    message_id = message.id
+    date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
+    subject = headers.find { |h| h.name.downcase == "subject" }.value
+    from = headers.find { |h| h.name.downcase == "from" }.value
+    to = headers.find { |h| h.name.downcase == "to" }.value
+    internal_date = Time.at(message.internal_date / 1000).to_datetime
+    snippet = message.snippet
+
+    collected_parts = extract_parts(message.payload)
+
+    plaintext = collected_parts[:plain]
+    html = collected_parts[:html]
+    attachments = collected_parts[:attachments]
+
+    # Find or create message
+    msg = topic.messages.find_or_initialize_by(message_id: message_id)
+    msg.assign_attributes(
+      date: date,
+      subject: subject,
+      from: from,
+      to: to,
+      internal_date: internal_date,
+      plaintext: plaintext,
+      html: html,
+      snippet: snippet
+    )
+
+    if msg.changed?
+      msg.save!
+      Rails.logger.info "Saved message: #{msg.id}"
+    else
+      Rails.logger.info "No changes for message: #{msg.id}"
+    end
+
+    # Save or update attachments
+    attachments.each do |attachment|
+      Attachment.cache_from_gmail(msg, attachment)
+    end
+
+    msg
+  end
+
+  def self.extract_parts(part)
+    result = {
+      plain: nil,
+      html: nil,
+      attachments: []
+    }
+
+    if part.mime_type.start_with?("multipart/")
+      part.parts.each do |subpart|
+        subresult = extract_parts(subpart)
+        result[:plain] ||= subresult[:plain]
+        result[:html] ||= subresult[:html]
+        result[:attachments].concat(subresult[:attachments])
+      end
+    elsif part.mime_type == "text/plain"
+      result[:plain] = part.body.data
+    elsif part.mime_type == "text/html"
+      result[:html] = part.body.data
+    else
+      content_disposition = part.headers.find { |h| h.name == "Content-Disposition" }&.value
+      if content_disposition&.start_with?("attachment") || part.filename
+        cid_header = part.headers.find { |h| h.name == "Content-ID" }&.value
+        x_attachment_id = part.headers.find { |h| h.name == "X-Attachment-Id" }&.value
+        cid = if x_attachment_id
+          "cid:#{x_attachment_id}"
+        elsif cid_header
+          "cid:#{cid_header[1..-2]}"
+        end
+        result[:attachments] << {
+          attachment_id: part.body.attachment_id,
+          content_id: cid,
+          filename: part.filename,
+          mime_type: part.mime_type,
+          size: (part.body.size / 1024.0).round
+        }
+      end
+    end
+    result
+  end
 end
