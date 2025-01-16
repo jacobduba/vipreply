@@ -44,6 +44,9 @@ class Account < ApplicationRecord
   end
 
   def setup_gmail_watch
+    # Documentation for setting this up in Cloud Console
+    # https://developers.google.com/gmail/api/guides/push
+
     return if Rails.env.development?
     return unless provider == "google_oauth2" && google_credentials.present?
 
