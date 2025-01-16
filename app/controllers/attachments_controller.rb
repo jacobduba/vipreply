@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+require "google/apis/gmail_v1"
+
+class AttachmentsController < ApplicationController
+  before_action :initialize_gmail_service
+
+  def show
+    # Find the attachment by ID or return a 404 error page
+    attachment = Attachment.find_by(id: params[:id])
+
+    unless attachment
+      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+      return
+    end
+
+    # Use Gmail API to fetch the attachment data
+    user_id = "me"
+    message_id = attachment.message.message_id
+    attachment_id = attachment.attachment_id
+
+    begin
+      # Fetch the raw attachment data
+      response = @gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
+    rescue Signet::AuthorizationError
+      Rails.logger.info "Google access token is invalid, getting refresh token"
+      # Refresh token fails
+      unless @account.refresh_google_token!
+        reset_session
+        # Prompt for consent to get new refresh token
+        redirect_to login_path(refresh_token_expired: true)
+        return
+      end
+      retry
+    rescue => e
+      Rails.logger.error e
+      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+      return
+    end
+
+    attachment_data = response.data
+    disposition_type = attachment.content_id ? "inline" : "attachment"
+
+    # Send the file to the browser
+    send_data attachment_data,
+      filename: attachment.filename,
+      type: attachment.mime_type,
+      disposition: disposition_type
+  end
+
+  private
+
+  def initialize_gmail_service
+    @gmail_service = Google::Apis::GmailV1::GmailService.new
+    @gmail_service.authorization = @account.google_credentials
+  end
+end

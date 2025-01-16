@@ -2,13 +2,14 @@
 
 source "https://rubygems.org"
 
-ruby "3.3.4"
+ruby "3.3.6"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.0"
 
 gem "propshaft", "~> 1.1"
 
+# Postgres
 gem "pg"
 
 # Use the Puma web server [https://github.com/puma/puma]
@@ -44,9 +45,23 @@ gem "bootsnap", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
+# Vector search with Postgres
 gem "neighbor"
 
+# TailwindCSS
 gem "tailwindcss-rails", "~> 2.7"
+
+# Omniauth for connecting inboxes
+gem "omniauth"
+gem "omniauth-rails_csrf_protection"
+gem "omniauth-google-oauth2"
+
+# For interacting with Gmail api
+gem "google-api-client", "~> 0.53.0"
+
+# Solid Queue for background jobs like generating replies
+gem "solid_queue", "~> 1.1"
+gem "mission_control-jobs", "~> 1.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -70,3 +85,5 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
+
+gem "mail", "~> 2.8"

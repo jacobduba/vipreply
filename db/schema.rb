@@ -10,16 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_21_221436) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_15_224719) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
 
   create_table "accounts", force: :cascade do |t|
-    t.string "username"
-    t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "access_token", limit: 1020
+    t.string "refresh_token", limit: 1020
+    t.string "provider"
+    t.string "uid"
+    t.string "email"
+    t.string "name"
+    t.string "first_name"
+    t.string "last_name"
+    t.datetime "expires_at"
+    t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 
   create_table "accounts_models", id: false, force: :cascade do |t|
@@ -27,21 +35,79 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_21_221436) do
     t.bigint "model_id", null: false
   end
 
-  create_table "examples", force: :cascade do |t|
+  create_table "attachments", force: :cascade do |t|
+    t.string "attachment_id"
+    t.bigint "message_id", null: false
+    t.string "filename"
+    t.string "mime_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "size"
+    t.string "content_id"
+    t.index ["message_id"], name: "index_attachments_on_message_id"
+  end
+
+  create_table "inboxes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "account_id", null: false
+    t.bigint "history_id"
+    t.index ["account_id"], name: "index_inboxes_on_account_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.string "message_id"
+    t.datetime "date"
+    t.string "subject"
+    t.string "from_email"
+    t.string "to_email"
+    t.bigint "topic_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "internal_date"
+    t.text "plaintext"
+    t.text "html"
+    t.string "snippet"
+    t.string "from_name"
+    t.string "to_name"
+    t.string "gmail_message_id", limit: 64
+    t.index ["message_id"], name: "index_messages_on_message_id", unique: true
+    t.index ["topic_id"], name: "index_messages_on_topic_id"
+  end
+
+  create_table "templates", force: :cascade do |t|
     t.text "input"
     t.text "output"
     t.vector "input_embedding", limit: 3072
+    t.bigint "inbox_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "model_id", null: false
-    t.index ["model_id"], name: "index_examples_on_model_id"
+    t.index ["inbox_id"], name: "index_templates_on_inbox_id"
   end
 
-  create_table "models", force: :cascade do |t|
-    t.string "name"
+  create_table "topics", force: :cascade do |t|
+    t.string "thread_id"
+    t.string "snippet"
+    t.datetime "date"
+    t.string "subject"
+    t.string "from"
+    t.string "to"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "inbox_id", null: false
+    t.boolean "all_taken_care_of"
+    t.integer "message_count"
+    t.bigint "template_id"
+    t.string "generated_reply"
+    t.integer "template_status", default: 0
+    t.index ["inbox_id"], name: "index_topics_on_inbox_id"
+    t.index ["template_id"], name: "index_topics_on_template_id"
   end
 
-  add_foreign_key "examples", "models"
+  add_foreign_key "attachments", "messages"
+  add_foreign_key "inboxes", "accounts"
+  add_foreign_key "messages", "topics"
+  add_foreign_key "templates", "inboxes"
+  add_foreign_key "topics", "inboxes"
+  add_foreign_key "topics", "templates"
 end
