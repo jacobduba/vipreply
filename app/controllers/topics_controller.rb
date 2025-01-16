@@ -35,7 +35,7 @@ class TopicsController < ApplicationController
     # Get the most recent message in the topic
     most_recent_message = @topic.messages.order(date: :desc).first
     if most_recent_message.nil?
-      flash[:alert] = "Cannot send email: No messages found in this topic."
+      Rails.logger.info "Cannot send email: No messages found in this topic."
       redirect_to topic_path(@topic) and return
     end
 
@@ -91,10 +91,12 @@ class TopicsController < ApplicationController
         thread_id: @topic.thread_id
       )
       gmail_service.send_user_message("me", message_object)
-      flash[:notice] = "Email sent successfully to #{to}!"
     rescue Google::Apis::ClientError => e
-      flash[:alert] = "Failed to send email: #{e.message}"
+      Rails.logger.error "Failed to send email: #{e.message}"
     end
+
+    inbox = @account.inbox
+    UpdateFromHistoryJob.perform_now inbox.id
 
     # Redirect back to the topic page
     redirect_to topic_path(@topic)
