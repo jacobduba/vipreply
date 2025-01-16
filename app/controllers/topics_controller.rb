@@ -41,7 +41,11 @@ class TopicsController < ApplicationController
 
     # Determine the 'from' and 'to' fields using the most recent message
     from = "#{@account.name} <#{@account.email}>"
-    to = (most_recent_message.from == @account.email) ? most_recent_message.to : most_recent_message.from
+    to = if most_recent_message.from_email == @account.email
+      most_recent_message.to
+    else
+      most_recent_message.from
+    end
 
     subject = "Re: #{@topic.subject}"
 
