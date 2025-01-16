@@ -34,6 +34,20 @@ class Message < ApplicationRecord
     end
   end
 
+  # Stipe everything after "On .... wrote:"
+  # Used for embedding vector
+  def message_without_history
+    return plaintext.stripe unless plaintext
+    lines = plaintext.lines
+
+    cutoff_index = lines.find_index { |line|
+      line.start_with?("On") && line.include?("wrote:")
+    }
+
+    plaintext.strip unless cutoff_index
+    lines[0...cutoff_index].join.strip
+  end
+
   def to_s
     <<~HEREDOC
       Date: #{date}

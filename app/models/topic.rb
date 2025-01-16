@@ -9,7 +9,7 @@ class Topic < ApplicationRecord
 
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
-    message_str = message.to_s
+    message_str = message.message_without_history
 
     neighbor = Template.find_similar(message_str)
 
