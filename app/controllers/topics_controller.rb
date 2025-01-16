@@ -43,8 +43,15 @@ class TopicsController < ApplicationController
     from = "#{@account.name} <#{@account.email}>"
     to = (most_recent_message.from == @account.email) ? most_recent_message.to : most_recent_message.from
 
-    email_body_html = simple_format(email_body)
     subject = "Re: #{@topic.subject}"
+    email_body_html = <<~HTML
+      #{simple_format(email_body)}
+
+      On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{from} wrote:
+      <blockquote>
+        #{most_recent_message.html}
+      </blockquote>
+    HTML
 
     in_reply_to = most_recent_message.message_id
     references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
