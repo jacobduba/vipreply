@@ -1,7 +1,6 @@
 class PubsubController < ApplicationController
   skip_before_action :verify_authenticity_token
   skip_before_action :authorize_has_account
-  include InboxManagementConcern
 
   def notifications
     Rails.logger.info "Received Pub/Sub notification"
