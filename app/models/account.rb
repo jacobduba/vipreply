@@ -44,6 +44,8 @@ class Account < ApplicationRecord
   end
 
   def setup_gmail_watch
+    return if Rails.env.development?
+
     puts "Trying with provider #{provider} and google_credentials #{google_credentials}"
 
     return unless provider == "google_oauth2" && google_credentials.present?
@@ -56,7 +58,7 @@ class Account < ApplicationRecord
 
     watch_request = Google::Apis::GmailV1::WatchRequest.new(
       label_ids: ["INBOX"],
-      topic_name: "projects/emailthingy-445622/topics/gmail-updates"
+      topic_name: Rails.application.credentials.gmail_topic_name
     )
 
     begin

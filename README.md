@@ -49,12 +49,12 @@ Things you may want to cover:
     bundle install
     ```
 
-4. Set up the master key (get it from a team member):
+4. Set up the development key (get it from a team member):
     ```sh
-    touch config/master.key
-    chmod 600 config/master.key  # Set correct permissions
+    touch config/credentials/development.key
+    chmod 600 config/credentials/development.key # Set correct permissions
     ```
-   Then paste the master key into `config/master.key` (never commit this file)
+   Then paste the master key into `config/credentials/development.key` (never commit this file)
 
 5. Start Postgres:
     ```sh
