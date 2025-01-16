@@ -44,10 +44,25 @@ class TopicsController < ApplicationController
     to = (most_recent_message.from == @account.email) ? most_recent_message.to : most_recent_message.from
 
     subject = "Re: #{@topic.subject}"
+
+    quoted_plaintext = most_recent_message.plaintext.lines.map do |line|
+      if line.starts_with?(">")
+        ">#{line}"
+      else
+        "> #{line}"
+      end
+    end.join
+    email_body_plaintext = <<~PLAINTEXT
+      #{email_body}
+
+      On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
+      #{quoted_plaintext}
+    PLAINTEXT
+
     email_body_html = <<~HTML
       #{simple_format(email_body)}
 
-      On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{from} wrote:
+      On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
       <blockquote>
         #{most_recent_message.html}
       </blockquote>
@@ -66,7 +81,7 @@ class TopicsController < ApplicationController
       subject subject
 
       text_part do
-        body email_body # Plain text version
+        body quoted_plaintext # Plain text version
       end
 
       html_part do
