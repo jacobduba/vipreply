@@ -58,7 +58,7 @@ class Account < ApplicationRecord
 
     watch_request = Google::Apis::GmailV1::WatchRequest.new(
       label_ids: ["INBOX"],
-      topic_name: Rails.application.credentials.gmail_topic_name
+      topic_name: Rails.application.credentials.gmail_topic_id
     )
 
     begin
