@@ -22,7 +22,7 @@ class Account < ApplicationRecord
 
     update!(
       access_token: credentials.access_token,
-      token_expiry: credentials.expires_at
+      expires_at: credentials.expires_at
     )
   end
 
