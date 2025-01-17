@@ -54,16 +54,12 @@ class SessionsController < ApplicationController
     end
 
     # Create inbox if it doesn't exist
-    account.create_inbox unless account.inbox
+    unless account.inbox
+      account.create_inbox
+      SetupInboxJob.perform_later account.inbox.id
+      Rails.logger.info "Inbox setup done for #{account.email}."
+    end
 
-    # Delete all topics and repopulate.
-    # Will only happen when creating inbox... but we're testing rn
-    Rails.logger.info "Deleting inbox for #{account.email}."
-    account.inbox.topics.destroy_all
-    # SetupInboxJob.perform_later account.inbox.id
-    SetupInboxJob.perform_later account.inbox.id
-
-    Rails.logger.info "Inbox setup done for #{account.email}."
     # TODO MOVE THIS TO A JOB
     account.setup_gmail_watch
 
