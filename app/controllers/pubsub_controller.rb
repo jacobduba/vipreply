@@ -1,5 +1,7 @@
 class PubsubController < ApplicationController
   skip_before_action :authorize_account
+  # Disable CSRF protection for webhook
+  skip_forgery_protection
 
   def notifications
     Rails.logger.info "Received Pub/Sub notification"
