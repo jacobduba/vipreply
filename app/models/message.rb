@@ -1,9 +1,11 @@
 class Message < ApplicationRecord
+  include ActionView::Helpers::TextHelper
+
   belongs_to :topic
   has_many :attachments, dependent: :destroy
 
   def replace_cids_with_urls(host)
-    return html unless html
+    return simple_format(plaintext) unless html
 
     updated_html = html.dup
 
