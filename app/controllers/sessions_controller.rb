@@ -4,17 +4,13 @@ require "google/apis/gmail_v1"
 require "date"
 
 class SessionsController < ApplicationController
-  skip_before_action :authorize_has_account
+  skip_before_action :authorize_account
 
   def new
     redirect_to root_path if session[:account_id]
 
-    permitted_params = login_params
-
-    refresh_token_expired = permitted_params["refresh_token_expired"]
-
     # we set refresh_token_expired when refresh token fails to get new refresh token
-    @oauth_url = if refresh_token_expired
+    @oauth_url = if flash[:prompt_consent]
       "/auth/google_oauth2?prompt=consent"
     else
       "/auth/google_oauth2"
@@ -68,8 +64,4 @@ class SessionsController < ApplicationController
   end
 
   private
-
-  def login_params
-    params.permit(:refresh_token_expired)
-  end
 end

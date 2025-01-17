@@ -9,7 +9,7 @@ class Account < ApplicationRecord
   encrypts :access_token
   encrypts :refresh_token
 
-  # Will have to do this with auth
+  # Throws Signet::AuthorizationError
   def refresh_google_token!
     credentials = Google::Auth::UserRefreshCredentials.new(
       client_id: Rails.application.credentials.google_client_id,
@@ -18,13 +18,7 @@ class Account < ApplicationRecord
       scope: ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
     )
 
-    begin
-      credentials.refresh!
-    rescue Signet::AuthorizationError
-      # Clear refresh token
-      update!(refresh_token: nil)
-      return false
-    end
+    credentials.refresh!
 
     update!(
       access_token: credentials.access_token,
