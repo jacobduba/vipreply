@@ -26,9 +26,7 @@ class UpdateFromHistoryJob < ApplicationJob
       return
     end
 
-    latest_history_id = history_response.history_id.to_i
-
-    if latest_history_id == inbox.history_id
+    unless history_response.history
       Rails.logger.info "No new history changes for inbox #{inbox.id}."
       return
     end
