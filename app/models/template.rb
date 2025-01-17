@@ -12,6 +12,8 @@ class Template < ApplicationRecord
   validates :input, uniqueness: true, length: {in: 3..MAX_INPUT_OUTPUT_SIZE}
   validates :output, length: {in: 3..MAX_INPUT_OUTPUT_SIZE}
 
+  before_save :strip_input, if: :input_changed?
+  before_save :strip_output, if: :output_changed?
   before_save :generate_input_embedding, if: :input_changed?
 
   before_destroy :remove_template_from_topics
@@ -50,5 +52,13 @@ class Template < ApplicationRecord
 
   def generate_input_embedding
     self.input_embedding = Template.fetch_embedding(input)
+  end
+
+  def strip_input
+    self.input = input.strip
+  end
+
+  def strip_output
+    self.output = output.strip
   end
 end
