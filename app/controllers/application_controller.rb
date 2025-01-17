@@ -12,15 +12,4 @@ class ApplicationController < ActionController::Base
 
     @account = Account.find(account_id)
   end
-
-  def authorize_account_has_model
-    id = params[:model_id] || params[:id]
-
-    unless @account.models.exists?(id)
-      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
-      return
-    end
-
-    @model = Model.find(id)
-  end
 end
