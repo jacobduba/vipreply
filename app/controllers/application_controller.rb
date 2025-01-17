@@ -9,9 +9,9 @@ class ApplicationController < ActionController::Base
       return redirect_to login_path
     end
 
-    @account = Account.find(account_id)
-
-    unless @account
+    begin
+      @account = Account.find account_id
+    rescue ActiveRecord::RecordNotFound
       reset_session
       return redirect_to login_path
     end

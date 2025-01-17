@@ -3,14 +3,14 @@
 class Template < ApplicationRecord
   # OpenAI lets us submit 8191 tokens... if the characters are under 3000
   # characters we can't go over 8191 tokens lol
-  MAX_INPUT_OUTPUT_SIZE = 3000
+  EMBEDDING_CHAR_LIMIT = 3000
 
   belongs_to :inbox
   has_many :topics
 
   has_neighbors :input_embedding
-  validates :input, uniqueness: true, length: {in: 3..MAX_INPUT_OUTPUT_SIZE}
-  validates :output, length: {in: 3..MAX_INPUT_OUTPUT_SIZE}
+  validates :input, uniqueness: true, length: {in: 3..EMBEDDING_CHAR_LIMIT}
+  validates :output, length: {in: 3..EMBEDDING_CHAR_LIMIT}
 
   before_save :strip_input, if: :input_changed?
   before_save :strip_output, if: :output_changed?
@@ -21,12 +21,16 @@ class Template < ApplicationRecord
   def self.find_best(message, inbox)
     message_str_without_hist = message.message_without_history
 
+    puts message_str_without_hist
+
     embedding = fetch_embedding(message_str_without_hist)
 
     inbox.templates.nearest_neighbors(:input_embedding, embedding, distance: :cosine).first
   end
 
-  def self.fetch_embedding(input)
+  def self.fetch_embedding(text)
+    truncated_text = text.to_s.strip[0...EMBEDDING_CHAR_LIMIT]
+
     openai_api_key = Rails.application.credentials.openai_api_key
 
     url = "https://api.openai.com/v1/embeddings"
@@ -35,7 +39,7 @@ class Template < ApplicationRecord
       "Content-Type" => "application/json"
     }
     data = {
-      input: input,
+      input: truncated_text,
       model: "text-embedding-3-large"
     }
 
