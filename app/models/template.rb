@@ -16,12 +16,12 @@ class Template < ApplicationRecord
 
   before_destroy :remove_template_from_topics
 
-  # @param email [String] Email to find similiar template
-  # @return [Template] Most similiar template to email
-  def self.find_similar(email)
-    embedding = fetch_embedding(email)
+  def self.find_best(message, inbox)
+    message_str_without_hist = message.message_without_history
 
-    Template.nearest_neighbors(:input_embedding, embedding, distance: "euclidean").first
+    embedding = fetch_embedding(message_str_without_hist)
+
+    inbox.templates.nearest_neighbors(:input_embedding, embedding, distance: :cosine).first
   end
 
   def self.fetch_embedding(input)

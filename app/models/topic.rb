@@ -9,9 +9,8 @@ class Topic < ApplicationRecord
 
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
-    message_str = message.message_without_history
 
-    neighbor = inbox.templates.find_similar(message_str)
+    neighbor = Template.find_best(message, inbox)
 
     example_prompt = if neighbor
       <<~HEREDOC
