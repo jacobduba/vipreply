@@ -11,7 +11,7 @@ class Topic < ApplicationRecord
     message = messages.order(date: :desc).first # Newest message
     message_str = message.message_without_history
 
-    neighbor = Template.find_similar(message_str)
+    neighbor = inbox.templates.find_similar(message_str)
 
     example_prompt = if neighbor
       <<~HEREDOC
