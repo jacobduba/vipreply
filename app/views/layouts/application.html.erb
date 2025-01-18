@@ -8,6 +8,9 @@
     <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": Rails.env.production? ? "reload" : "" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <% if @turbo_cache_control %>
+      <meta name="turbo-cache-control" content="no-cache">
+    <% end %>
   </head>
   <body class="bg-gray-50">
     <main class="">
