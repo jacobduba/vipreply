@@ -2,10 +2,10 @@ class InboxesController < ApplicationController
   def index
     @inbox = @account.inbox
 
-    selected_fields = [:id, :snippet, :date, :subject, :from, :to, :all_taken_care_of, :message_count]
+    selected_fields = [:id, :snippet, :date, :subject, :from, :to, :status, :message_count]
 
-    @to_do_topics = @inbox.topics.select(selected_fields).where(all_taken_care_of: false).order(date: :asc)
-    @done_topics = @inbox.topics.select(selected_fields).where(all_taken_care_of: true).order(date: :desc)
+    @needs_reply_topics = @inbox.topics.select(selected_fields).where(status: :needs_reply).order(date: :asc)
+    @has_reply_topics = @inbox.topics.select(selected_fields).where(status: :has_reply).order(date: :desc)
   end
 
   def update

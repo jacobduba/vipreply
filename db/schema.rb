@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_15_224719) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_18_000637) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -95,11 +95,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_15_224719) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "inbox_id", null: false
-    t.boolean "all_taken_care_of"
     t.integer "message_count"
     t.bigint "template_id"
     t.string "generated_reply"
     t.integer "template_status", default: 0
+    t.integer "status", default: 0
+    t.boolean "awaiting_customer"
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["template_id"], name: "index_topics_on_template_id"
   end

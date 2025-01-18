@@ -5,6 +5,7 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
+  enum :status, [:needs_reply, :has_reply]
   enum :template_status, [:no_templates_exist_at_generation, :template_removed, :template_attached, :skipped_no_reply_needed]
 
   def generate_reply
@@ -92,7 +93,12 @@ class Topic < ApplicationRecord
     to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-    all_taken_care_of = from == inbox.account.email
+    status = if from == inbox.account.email
+      :has_reply
+    else
+      :needs_reply
+    end
+    awaiting_customer = from == inbox.account.email
     message_count = response_body.messages.count
 
     # Find or create topic
@@ -104,7 +110,8 @@ class Topic < ApplicationRecord
       subject: subject,
       from: from,
       to: to,
-      all_taken_care_of: all_taken_care_of,
+      status: status,
+      awaiting_customer: awaiting_customer,
       message_count: message_count
     )
 
@@ -113,7 +120,7 @@ class Topic < ApplicationRecord
     # Cache messages
     messages.each { |message| Message.cache_from_gmail(topic, message) }
 
-    if all_taken_care_of
+    if topic.has_reply?
       topic.template_status = :skipped_no_reply_needed
     else
       topic.generate_reply

@@ -4,7 +4,7 @@
   <% if @inbox %>
     <h1 class="font-bold text-slate-400 text-sm mt-6 uppercase">Needs a reply</h1>
     <ul class="divide-y divide-slate-300">
-      <% @to_do_topics.each do |topic| %>
+      <% @needs_reply_topics.each do |topic| %>
         <li class="py-2">
           <%= link_to topic_path(topic), class: "group/model" do %>
             <div class="flex justify-between items-center gap-3">
@@ -31,9 +31,9 @@
         </li>
       <% end %>
     </ul>
-    <h1 class="font-bold text-slate-400 text-sm mt-4 uppercase">All taken care of</h1>
+    <h1 class="font-bold text-slate-400 text-sm mt-4 uppercase">Has a reply</h1>
     <ul class="divide-y divide-slate-300">
-      <% @done_topics.each do |topic| %>
+      <% @has_reply_topics.each do |topic| %>
         <li class="py-2">
           <%= link_to topic_path(topic), class: "group/model" do %>
             <div class="flex justify-between items-center gap-3">
