@@ -123,6 +123,14 @@ class TopicsController < ApplicationController
     redirect_to topic_path(@topic)
   end
 
+  def change_status
+    new_status = @topic.has_reply? ? :needs_reply : :has_reply
+
+    @topic.update(status: new_status)
+
+    render turbo_stream: turbo_stream.replace("change_status_button", partial: "topics/change_status_button")
+  end
+
   private
 
   def set_topic
