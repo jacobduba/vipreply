@@ -12,7 +12,7 @@ class Message < ApplicationRecord
     attachments.each do |attachment|
       next unless attachment.content_id
 
-      attachment_url = "#{host}/attachments/#{attachment.id}"
+      attachment_url = attachment.url host
 
       updated_html.gsub!(attachment.content_id, attachment_url)
     end

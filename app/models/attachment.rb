@@ -20,4 +20,9 @@ class Attachment < ApplicationRecord
       Rails.logger.info "No changes for attachment: #{attachment.id}"
     end
   end
+
+  # Get url
+  def url(host)
+    "#{host}/attachments/#{id}"
+  end
 end

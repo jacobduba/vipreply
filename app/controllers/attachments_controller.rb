@@ -14,7 +14,6 @@ class AttachmentsController < ApplicationController
       return
     end
 
-    # Use Gmail API to fetch the attachment data
     user_id = "me"
     message_id = attachment.message.message_id
     attachment_id = attachment.attachment_id
@@ -22,7 +21,9 @@ class AttachmentsController < ApplicationController
     response = @gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
 
     attachment_data = response.data
-    disposition_type = attachment.content_id ? "inline" : "attachment"
+    # Want to render in browser always, at least for now
+    disposition_type = "inline"
+    # disposition_type = attachment.content_id ? "inline" : "attachment"
 
     # Send the file to the browser
     send_data attachment_data,

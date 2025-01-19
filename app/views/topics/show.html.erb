@@ -57,8 +57,21 @@
                 <% end %>
               </p>
             </div>
-            <p class="text-slate-500 truncate"> to <%= message.to %></p>
-            <div class="mt-2">
+            <p class="text-slate-500 truncate mb-1"> to <%= message.to %></p>
+            <% attachments_without_cid = message.attachments.select { |att| att.content_id.nil? } %>
+            <% if attachments_without_cid%>
+              <div class="flex flex-wrap gap-x-1">
+                <% attachments_without_cid.each do |attachment| %>
+                  <%= link_to attachment_path(attachment), target: "_blank", class: "mb-1 text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-2 focus:ring-gray-100 font-medium rounded-lg text-sm py-1 px-2 inline-flex items-center gap-1" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                    </svg>
+                    <%= attachment.filename %>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+            <div class="mt-1">
               <div class="text-center" data-iframe-resize-target="loader">
                 <div role="status">
                   <svg class="animate-spin h-8 w-8 text-gray-400 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

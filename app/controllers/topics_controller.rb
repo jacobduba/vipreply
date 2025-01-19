@@ -14,13 +14,14 @@ class TopicsController < ApplicationController
     # Yes. this makes the user experience worse
     # More: https://security.stackexchange.com/a/134587
 
-    @messages = @topic.messages.order(date: :asc)
+    @messages = @topic.messages.order(date: :asc).includes(:attachments)
     @template = @topic.template
     @generated_reply = if @topic.skipped_no_reply_needed?
       ""
     else
       @topic.generated_reply
     end
+
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
     @from_inbox = request.referrer == root_url
