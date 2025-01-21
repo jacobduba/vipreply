@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_18_000637) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_21_041947) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -44,6 +44,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_18_000637) do
     t.datetime "updated_at", null: false
     t.integer "size"
     t.string "content_id"
+    t.integer "content_disposition", default: 0, null: false
     t.index ["message_id"], name: "index_attachments_on_message_id"
   end
 

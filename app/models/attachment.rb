@@ -1,24 +1,22 @@
 class Attachment < ApplicationRecord
   belongs_to :message
 
-  def self.cache_from_gmail(message, attachment_data)
-    attachment = message.attachments.find_or_initialize_by(
-      attachment_id: attachment_data[:attachment_id]
-    )
+  enum :content_disposition, [:inline, :attachment]
 
-    attachment.assign_attributes(
+  def self.cache_from_gmail(message, attachment_data)
+    # Attachments are deleted and recreated because gmail doesn't have static IDs for them
+    # https://serverfault.com/questions/398962/does-the-presence-of-a-content-id-header-in-an-email-mime-mean-that-the-attachm
+    attachment = create!(
+      message: message,
+      attachment_id: attachment_data[:attachment_id],
       content_id: attachment_data[:content_id],
       filename: attachment_data[:filename],
       mime_type: attachment_data[:mime_type],
-      size: attachment_data[:size]
+      size: attachment_data[:size],
+      content_disposition: attachment_data[:content_disposition]
     )
 
-    if attachment.changed?
-      attachment.save!
-      Rails.logger.info "Saved attachment: #{attachment.id}"
-    else
-      Rails.logger.info "No changes for attachment: #{attachment.id}"
-    end
+    Rails.logger.info "Saved attachment: #{attachment.id}"
   end
 
   # Get url

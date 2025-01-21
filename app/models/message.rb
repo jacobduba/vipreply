@@ -114,7 +114,10 @@ class Message < ApplicationRecord
       Rails.logger.info "No changes for message: #{msg.id}"
     end
 
-    # Save or update attachments
+    # Attachment ids change whenever the topic is updated
+    # https://stackoverflow.com/questions/28104157/how-can-i-find-the-definitive-attachmentid-for-an-attachment-retrieved-via-googl
+    # My "solution" is to destory all the attachments and recreate them
+    msg.attachments.destroy_all
     attachments.each do |attachment|
       Attachment.cache_from_gmail(msg, attachment)
     end
@@ -141,8 +144,8 @@ class Message < ApplicationRecord
     elsif part.mime_type == "text/html"
       result[:html] = part.body.data
     else
-      content_disposition = part.headers.find { |h| h.name == "Content-Disposition" }&.value
-      if content_disposition&.start_with?("attachment") || part.filename
+      content_disposition_header = part.headers.find { |h| h.name == "Content-Disposition" }&.value
+      if content_disposition_header&.start_with?("attachment") || part.filename
         cid_header = part.headers.find { |h| h.name == "Content-ID" }&.value
         x_attachment_id = part.headers.find { |h| h.name == "X-Attachment-Id" }&.value
         cid = if x_attachment_id
@@ -150,12 +153,14 @@ class Message < ApplicationRecord
         elsif cid_header
           "cid:#{cid_header[1..-2]}"
         end
+        content_disposition = content_disposition_header&.split(";")&.first&.strip
         result[:attachments] << {
           attachment_id: part.body.attachment_id,
           content_id: cid,
           filename: part.filename,
           mime_type: part.mime_type,
-          size: (part.body.size / 1024.0).round
+          size: (part.body.size / 1024.0).round,
+          content_disposition: content_disposition
         }
       end
     end

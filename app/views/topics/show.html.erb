@@ -58,7 +58,7 @@
               </p>
             </div>
             <p class="text-slate-500 truncate mb-1"> to <%= message.to %></p>
-            <% attachments_without_cid = message.attachments.select { |att| att.content_id.nil? } %>
+            <% attachments_without_cid = message.attachments.select { |att| att.attachment? } %>
             <% if attachments_without_cid%>
               <div class="flex flex-wrap gap-x-1">
                 <% attachments_without_cid.each do |attachment| %>
