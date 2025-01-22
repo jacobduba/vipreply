@@ -62,7 +62,7 @@ class Topic < ApplicationRecord
             Write it in your own words!
             Be compassionate: emphasize with the customer.
             Include a salutation such as Hello or Greetings.
-            DO NOT include a closing, such as Best regards or Kind regards."
+            DO NOT include a closing, such as Best regards or Kind regards.
           HEREDOC
         },
         {
