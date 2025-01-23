@@ -1,5 +1,5 @@
 class Attachment < ApplicationRecord
-  belongs_to :message
+  belongs_to :message, dependent: :delete
 
   enum :content_disposition, [:inline, :attachment]
 
