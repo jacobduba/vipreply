@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "google/apis/gmail_v1"
-
 class AttachmentsController < ApplicationController
   before_action :initialize_gmail_service
 

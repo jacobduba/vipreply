@@ -1,5 +1,3 @@
-require "google/apis/gmail_v1"
-
 class TopicsController < ApplicationController
   include ActionView::Helpers::TextHelper
 

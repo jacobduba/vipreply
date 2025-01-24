@@ -1,5 +1,3 @@
-require "google/apis/gmail_v1"
-
 class SetupInboxJob < ApplicationJob
   queue_as :default
 
