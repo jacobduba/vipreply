@@ -8,6 +8,10 @@ class Example < ApplicationRecord
 
   has_neighbors :message_plaintext_embedding
 
+  validates :message, presence: true
+
+  before_save :generate_message_plaintext_embedding, if: :message_id_changed
+
   def self.fetch_embedding(text)
     truncated_text = text.to_s.strip[0...EMBEDDING_CHAR_LIMIT]
 
@@ -25,5 +29,15 @@ class Example < ApplicationRecord
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     JSON.parse(response.body)["data"][0]["embedding"]
+  end
+
+  def self.find_best
+    embedding = fetch_embedding(message.plaintext)
+
+    inbox.examples.nearest_neighbors(:input_embedding, embedding, distance: :cosine).first
+  end
+
+  def generate_message_plaintext_embedding
+    self.message_plaintext_embedding = Example.fetch_embedding(message.plaintext)
   end
 end

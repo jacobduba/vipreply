@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_23_200240) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_25_021706) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -54,6 +54,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_23_200240) do
     t.vector "message_plaintext_embedding", limit: 3072
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "inbox_id", null: false
+    t.index ["inbox_id"], name: "index_examples_on_inbox_id"
     t.index ["message_id"], name: "index_examples_on_message_id"
     t.index ["template_id"], name: "index_examples_on_template_id"
   end
@@ -117,6 +119,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_23_200240) do
   end
 
   add_foreign_key "attachments", "messages"
+  add_foreign_key "examples", "inboxes"
   add_foreign_key "examples", "messages"
   add_foreign_key "examples", "templates"
   add_foreign_key "inboxes", "accounts"
