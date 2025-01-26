@@ -1,16 +1,18 @@
 <% if topic.template_attached? %>
   <%= form_with model: [topic.template], id: "template_form" do |form| %>
     <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
-      <div class="col-span-2">
-        <%= form.label :input, "Template recieved email", class: ["block text-sm font-medium text-gray-900", (input_errors.empty? ? "mb-2" : "text-red-800")] %>
-        <ul class="list-disc list-inside text-red-800 text-sm mb-2">
-          <% input_errors.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-        <%# autocomplete: "off" disabled input form caching, yeah I know stupid %>
-        <%= form.text_area :input, rows: 3, placeholder: "Write a template recieved email here", data: { controller: "textbox-autoresize" }, autocomplete: "off", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
-      </div>
+      <% if false %>
+        <div class="col-span-2">
+          <%= form.label :input, "Template recieved email", class: ["block text-sm font-medium text-gray-900", (input_errors.empty? ? "mb-2" : "text-red-800")] %>
+          <ul class="list-disc list-inside text-red-800 text-sm mb-2">
+            <% input_errors.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+          <%# autocomplete: "off" disabled input form caching, yeah I know stupid %>
+          <%= form.text_area :input, rows: 3, placeholder: "Write a template recieved email here", data: { controller: "textbox-autoresize" }, autocomplete: "off", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+        </div>
+      <% end %>
       <div class="col-span-2">
         <%= form.label :output, "Template response email", class: ["block text-sm font-medium text-gray-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
         <ul class="list-disc list-inside text-red-800 text-sm mb-2">

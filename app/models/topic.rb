@@ -6,38 +6,40 @@ class Topic < ApplicationRecord
   has_many :attachments, through: :messages
 
   enum :status, [:needs_reply, :has_reply]
-  enum :template_status, [:no_templates_exist_at_generation, :template_removed, :template_attached, :skipped_no_reply_needed]
+  enum :template_status, [
+    :no_templates_exist_at_generation,
+    :template_removed,
+    :template_attached,
+    :skipped_no_reply_needed
+  ]
 
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
-
     best_template = Example.find_best_template(message, inbox)
 
-    example_prompt = if best_template
-      <<~TEXT
-        Example recieved email:
-        #{best_template.input}
-        Example response email:
+    template_prompt = if best_template
+      <<~PROMPT
+        Template response email:
         #{best_template.output}
-      TEXT
+      PROMPT
     else
       ""
     end
-
-    email_for_prompt = <<~TEXT
+    email_prompt = <<~PROMPT
       Email:
       #{message}
       Response:
-    TEXT
-
-    prompt = "#{example_prompt}#{email_for_prompt}"
-
+    PROMPT
+    prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
-    template_status = best_template ? :template_attached : :no_templates_exist_at_generation
 
     self.generated_reply = reply
     self.template = best_template
-    self.template_status = template_status
+    self.template_status = if best_template
+      :template_attached
+    else
+      :no_templates_exist_at_generation
+    end
   end
 
   private
@@ -55,15 +57,15 @@ class Topic < ApplicationRecord
       messages: [
         {
           role: "system",
-          content: <<~HEREDOC
+          content: <<~PROMPT
             You are a Customer Support Representative who answers emails.
-            You will be given a template containing a example received email and an example response email.
+            You will be given a template containing a template response email.
             Then you will given an email and you must generate a response for it using the template.
             Write it in your own words!
             Be compassionate: emphasize with the customer.
             Include a salutation such as Hello or Greetings.
             DO NOT include a closing, such as Best regards or Kind regards.
-          HEREDOC
+          PROMPT
         },
         {
           role: "user",
