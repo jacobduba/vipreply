@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_25_021706) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_26_195128) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -51,7 +51,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_25_021706) do
   create_table "examples", force: :cascade do |t|
     t.bigint "template_id", null: false
     t.bigint "message_id", null: false
-    t.vector "message_plaintext_embedding", limit: 3072
+    t.vector "message_embedding", limit: 3072
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "inbox_id", null: false

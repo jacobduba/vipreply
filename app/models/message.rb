@@ -1,4 +1,8 @@
 class Message < ApplicationRecord
+  # OpenAI lets us submit 8191 tokens... if the characters are under 8191
+  # characters we can't go over 8191 tokens lol
+  EMBEDDING_CHAR_LIMIT = 8191
+
   include ActionView::Helpers::TextHelper
 
   belongs_to :topic
@@ -51,20 +55,24 @@ class Message < ApplicationRecord
   end
 
   def to_s
-    <<~HEREDOC
+    <<~TEXT
       Date: #{date}
       From: #{from}
       To: #{to}
       Subject: #{subject}
 
       #{plaintext}
-    HEREDOC
+    TEXT
   end
 
   def generate_embedding
-    <<~TEXT
-
+    embedding_text = <<~TEXT
+      Subject: #{subject}
+      Body:
+      #{plaintext}
     TEXT
+
+    fetch_embedding(embedding_text)
   end
 
   def self.parse_email_header(header)
@@ -171,5 +179,26 @@ class Message < ApplicationRecord
       end
     end
     result
+  end
+
+  private
+
+  def fetch_embedding(text)
+    truncated_text = text.to_s.strip[0...EMBEDDING_CHAR_LIMIT]
+
+    openai_api_key = Rails.application.credentials.openai_api_key
+
+    url = "https://api.openai.com/v1/embeddings"
+    headers = {
+      "Authorization" => "Bearer #{openai_api_key}",
+      "Content-Type" => "application/json"
+    }
+    data = {
+      input: truncated_text,
+      model: "text-embedding-3-large"
+    }
+
+    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
+    JSON.parse(response.body)["data"][0]["embedding"]
   end
 end

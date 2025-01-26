@@ -11,32 +11,32 @@ class Topic < ApplicationRecord
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
 
-    neighbor = Template.find_best(message, inbox)
+    best_template = Example.find_best_template(message, inbox)
 
-    example_prompt = if neighbor
-      <<~HEREDOC
+    example_prompt = if best_template
+      <<~TEXT
         Example recieved email:
-        #{neighbor.input}
+        #{best_template.input}
         Example response email:
-        #{neighbor.output}
-      HEREDOC
+        #{best_template.output}
+      TEXT
     else
       ""
     end
 
-    email_for_prompt = <<~HEREDOC
+    email_for_prompt = <<~TEXT
       Email:
       #{message}
       Response:
-    HEREDOC
+    TEXT
 
     prompt = "#{example_prompt}#{email_for_prompt}"
 
     reply = fetch_generation(prompt)
-    template_status = neighbor ? :template_attached : :no_templates_exist_at_generation
+    template_status = best_template ? :template_attached : :no_templates_exist_at_generation
 
     self.generated_reply = reply
-    self.template = neighbor
+    self.template = best_template
     self.template_status = template_status
   end
 

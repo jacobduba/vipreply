@@ -122,8 +122,6 @@ class TopicsController < ApplicationController
 
     template = @topic.template
 
-    debugger
-
     if template
       Example.create!(
         message: most_recent_message,
