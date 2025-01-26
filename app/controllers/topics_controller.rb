@@ -57,6 +57,7 @@ class TopicsController < ApplicationController
         "> #{line}"
       end
     end.join
+
     email_body_plaintext = <<~PLAINTEXT
       #{email_body}
 
@@ -113,10 +114,23 @@ class TopicsController < ApplicationController
       gmail_service.send_user_message("me", message_object)
     rescue Google::Apis::ClientError => e
       Rails.logger.error "Failed to send email: #{e.message}"
+      return
     end
 
     inbox = @account.inbox
     UpdateFromHistoryJob.perform_now inbox.id
+
+    template = @topic.template
+
+    debugger
+
+    if template
+      Example.create!(
+        message: most_recent_message,
+        template: template,
+        inbox: inbox
+      )
+    end
 
     # Redirect back to the topic page
     redirect_to topic_path(@topic)

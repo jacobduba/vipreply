@@ -5,12 +5,13 @@ class Example < ApplicationRecord
 
   belongs_to :template
   belongs_to :message
+  belongs_to :inbox
 
   has_neighbors :message_plaintext_embedding
 
   validates :message, presence: true
 
-  before_save :generate_message_plaintext_embedding, if: :message_id_changed
+  before_save :generate_message_plaintext_embedding, if: :message_id_changed?
 
   def self.fetch_embedding(text)
     truncated_text = text.to_s.strip[0...EMBEDDING_CHAR_LIMIT]

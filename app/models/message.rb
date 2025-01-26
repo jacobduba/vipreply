@@ -61,6 +61,12 @@ class Message < ApplicationRecord
     HEREDOC
   end
 
+  def generate_embedding
+    <<~TEXT
+
+    TEXT
+  end
+
   def self.parse_email_header(header)
     if header.include?("<")
       name = header.split("<").first.strip
