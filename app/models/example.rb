@@ -17,7 +17,7 @@ class Example < ApplicationRecord
       .select(:id, :template_id)
       .first
 
-    best_example.template
+    best_example&.template
   end
 
   private

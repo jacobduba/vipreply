@@ -19,6 +19,8 @@ class TopicsController < ApplicationController
     else
       @topic.generated_reply
     end
+    # TODO — cache this?
+    @has_templates = @account.inbox.templates.exists?
 
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll

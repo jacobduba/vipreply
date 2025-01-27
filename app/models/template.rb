@@ -6,6 +6,7 @@ class Template < ApplicationRecord
 
   belongs_to :inbox
   has_many :topics
+  has_many :examples, dependent: :destroy
 
   validates :output,
     uniqueness: true,

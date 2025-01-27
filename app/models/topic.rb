@@ -7,7 +7,7 @@ class Topic < ApplicationRecord
 
   enum :status, [:needs_reply, :has_reply]
   enum :template_status, [
-    :no_templates_exist_at_generation,
+    :could_not_find_template,
     :template_removed,
     :template_attached,
     :skipped_no_reply_needed
@@ -38,7 +38,7 @@ class Topic < ApplicationRecord
     self.template_status = if best_template
       :template_attached
     else
-      :no_templates_exist_at_generation
+      :could_not_find_template
     end
   end
 
