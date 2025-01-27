@@ -26,6 +26,8 @@ class UpdateFromHistoryJob < ApplicationJob
       return
     end
 
+    Rails.logger.debug "History response: #{history_response.inspect}"
+
     unless history_response.history
       Rails.logger.info "No new history changes for inbox #{inbox.id}."
       return
