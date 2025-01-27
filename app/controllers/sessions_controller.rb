@@ -53,11 +53,8 @@ class SessionsController < ApplicationController
     unless account.inbox
       account.create_inbox
       SetupInboxJob.perform_later account.inbox.id
-      Rails.logger.info "Inbox setup done for #{account.email}."
+      account.setup_gmail_watch
     end
-
-    # TODO MOVE THIS TO A JOB
-    account.setup_gmail_watch
 
     session[:account_id] = account.id
     redirect_to root_path
