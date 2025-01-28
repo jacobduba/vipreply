@@ -202,6 +202,7 @@ class Message < ApplicationRecord
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     JSON.parse(response.body)["data"][0]["embedding"]
+  end
 
   def check_plaintext_nil
     if plaintext.nil?
