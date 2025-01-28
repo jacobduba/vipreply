@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
     redirect_to login_path
   end
 
-  def googleAuth
+  def google_auth
     # https://github.com/zquestz/omniauth-google-oauth2?tab=readme-ov-file#auth-hash
     auth_hash = request.env["omniauth.auth"]
 
@@ -31,7 +31,9 @@ class SessionsController < ApplicationController
     account.uid = auth_hash.uid
     account.access_token = auth_hash.credentials.token
     # Refresh tokens are only given when the user consents (typically the first time) thus ||=
-    account.refresh_token ||= auth_hash.credentials.refresh_token
+    if auth_hash.credentials.refresh_token.present?
+      account.refresh_token = auth_hash.credentials.refresh_token
+    end
     account.expires_at = Time.at(auth_hash.credentials.expires_at)
     account.email = auth_hash.info.email
     account.name = auth_hash.info.name

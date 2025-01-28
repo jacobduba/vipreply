@@ -8,6 +8,8 @@ class Message < ApplicationRecord
   belongs_to :topic
   has_many :attachments, dependent: :destroy
 
+  before_save :check_plaintext_nil
+
   def replace_cids_with_urls(host)
     return simple_format(plaintext) unless html
 
@@ -200,5 +202,10 @@ class Message < ApplicationRecord
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     JSON.parse(response.body)["data"][0]["embedding"]
+
+  def check_plaintext_nil
+    if plaintext.nil?
+      self.plaintext = html
+    end
   end
 end
