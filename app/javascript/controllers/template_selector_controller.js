@@ -9,6 +9,7 @@ export default class extends Controller {
 
     if (!this.selectorTarget.contains(event.target)) {
       this.selectorTarget.innerHTML = "";
+      event.preventDefault();
     }
   }
 
