@@ -19,7 +19,7 @@
   <div class="flex flex-wrap gap-8">
     <div class="w-full md:w-[calc(50%-1rem)] relative flex flex-col" id="template">
       <div class="sticky top-[51px]"> <!-- Is 51px down b/c header is 51px tall -->
-        <div class="relative">
+        <div data-controller="template-selector" data-action="click@window->template-selector#toggle" class="relative">
           <div class="flex justify-between mt-3 mb-4">
             <%= render 'change_status_button' %>
             <% if @topic.awaiting_customer %>
@@ -34,7 +34,7 @@
               </div>
             <% end %>
             <% if @has_templates %>
-              <%= link_to template_selector_topic_path, data: { turbo_frame: "template_selector" }, class: "text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2" do %>
+              <%= link_to template_selector_topic_path, data: { turbo_frame: "template-selector", template_selector_target: "button", action: "turbo:before-fetch-request->template-selector#beforeFetch" }, class: "text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
                 </svg>
@@ -52,7 +52,7 @@
               <% end %>
             <% end %>
           </div>
-          <%= turbo_frame_tag "template_selector" %>
+          <%= turbo_frame_tag "template-selector", data: { template_selector_target: "selector" } %>
           <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
           <%= render "topics/generated_reply_form", generated_reply: @generated_reply, topic: @topic %>
         </div>
