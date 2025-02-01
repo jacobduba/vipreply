@@ -24,9 +24,10 @@ Rails.application.routes.draw do
 
   resources :topics do
     member do
-      get :regenerate_reply
-      post :change_status
-      post :send_email
+      get "regenerate_reply"
+      get "template_selector"
+      post "change_status"
+      post "send_email"
     end
   end
 

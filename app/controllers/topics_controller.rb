@@ -144,6 +144,9 @@ class TopicsController < ApplicationController
     render turbo_stream: turbo_stream.replace("change_status_button", partial: "topics/change_status_button")
   end
 
+  def template_selector
+  end
+
   private
 
   def set_topic

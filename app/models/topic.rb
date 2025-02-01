@@ -33,8 +33,6 @@ class Topic < ApplicationRecord
     prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
 
-    debugger
-
     self.generated_reply = reply
     self.template = best_template
     self.template_status = if best_template
