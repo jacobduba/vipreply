@@ -10,22 +10,21 @@ export default class extends Controller {
       return;
     }
 
+    event.preventDefault();
     this.selectorTarget.innerHTML = "";
     this.buttonTarget.dataset.active = "false";
-    event.preventDefault();
   }
 
   closeIfOutsideSelector(event) {
     // If did not click inside selector
     if (
-      !this.selectorTarget.contains(event.target) &&
-      !this.buttonTarget.contains(event.target)
-    ) {
-      this.selectorTarget.innerHTML = "";
-      this.buttonTarget.dataset.active = "false";
-      event.preventDefault();
+      this.selectorTarget.contains(event.target) ||
+      this.buttonTarget.contains(event.target)
+    )
       return;
-    }
+
+    this.selectorTarget.innerHTML = "";
+    this.buttonTarget.dataset.active = "false";
   }
 
   beforeFetch(event) {
