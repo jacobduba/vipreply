@@ -16,22 +16,15 @@ export default class extends Controller {
   }
 
   closeIfOutsideSelector(event) {
-    // If did not click inside selector
+    // If did clicked inside selector, return
     if (
       this.selectorTarget.contains(event.target) ||
       this.buttonTarget.contains(event.target)
-    )
+    ) {
       return;
+    }
 
     this.selectorTarget.innerHTML = "";
     this.buttonTarget.dataset.active = "false";
-  }
-
-  beforeFetch(event) {
-    event.preventDefault();
-
-    if (this.buttonTarget.dataset.active === "false") {
-      event.detail.resume();
-    }
   }
 }
