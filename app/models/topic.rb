@@ -13,14 +13,25 @@ class Topic < ApplicationRecord
     :skipped_no_reply_needed
   ]
 
-  def generate_reply
+  def find_best_template
     message = messages.order(date: :desc).first # Newest message
     best_template = Example.find_best_template(message, inbox)
 
-    template_prompt = if best_template
+    self.template = best_template
+    self.template_status = if best_template
+      :template_attached
+    else
+      :could_not_find_template
+    end
+  end
+
+  def generate_reply
+    message = messages.order(date: :desc).first # Newest message
+
+    template_prompt = if template_attached?
       <<~PROMPT
         Template response email:
-        #{best_template.output}
+        #{template.output}
       PROMPT
     else
       ""
@@ -34,12 +45,6 @@ class Topic < ApplicationRecord
     reply = fetch_generation(prompt)
 
     self.generated_reply = reply
-    self.template = best_template
-    self.template_status = if best_template
-      :template_attached
-    else
-      :could_not_find_template
-    end
   end
 
   private
@@ -125,6 +130,7 @@ class Topic < ApplicationRecord
     if topic.has_reply?
       topic.template_status = :skipped_no_reply_needed
     else
+      topic.find_best_template
       topic.generate_reply
     end
 

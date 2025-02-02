@@ -61,7 +61,7 @@
               <% end %>
             <% end %>
           </div>
-          <%= turbo_frame_tag "template-selector", data: { template_selector_target: "selector" } %>
+          <%= turbo_frame_tag "template-selector", data: { template_selector_target: "selector"} %>
           <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
           <%= render "topics/generated_reply_form", generated_reply: @generated_reply, topic: @topic %>
         </div>

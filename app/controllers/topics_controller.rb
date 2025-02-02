@@ -149,13 +149,16 @@ class TopicsController < ApplicationController
   end
 
   def change_template
-    template = Template.find(topic_params[:template_id])
+    template_id = params.expect(:template_id)
+    template = Template.find(template_id)
 
     unless template.inbox.account == @account
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
     end
 
-    redirect_to topic_path(@topic)
+    @topic.template = template
+    @topic.template_status = :template_attached
+    handle_regenerate_reply_topic(@topic)
   end
 
   private
@@ -168,9 +171,5 @@ class TopicsController < ApplicationController
     unless @topic.inbox.account == @account
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
     end
-  end
-
-  def topic_params
-    params.require(:topic).permit(:template_id)
   end
 end
