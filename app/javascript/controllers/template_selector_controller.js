@@ -5,23 +5,34 @@ export default class extends Controller {
   static targets = ["selector", "button"];
 
   toggle(event) {
-    if (this.selectorIsClosed()) return;
+    if (this.buttonTarget.dataset.active === "false") {
+      this.buttonTarget.dataset.active = "true";
+      return;
+    }
 
-    if (!this.selectorTarget.contains(event.target)) {
+    this.selectorTarget.innerHTML = "";
+    this.buttonTarget.dataset.active = "false";
+    event.preventDefault();
+  }
+
+  closeIfOutsideSelector(event) {
+    // If did not click inside selector
+    if (
+      !this.selectorTarget.contains(event.target) &&
+      !this.buttonTarget.contains(event.target)
+    ) {
       this.selectorTarget.innerHTML = "";
+      this.buttonTarget.dataset.active = "false";
       event.preventDefault();
+      return;
     }
   }
 
   beforeFetch(event) {
     event.preventDefault();
 
-    if (this.selectorIsClosed()) {
+    if (this.buttonTarget.dataset.active === "false") {
       event.detail.resume();
     }
-  }
-
-  selectorIsClosed() {
-    return this.selectorTarget.innerHTML.trim() === "";
   }
 }
