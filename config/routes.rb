@@ -28,9 +28,7 @@ Rails.application.routes.draw do
       get "template_selector"
       post "change_status"
       post "send_email"
-      post "change_template/:template_id",
-        to: "topics#change_template",
-        as: :change_template
+      post "change_template", as: :change_template
     end
   end
 
