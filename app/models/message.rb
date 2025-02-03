@@ -77,6 +77,7 @@ class Message < ApplicationRecord
   def self.cache_from_gmail(topic, message)
     headers = message.payload.headers
     gmail_message_id = message.id
+    labels = message.label_ids
     date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
     subject = headers.find { |h| h.name.downcase == "subject" }.value
     from_header = headers.find { |h| h.name.downcase == "from" }.value
@@ -106,7 +107,8 @@ class Message < ApplicationRecord
       plaintext: plaintext,
       html: html,
       snippet: snippet,
-      gmail_message_id: gmail_message_id
+      gmail_message_id: gmail_message_id,
+      labels: labels
     )
 
     if msg.changed?
@@ -115,6 +117,12 @@ class Message < ApplicationRecord
     else
       Rails.logger.info "No changes for message: #{msg.id}"
     end
+
+    if msg.labels.include?("SPAM")
+      topic.update(is_spam: true)
+    end
+
+    topic.save
 
     # Attachment ids change whenever the topic is updated
     # https://stackoverflow.com/questions/28104157/how-can-i-find-the-definitive-attachmentid-for-an-attachment-retrieved-via-googl

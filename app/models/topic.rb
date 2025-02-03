@@ -8,6 +8,8 @@ class Topic < ApplicationRecord
   enum :status, [:needs_reply, :has_reply]
   enum :template_status, [:no_templates_exist_at_generation, :template_removed, :template_attached, :skipped_no_reply_needed]
 
+  scope :not_spam, -> { where(is_spam: false) }
+
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
 
