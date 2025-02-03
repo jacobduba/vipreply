@@ -28,7 +28,7 @@ class TopicsController < ApplicationController
   end
 
   def regenerate_reply
-    handle_regenerate_reply(params[:id])
+    handle_regenerate_reply(@topic)
   end
 
   def send_email
@@ -158,7 +158,7 @@ class TopicsController < ApplicationController
 
     @topic.template = template
     @topic.template_status = :template_attached
-    handle_regenerate_reply_topic(@topic)
+    handle_regenerate_reply(@topic)
   end
 
   private

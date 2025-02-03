@@ -39,7 +39,8 @@ class TemplatesController < ApplicationController
     end
 
     if regenerate_reply
-      handle_regenerate_reply(strong_params[:topic_id])
+      topic = Topic.find(strong_params[:topic_id])
+      handle_regenerate_reply(topic)
       return
     end
 
@@ -71,7 +72,8 @@ class TemplatesController < ApplicationController
     end
 
     if regenerate_reply
-      handle_regenerate_reply(strong_params[:topic_id])
+      topic = Topic.find(strong_params[:topic_id])
+      handle_regenerate_reply(topic)
       return
     end
 
