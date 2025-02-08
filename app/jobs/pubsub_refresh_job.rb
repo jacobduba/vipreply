@@ -3,5 +3,6 @@ class PubsubRefreshJob < ApplicationJob
 
   def perform(*args)
     # Do something later
+    @account = Account.all
   end
 end

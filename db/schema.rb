@@ -49,6 +49,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_02_234605) do
     t.index ["message_id"], name: "index_attachments_on_message_id"
   end
 
+  create_table "examples", force: :cascade do |t|
+    t.bigint "template_id", null: false
+    t.bigint "message_id", null: false
+    t.vector "message_embedding", limit: 3072
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "inbox_id", null: false
+    t.index ["inbox_id"], name: "index_examples_on_inbox_id"
+    t.index ["message_id"], name: "index_examples_on_message_id"
+    t.index ["template_id"], name: "index_examples_on_template_id"
+  end
+
   create_table "inboxes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -98,18 +110,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_02_234605) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "inbox_id", null: false
-    t.boolean "awaiting_customer"
     t.integer "message_count"
     t.bigint "template_id"
     t.string "generated_reply"
     t.integer "template_status", default: 0
     t.integer "status", default: 0
+    t.boolean "awaiting_customer"
     t.boolean "is_spam", default: false
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["template_id"], name: "index_topics_on_template_id"
   end
 
   add_foreign_key "attachments", "messages"
+  add_foreign_key "examples", "inboxes"
+  add_foreign_key "examples", "messages"
+  add_foreign_key "examples", "templates"
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "messages", "topics"
   add_foreign_key "templates", "inboxes"
