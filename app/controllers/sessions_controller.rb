@@ -42,6 +42,7 @@ class SessionsController < ApplicationController
     account.name = auth_hash.info.name
     account.first_name = auth_hash.info.first_name
     account.last_name = auth_hash.info.last_name
+    account.image_url = auth_hash.info.image
 
     begin
       account.save!
