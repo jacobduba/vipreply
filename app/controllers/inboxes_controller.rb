@@ -1,5 +1,7 @@
 class InboxesController < ApplicationController
   def index
+    @inbox = @account.inbox
+
     unless @inbox.present?
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
       return
