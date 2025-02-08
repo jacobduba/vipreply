@@ -27,7 +27,8 @@ class TopicsController < ApplicationController
     @from_inbox = request.referrer == root_url
   end
 
-  def regenerate_reply
+  def find_template_regenerate_reply
+    @topic.find_best_template
     handle_regenerate_reply(@topic)
   end
 
