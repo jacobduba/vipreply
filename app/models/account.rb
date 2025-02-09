@@ -71,13 +71,7 @@ class Account < ApplicationRecord
     end
 
     Rails.logger.info "Gmail watch started for #{email}, history_id: #{response.history_id}"
-    response.history_id
-  end
-
-  def setup_gmail_watch
-    history_id = refresh_gmail_watch
-    raise "Failed to get history_id from Gmail watch" if history_id.nil?
-    inbox.update!(history_id: history_id)
+    response
   end
 
   def self.refresh_all_gmail_watches
