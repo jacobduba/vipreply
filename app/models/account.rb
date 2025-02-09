@@ -82,7 +82,7 @@ class Account < ApplicationRecord
 
   def self.refresh_all_gmail_watches
     where(provider: "google_oauth2")
-      .select(:id, :email, :access_token, :refresh_token, :expires_at)
+      .select(:id, :email, :access_token, :refresh_token, :expires_at, :provider)
       .find_each do |account|
       account.refresh_gmail_watch
     rescue => e
