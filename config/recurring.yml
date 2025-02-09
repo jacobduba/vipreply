@@ -11,5 +11,5 @@
 
 production:
   refresh_all_gmail_watches:
-    class: PubSubRefreshJob
+    class: PubsubRefreshJob
     schedule: every day at 2am
