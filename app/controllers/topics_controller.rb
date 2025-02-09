@@ -60,7 +60,7 @@ class TopicsController < ApplicationController
         "> #{line}"
       end
     end.join
-
+    
     email_body_plaintext = <<~PLAINTEXT
       #{email_body}
 
