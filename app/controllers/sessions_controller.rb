@@ -30,9 +30,8 @@ class SessionsController < ApplicationController
     account.provider = auth_hash.provider # google_oauth2
     account.uid = auth_hash.uid
     account.access_token = auth_hash.credentials.token
-    # Refresh tokens are only given when the user consents (typically the first time) thus ||=
-    if auth_hash.credentials.refresh_token.present?
-      account.refresh_token = auth_hash.credentials.refresh_token
+    if new_refresh_token = auth_hash.credentials.refresh_token
+      account.refresh_token = new_refresh_token
     end
     account.expires_at = Time.at(auth_hash.credentials.expires_at)
     account.email = auth_hash.info.email
@@ -50,10 +49,16 @@ class SessionsController < ApplicationController
     end
 
     # Create inbox if it doesn't exist
-    unless account.inbox
+    if account.inbox.nil?
       account.create_inbox
       SetupInboxJob.perform_later account.inbox.id
-      account.setup_gmail_watch
+    elsif new_refresh_token.present?
+      # We lost refresh token and just got it back
+      # gmail watch can't refresh without refresh token
+      # so refresh now that we have it
+      RestoreGmailPubsubJob.perform_later account.id
+      # No gmail watch means inbox is possibly out of date
+      UpdateFromHistoryJob.perform_later account.inbox.id
     end
 
     session[:account_id] = account.id

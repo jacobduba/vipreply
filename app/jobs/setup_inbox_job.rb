@@ -21,6 +21,8 @@ class SetupInboxJob < ApplicationJob
       {id: thread.id, snippet: thread.snippet}
     end
 
+    account.refresh_gmail_watch
+
     gmail_service.batch do |gmail_service|
       thread_info.each do |thread|
         gmail_service.get_user_thread("me", thread[:id]) do |res, err|
