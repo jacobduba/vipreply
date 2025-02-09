@@ -37,12 +37,16 @@ class Account < ApplicationRecord
     )
   end
 
-  def setup_gmail_watch
+  def refresh_gmail_watch
     # Documentation for setting this up in Cloud Console
     # https://developers.google.com/gmail/api/guides/push
 
-    return if Rails.env.development?
-    return unless provider == "google_oauth2" && google_credentials.present?
+    return unless provider == "google_oauth2"
+
+    if Rails.env.development?
+      Rails.logger.info "[DEV MODE] Would refresh Gmail watch for #{email}"
+      return
+    end
 
     Rails.logger.info "Setting up Gmail watch for #{email}"
 
@@ -63,10 +67,26 @@ class Account < ApplicationRecord
       response = gmail_service.watch_user("me", watch_request)
     rescue Google::Apis::ClientError => e
       Rails.logger.error "Failed to start Gmail watch for #{email}: #{e.message}"
-      return
+      nil
     end
 
-    inbox.update!(history_id: response.history_id)
     Rails.logger.info "Gmail watch started for #{email}, history_id: #{response.history_id}"
+    response.history_id
+  end
+
+  def setup_gmail_watch
+    history_id = refresh_gmail_watch
+    raise "Failed to get history_id from Gmail watch" if history_id.nil?
+    inbox.update!(history_id: history_id)
+  end
+
+  def self.refresh_all_gmail_watches
+    where(provider: "google_oauth2")
+      .select(:id, :email, :access_token, :refresh_token, :expires_at)
+      .find_each do |account|
+      account.refresh_gmail_watch
+    rescue => e
+      Rails.logger.error "Failed to refresh Gmail watch for #{account.email}: #{e.message}"
+    end
   end
 end

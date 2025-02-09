@@ -25,6 +25,8 @@ class Topic < ApplicationRecord
     end
   end
 
+  scope :not_spam, -> { where(is_spam: false) }
+
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
 
