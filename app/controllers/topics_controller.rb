@@ -13,12 +13,9 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @template = @topic.template
-    @generated_reply = if @topic.skipped_no_reply_needed?
-      ""
-    else
-      @topic.generated_reply
-    end
+    @templates = @topic.templates # Might need to choose just first template with current UI setup
+    @generated_reply = @topic.skipped_no_reply_needed? ? "" : @topic.generated_reply
+
     # TODO — cache this?
     @has_templates = @account.inbox.templates.exists?
 
@@ -28,7 +25,7 @@ class TopicsController < ApplicationController
   end
 
   def find_template_regenerate_reply
-    @topic.find_best_template
+    @topic.find_best_templates
     handle_regenerate_reply(@topic)
   end
 
@@ -60,7 +57,7 @@ class TopicsController < ApplicationController
         "> #{line}"
       end
     end.join
-    
+
     email_body_plaintext = <<~PLAINTEXT
       #{email_body}
 
@@ -123,12 +120,10 @@ class TopicsController < ApplicationController
     inbox = @account.inbox
     UpdateFromHistoryJob.perform_now inbox.id
 
-    template = @topic.template
-
-    if template
+    if @topic.templates.any?
       Example.create!(
         message: most_recent_message,
-        template: template,
+        template: @topic.templates.first,
         inbox: inbox
       )
     end
@@ -149,16 +144,21 @@ class TopicsController < ApplicationController
     @templates = @topic.inbox.templates
   end
 
-  def change_template
-    template_id = params.expect(:template_id)
-    template = Template.find(template_id)
+  def change_templates
+    template_ids = params.dig(:topic, :template_ids) || []
 
-    unless template.inbox.account == @account
-      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+    # Fetch only templates belonging to the current account's inbox.
+    valid_templates = @account.inbox.templates.where(id: template_ids)
+
+    # If the number of fetched templates doesn't match the submitted count, something is wrong.
+    if valid_templates.count != template_ids.size
+      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false and return
     end
 
-    @topic.template = template
-    @topic.template_status = :template_attached
+    @topic.templates = valid_templates
+
+    @topic.template_status = valid_templates.any? ? :template_attached : :could_not_find_template
+
     handle_regenerate_reply(@topic)
   end
 

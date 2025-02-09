@@ -38,6 +38,21 @@ class TemplatesController < ApplicationController
       return
     end
 
+    # Handling of example dummy message
+    if strong_params[:example_message].present?
+      dummy_text = strong_params[:example_message]
+      example_message = ExampleMessage.create!(
+        inbox: @template.inbox,
+        subject: "Example",
+        body: dummy_text
+      )
+      Example.create!(
+        template: @template,
+        inbox: @template.inbox,
+        source: example_message
+      )
+    end
+
     if regenerate_reply
       topic = Topic.find(strong_params[:topic_id])
       handle_regenerate_reply(topic)
@@ -96,6 +111,6 @@ class TemplatesController < ApplicationController
   private
 
   def template_params
-    params.require(:template).permit(:input, :output, :topic_id, :regenerate_reply)
+    params.require(:template).permit(:input, :output, :topic_id, :regenerate_reply, :example_message)
   end
 end

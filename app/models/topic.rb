@@ -1,6 +1,6 @@
 class Topic < ApplicationRecord
   belongs_to :inbox
-  belongs_to :template, optional: true
+  has_and_belongs_to_many :templates
 
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
@@ -15,39 +15,26 @@ class Topic < ApplicationRecord
 
   EMBEDDING_TOKEN_LIMIT = 8191
 
-  def find_best_template
-    message = messages.order(date: :desc).first # Newest message
-    best_template = Example.find_best_template(message, inbox)
-
-    self.template = best_template
-    self.template_status = if best_template
-      :template_attached
-    else
-      :could_not_find_template
-    end
+  def find_best_templates
+    latest_message = messages.order(date: :desc).first
+    best_templates = Example.find_best_templates(latest_message, inbox)
+    self.templates = best_templates
+    self.template_status = best_templates.any? ? :template_attached : :could_not_find_template
   end
 
   def generate_reply
-    message = messages.order(date: :desc).first # Newest message
+    latest_message = messages.order(date: :desc).first
+    message_text = truncate_text(latest_message.to_s, EMBEDDING_TOKEN_LIMIT)
 
-    message = truncate_text(message.to_s, EMBEDDING_TOKEN_LIMIT)
-
-    template_prompt = if template_attached?
-      <<~PROMPT
-        TEMPLATE RESPONSE EMAIL:
-        #{template.output}\n\n
-      PROMPT
+    template_prompt = if templates.any?
+      "TEMPLATE RESPONSE EMAIL:\n" + templates.map(&:output).join("\n---\n") + "\n\n"
     else
       ""
     end
-    email_prompt = <<~PROMPT
-      EMAIL:
-      #{message}
-      RESPONSE:
-    PROMPT
+
+    email_prompt = "EMAIL:\n#{message_text}\nRESPONSE:\n"
     prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
-
     self.generated_reply = reply
   end
 
@@ -94,6 +81,9 @@ class Topic < ApplicationRecord
       ]
     }
 
+    puts("Fetching generation from Anthropic API")
+    puts("Prompt: #{prompt}")
+
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     parsed = JSON.parse(response.body)
     generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
@@ -108,7 +98,6 @@ class Topic < ApplicationRecord
     last_message_headers = last_message.payload.headers
     messages = response_body.messages
 
-    # Extract relevant fields
     date = DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value)
     subject = first_message_headers.find { |h| h.name.downcase == "subject" }.value
     from_header = last_message_headers.find { |h| h.name.downcase == "from" }.value
@@ -116,17 +105,11 @@ class Topic < ApplicationRecord
     to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-    status = if from == inbox.account.email
-      :has_reply
-    else
-      :needs_reply
-    end
-    awaiting_customer = from == inbox.account.email
+    status = (from == inbox.account.email) ? :has_reply : :needs_reply
+    awaiting_customer = (from == inbox.account.email)
     message_count = response_body.messages.count
 
-    # Find or create topic
     topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
-
     topic.assign_attributes(
       snippet: snippet,
       date: date,
@@ -137,16 +120,14 @@ class Topic < ApplicationRecord
       awaiting_customer: awaiting_customer,
       message_count: message_count
     )
-
     topic.save!
 
-    # Cache messages
     messages.each { |message| Message.cache_from_gmail(topic, message) }
 
     if topic.has_reply?
       topic.template_status = :skipped_no_reply_needed
     else
-      topic.find_best_template
+      topic.find_best_templates
       topic.generate_reply
     end
 
