@@ -13,6 +13,8 @@ class Topic < ApplicationRecord
     :skipped_no_reply_needed
   ]
 
+  EMBEDDING_TOKEN_LIMIT = 8191
+
   def find_best_template
     message = messages.order(date: :desc).first # Newest message
     best_template = Example.find_best_template(message, inbox)
@@ -30,18 +32,20 @@ class Topic < ApplicationRecord
   def generate_reply
     message = messages.order(date: :desc).first # Newest message
 
+    message = truncate_text(message.to_s, EMBEDDING_TOKEN_LIMIT)
+
     template_prompt = if template_attached?
       <<~PROMPT
-        Template response email:
-        #{template.output}
+        TEMPLATE RESPONSE EMAIL:
+        #{template.output}\n\n
       PROMPT
     else
       ""
     end
     email_prompt = <<~PROMPT
-      Email:
+      EMAIL:
       #{message}
-      Response:
+      RESPONSE:
     PROMPT
     prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
@@ -51,38 +55,50 @@ class Topic < ApplicationRecord
 
   private
 
-  def fetch_generation(prompt)
-    openai_api_key = Rails.application.credentials.openai_api_key
+  def tokenizer
+    @tokenizer ||= Tokenizers::Tokenizer.from_pretrained("voyageai/voyage-3-large")
+  end
 
-    url = "https://api.openai.com/v1/chat/completions"
+  def truncate_text(text, token_limit)
+    encoding = tokenizer.encode(text)
+
+    if encoding.tokens.size > token_limit
+      truncated_ids = encoding.ids[0...token_limit]
+      tokenizer.decode(truncated_ids)
+    else
+      text
+    end
+  end
+
+  def fetch_generation(prompt)
+    anthropic_api_key = Rails.application.credentials.anthropic_api_key
+
+    url = "https://api.anthropic.com/v1/messages"
     headers = {
-      "Authorization" => "Bearer #{openai_api_key}",
+      "x-api-key" => anthropic_api_key,
+      "anthropic-version" => "2023-06-01",
       "Content-Type" => "application/json"
     }
+
+    system_prompt = <<~PROMPT
+      You are a compassionate and empathetic business owner receiving customer support emails for a small business.
+      Greet the customer briefly and support them with their questions based on an accompanying template. 
+      Keep replies short as to not waste the customers time. 
+      DO NOT include any farewell phrases or closing salutations.
+    PROMPT
+
     data = {
-      model: "gpt-4o",
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 2048,
+      system: system_prompt,
       messages: [
-        {
-          role: "system",
-          content: <<~PROMPT
-            You are a Customer Support Representative who answers emails.
-            Be compassionate: emphasize with the customer.
-            Include a salutation such as Hello or Greetings.
-            DO NOT include a closing, such as Best regards or Kind regards.
-            Don't waste the customers time.
-            You will be given a template containing a template response email.
-            Then you will given an email and you must generate a response for it using the template.
-          PROMPT
-        },
-        {
-          role: "user",
-          content: prompt
-        }
+        {role: "user", content: prompt}
       ]
     }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    generated_text = JSON.parse(response.body)["choices"][0]["message"]["content"]
+    parsed = JSON.parse(response.body)
+    generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
     generated_text.strip
   end
 

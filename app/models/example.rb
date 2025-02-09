@@ -3,7 +3,7 @@ class Example < ApplicationRecord
   belongs_to :message
   belongs_to :inbox
 
-  has_neighbors :message_embedding
+  has_neighbors :message_embedding, dimensions: 2048
 
   validates :message, presence: true
 

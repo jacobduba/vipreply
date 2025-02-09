@@ -1,7 +1,7 @@
 class Message < ApplicationRecord
-  # OpenAI lets us submit 8191 tokens... if the characters are under 8191
-  # characters we can't go over 8191 tokens lol
-  EMBEDDING_CHAR_LIMIT = 8191
+  require "tokenizers"
+
+  EMBEDDING_TOKEN_LIMIT = 8191
 
   include ActionView::Helpers::TextHelper
 
@@ -27,19 +27,11 @@ class Message < ApplicationRecord
   end
 
   def from
-    if from_name
-      "#{from_name} <#{from_email}>"
-    else
-      "#{from_email}"
-    end
+    from_name ? "#{from_name} <#{from_email}>" : from_email.to_s
   end
 
   def to
-    if to_name
-      "#{to_name} <#{to_email}>"
-    else
-      "#{to_email}"
-    end
+    to_name ? "#{to_name} <#{to_email}>" : to_email.to_s
   end
 
   # Stipe everything after "On .... wrote:"
@@ -193,19 +185,33 @@ class Message < ApplicationRecord
 
   private
 
+  def tokenizer
+    @tokenizer ||= Tokenizers::Tokenizer.from_pretrained("voyageai/voyage-3-large")
+  end
+
+  def truncate_text(text, token_limit)
+    encoding = tokenizer.encode(text)
+
+    if encoding.tokens.size > token_limit
+      truncated_ids = encoding.ids[0...token_limit]
+      tokenizer.decode(truncated_ids)
+    else
+      text
+    end
+  end
+
   def fetch_embedding(text)
-    truncated_text = text.to_s.strip[0...EMBEDDING_CHAR_LIMIT]
+    voyage_api_key = Rails.application.credentials.voyage_api_key
 
-    openai_api_key = Rails.application.credentials.openai_api_key
-
-    url = "https://api.openai.com/v1/embeddings"
+    url = "https://api.voyageai.com/v1/embeddings"
     headers = {
-      "Authorization" => "Bearer #{openai_api_key}",
+      "Authorization" => "Bearer #{voyage_api_key}",
       "Content-Type" => "application/json"
     }
     data = {
-      input: truncated_text,
-      model: "text-embedding-3-large"
+      input: text,
+      model: "voyage-3-large",
+      output_dimension: 2048
     }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
@@ -213,8 +219,6 @@ class Message < ApplicationRecord
   end
 
   def check_plaintext_nil
-    if plaintext.nil?
-      self.plaintext = html
-    end
+    self.plaintext ||= html
   end
 end
