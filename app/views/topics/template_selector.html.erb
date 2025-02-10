@@ -15,12 +15,13 @@
         class: "hidden" do |form| %>
       <% end %>
       <% @templates.each do |template| %>
-        <div class="text-sm text-left rounded-lg w-full flex items-center
-          <%= template.id == @topic.template_id ? "bg-gray-200 text-gray-800" : "bg-gray-100 text-gray-700" %>">
+        <div class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border
+          <%= template.id == @topic.template_id ? "bg-gray-100 text-gray-700" : "text-gray-600" %>">
           <%= check_box_tag "checkbox_#{template.id}",
               "checkbox_#{template.id}",
               form: :multi_template_form,
-              class: "w-4 h-4 mx-4 text-blue-600 bg-gray-100 border-gray-400 rounded-md focus:ring-0 focus:ring-offset-0" %>
+              class: "w-4 h-4 mx-4 text-blue-600 border-gray-400 rounded-md focus:ring-0
+              focus:ring-offset-0 #{template.id == @topic.template_id ? "bg-gray-100" : "bg-gray-50"}" %>
           <%= form_with url: change_template_topic_path(@topic),
                 method: :post,
                 data: {
