@@ -7,13 +7,27 @@
       <p class="text-sm font-medium">Select a template</p>
     </div>
     <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px]">
+      <%= form_with url: "tmp",
+        id: :multi_template_form,
+        data: {
+          action: "turbo:submit-end->template-selector#toggle"
+        } do |form| %>
+      <% end %>
       <% @templates.each do |template| %>
-        <%= form_with url: change_template_topic_path(@topic), data: { action: "turbo:submit-end->template-selector#toggle" } do |form| %>
-          <%= form.hidden_field :template_id, value: template.id %>
-          <%= form.button type: :submit, class: "text-sm text-left text-gray-600 bg-gray-100 rounded-lg p-3 w-full hover:bg-blue-100 hover:text-blue-600 hover:cursor-pointer" do %>
-            <%= template.output %>
+        <div class="text-sm text-left text-gray-700 bg-gray-100 rounded-lg w-full flex items-center ">
+          <%= check_box_tag "checkbox_#{template.id}",
+              "checkbox_#{template.id}",
+              form: :multi_template_form,
+              class: "w-4 h-4 mx-4 text-blue-600 bg-gray-100 border-gray-400 rounded-md focus:ring-0 focus:ring-offset-0" %>
+          <%= form_with url: change_template_topic_path(@topic),
+                method: :post,
+                data: {
+                  action: "turbo:submit-end->template-selector#toggle"
+                    } do |f| %>
+            <%= f.hidden_field :template_id, value: template.id %>
+            <%= f.submit template.output, class: "text-left py-3 pr-2 whitespace-normal hover:cursor-pointer" %>
           <% end %>
-        <% end %>
+        </div>
       <% end %>
     </div>
     <div class="p-3 border-t border-gray-200 flex gap-2 text-gray-600">
