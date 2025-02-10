@@ -1,5 +1,6 @@
 class ExampleMessage < ApplicationRecord
   belongs_to :inbox
+  has_many :examples, as: :source
 
   # Provide a simple generate_embedding method for dummy examples.
   def generate_embedding
@@ -19,7 +20,7 @@ class ExampleMessage < ApplicationRecord
     url = "https://api.voyageai.com/v1/embeddings"
     headers = {
       "Authorization" => "Bearer #{voyage_api_key}",
-      "Content-Type"  => "application/json"
+      "Content-Type" => "application/json"
     }
     data = {
       input: text,

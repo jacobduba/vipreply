@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_09_205810) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -74,8 +74,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_205810) do
     t.datetime "updated_at", null: false
     t.bigint "inbox_id", null: false
     t.bigint "embedding_id"
+    t.integer "source_id"
+    t.string "source_type"
     t.index ["embedding_id"], name: "index_examples_on_embedding_id"
     t.index ["inbox_id"], name: "index_examples_on_inbox_id"
+    t.index ["source_type", "source_id"], name: "index_examples_on_source_type_and_source_id"
     t.index ["template_id"], name: "index_examples_on_template_id"
   end
 

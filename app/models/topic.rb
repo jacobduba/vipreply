@@ -15,6 +15,10 @@ class Topic < ApplicationRecord
 
   EMBEDDING_TOKEN_LIMIT = 8191
 
+  def template_attached?
+    templates.any?
+  end
+
   def find_best_templates
     latest_message = messages.order(date: :desc).first
     best_templates = Example.find_best_templates(latest_message, inbox)

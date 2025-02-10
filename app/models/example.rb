@@ -1,15 +1,17 @@
 class Example < ApplicationRecord
-  attr_accessor :source
+  # attr_accessor :source
 
   belongs_to :template
   belongs_to :inbox
-  belongs_to :embedding
+  belongs_to :source, polymorphic: true
+  belongs_to :embedding, optional: true
 
   validates :embedding, presence: true
 
   THRESHOLD_SIMILARITY = 0.65
 
   before_validation :ensure_embedding
+  before_destroy :destroy_source_if_example_message
 
   # Find all best templates that have a similarity above the threshold.
   def self.find_best_templates(message, inbox, threshold: THRESHOLD_SIMILARITY)
@@ -60,6 +62,13 @@ class Example < ApplicationRecord
       )
     else
       errors.add(:base, "No valid source provided for embedding generation")
+    end
+  end
+
+  # Callback: When an Example is destroyed, if its source is an ExampleMessage, destroy that source.
+  def destroy_source_if_example_message
+    if source_type == "ExampleMessage" && source.present?
+      source.destroy
     end
   end
 end
