@@ -11,10 +11,12 @@
         id: :multi_template_form,
         data: {
           action: "turbo:submit-end->template-selector#toggle"
-        } do |form| %>
+        },
+        class: "hidden" do |form| %>
       <% end %>
       <% @templates.each do |template| %>
-        <div class="text-sm text-left text-gray-700 bg-gray-100 rounded-lg w-full flex items-center ">
+        <div class="text-sm text-left rounded-lg w-full flex items-center
+          <%= template.id == @topic.template_id ? "bg-gray-200 text-gray-800" : "bg-gray-100 text-gray-700" %>">
           <%= check_box_tag "checkbox_#{template.id}",
               "checkbox_#{template.id}",
               form: :multi_template_form,
@@ -25,7 +27,9 @@
                   action: "turbo:submit-end->template-selector#toggle"
                     } do |f| %>
             <%= f.hidden_field :template_id, value: template.id %>
-            <%= f.submit template.output, class: "text-left py-3 pr-2 whitespace-normal hover:cursor-pointer" %>
+            <%= f.submit template.output,
+              disabled: template.id == @topic.template_id,
+              class: "text-left py-3 pr-2 whitespace-normal #{template.id == @topic.template_id ? "" : "hover:cursor-pointer"}" %>
           <% end %>
         </div>
       <% end %>
