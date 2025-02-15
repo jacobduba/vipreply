@@ -20,9 +20,7 @@
              data-selected="<%= template.id == @topic.template_id %>"
              data-is-checked="false"
              class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
-                    data-[selected=true]:not([data-is-checked=true]):bg-gray-100
-                    data-[selected=true]:not([data-is-checked=true]):text-gray-700
-                    data-[selected=true]:not([data-is-checked:true]):border-gray-300
+                    data-[selected=true]:[&:not([data-is-checked=true])]:bg-gray-100
                     data-[is-checked=true]:bg-blue-50
                     data-[is-checked=true]:text-blue-600
                     data-[is-checked=true]:border-blue-200">
