@@ -9,6 +9,14 @@ export default class extends Controller {
     "buttonText",
   ];
 
+  get totalChecked() {
+    return this.multiselectTarget.dataset.totalChecked;
+  }
+
+  set totalChecked(value) {
+    this.multiselectTarget.dataset.totalChecked = value;
+  }
+
   toggleCheck(event) {
     const checkbox = event.target;
     const row = checkbox.closest(
@@ -17,15 +25,15 @@ export default class extends Controller {
     row.dataset.isChecked = checkbox.checked;
 
     if (checkbox.checked) {
-      this.multiselectTarget.dataset.totalChecked++;
+      this.totalChecked++;
     } else {
-      this.multiselectTarget.dataset.totalChecked--;
+      this.totalChecked--;
     }
 
-    if (this.multiselectTarget.dataset.totalChecked == 1) {
+    if (this.totalChecked == 1) {
       this.buttonTextTarget.textContent = "Selected 1 template";
     } else {
-      this.buttonTextTarget.textContent = `Selected ${this.multiselectTarget.dataset.totalChecked} templates`;
+      this.buttonTextTarget.textContent = `Selected ${this.totalChecked} templates`;
     }
   }
 }
