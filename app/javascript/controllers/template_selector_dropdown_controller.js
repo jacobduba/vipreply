@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 
 // Connects to data-controller="template-selector-dropdown"
 export default class extends Controller {
-  static targets = ["selector", "button"];
+  static targets = ["selector", "button", "loadingOverlay"];
 
   toggle(event) {
     if (this.buttonTarget.dataset.active === "false") {
@@ -13,6 +13,11 @@ export default class extends Controller {
     event.preventDefault();
     this.selectorTarget.innerHTML = "";
     this.buttonTarget.dataset.active = "false";
+  }
+
+  showLoadingOverlay() {
+    console.log(this.loadingOverlayTarget);
+    this.loadingOverlayTarget.dataset.loading = "true";
   }
 
   closeIfOutsideSelector(event) {

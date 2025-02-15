@@ -11,7 +11,8 @@
       <%= form_with url: "tmp",
         id: :multi_template_form,
         data: {
-          action: "turbo:submit-end->template-selector-dropdown#toggle"
+          action: "turbo:submit-end->template-selector-dropdown#toggle
+                   turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
         },
         class: "hidden" do |form| %>
       <% end %>
@@ -42,7 +43,8 @@
           <%= form_with url: change_template_topic_path(@topic),
                         method: :post,
                         data: {
-                          action: "turbo:submit-end->template-selector-dropdown#toggle"
+                          action: "turbo:submit-end->template-selector-dropdown#toggle
+                                   turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
                         } do |f| %>
             <%= f.hidden_field :template_id, value: template.id %>
             <%= f.submit template.output,
@@ -66,6 +68,9 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
       <p class="text-sm font-medium">Create a new template</p>
+    </div>
+    <div class="text-black [&[data-loading]]:text-red-500" data-template-selector-dropdown-target="loadingOverlay">
+      AHHHHH
     </div>
   </div>
 <% end %>
