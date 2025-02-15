@@ -20,18 +20,27 @@
              data-selected="<%= template.id == @topic.template_id %>"
              data-is-checked="false"
              class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
-                    data-[selected=true]:bg-gray-100 data-[selected=true]:text-gray-700 data-[selected=true]:border-gray-300
-                    data-[is-checked=true]:bg-blue-50 data-[is-checked=true]:text-blue-600 data-[is-checked=true]:border-blue-200">
-          <%= check_box_tag "checkbox_#{template.id}",
-              "checkbox_#{template.id}",
-              false,
-              data: {
-                template_selector_form_target: "templateCheckbox",
-                action: "template-selector-form#toggleCheck"
-              },
-              form: :multi_template_form,
-              class: "w-4 h-4 mx-4 text-blue-600 border-gray-400 rounded-md focus:ring-0
-                      focus:ring-offset-0 bg-gray-50" %>
+                    data-[selected=true]:not([data-is-checked=true]):bg-gray-100
+                    data-[selected=true]:not([data-is-checked=true]):text-gray-700
+                    data-[selected=true]:not([data-is-checked:true]):border-gray-300
+                    data-[is-checked=true]:bg-blue-50
+                    data-[is-checked=true]:text-blue-600
+                    data-[is-checked=true]:border-blue-200">
+          <div class="group grid size-4 grid-cols-1 mx-4 flex-none">
+            <%= check_box_tag "checkbox_#{template.id}",
+                              "checkbox_#{template.id}",
+                              false,
+                              data: {
+                                template_selector_form_target: "templateCheckbox",
+                                action: "template-selector-form#toggleCheck"
+                              },
+                              form: :multi_template_form,
+                              class: "col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white checked:border-blue-600 checked:bg-blue-600" %>
+            <svg class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-[:disabled]:stroke-gray-950/25" viewBox="0 0 14 14" fill="none">
+              <path class="opacity-0 group-has-[:checked]:opacity-100" d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path class="opacity-0 group-has-[:indeterminate]:opacity-100" d="M3 7H11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
           <%= form_with url: change_template_topic_path(@topic),
                         method: :post,
                         data: {
