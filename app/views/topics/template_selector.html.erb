@@ -53,7 +53,9 @@
       <div data-template-selector-form-target="multiselect"
                          data-total-checked="0"
                          class="data-[total-checked=0]:hidden flex justify-center sticky bottom-0 right-0 left-0">
-        <%= button_to "Select Multiple Templates" %>
+        <%= button_to do %>
+          <span data-template-selector-form-target="buttonText"></span>
+        <% end %>
       </div>
     </div>
     <div class="p-3 border-t border-gray-200 flex gap-2 text-gray-600">
