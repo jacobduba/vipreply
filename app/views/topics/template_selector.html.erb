@@ -6,7 +6,8 @@
       </svg>
       <p class="text-sm font-medium">Select template</p>
     </div>
-    <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px]">
+    <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px] relative"
+         data-controller="template-selector-form">
       <%= form_with url: "tmp",
         id: :multi_template_form,
         data: {
@@ -15,8 +16,7 @@
         class: "hidden" do |form| %>
       <% end %>
       <% @templates.each do |template| %>
-        <div data-controller="template-selector-form"
-             data-template-selector-form-target="templateRow"
+        <div data-template-selector-form-target="templateRow"
              data-selected="<%= template.id == @topic.template_id %>"
              data-is-checked="false"
              class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
@@ -50,6 +50,11 @@
           <% end %>
         </div>
       <% end %>
+      <div data-template-selector-form-target="multiselect"
+                         data-total-checked="0"
+                         class="data-[total-checked=0]:hidden flex justify-center sticky bottom-0 right-0 left-0">
+        <%= button_to "Select Multiple Templates" %>
+      </div>
     </div>
     <div class="p-3 border-t border-gray-200 flex gap-2 text-gray-600">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
