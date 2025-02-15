@@ -31,9 +31,9 @@ export default class extends Controller {
     }
 
     if (this.totalChecked == 1) {
-      this.buttonTextTarget.textContent = "Selected 1 template";
+      this.buttonTextTarget.textContent = "Select 1 template";
     } else {
-      this.buttonTextTarget.textContent = `Selected ${this.totalChecked} templates`;
+      this.buttonTextTarget.textContent = `Select ${this.totalChecked} templates`;
     }
   }
 }
