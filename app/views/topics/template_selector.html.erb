@@ -10,7 +10,7 @@
       <%= form_with url: "tmp",
         id: :multi_template_form,
         data: {
-          action: "turbo:submit-end->template-selector#toggle"
+          action: "turbo:submit-end->template-selector-dropdown#toggle"
         },
         class: "hidden" do |form| %>
       <% end %>
@@ -26,12 +26,11 @@
           <%= form_with url: change_template_topic_path(@topic),
                         method: :post,
                         data: {
-                          action: "turbo:submit-end->template-selector#toggle"
+                          action: "turbo:submit-end->template-selector-dropdown#toggle"
                         } do |f| %>
             <%= f.hidden_field :template_id, value: template.id %>
             <%= f.submit template.output,
-              disabled: template.id == @topic.template_id,
-              class: "text-left py-3 pr-3 whitespace-normal #{template.id == @topic.template_id ? "" : "hover:cursor-pointer"}" %>
+              class: "text-left py-3 pr-3 whitespace-normal hover:cursor-pointer" %>
           <% end %>
         </div>
       <% end %>

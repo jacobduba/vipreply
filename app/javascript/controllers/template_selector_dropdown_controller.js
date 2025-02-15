@@ -1,6 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
-// Connects to data-controller="template-selector"
+// Connects to data-controller="template-selector-dropdown"
 export default class extends Controller {
   static targets = ["selector", "button"];
 

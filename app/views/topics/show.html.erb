@@ -21,7 +21,7 @@
   <div class="flex flex-wrap lg:gap-8">
     <div class="w-full lg:w-[calc(50%-1rem)] relative flex flex-col order-2 lg:order-1" id="template">
       <div class="sticky top-[51px]"> <!-- Is 51px down b/c header is 51px tall -->
-        <div data-controller="template-selector" data-action="click@window->template-selector#closeIfOutsideSelector" class="relative">
+        <div data-controller="template-selector-dropdown" data-action="click@window->template-selector-dropdown#closeIfOutsideSelector" class="relative">
           <div class="flex justify-between mt-3 mb-4">
             <%= render 'change_status_button' %>
             <% if @topic.awaiting_customer %>
@@ -39,8 +39,8 @@
               <%= link_to template_selector_topic_path,
                   data: {
                     turbo_frame: "template-selector",
-                    template_selector_target: "button",
-                    action: "click->template-selector#toggle",
+                    template_selector_dropdown_target: "button",
+                    action: "click->template-selector-dropdown#toggle",
                     active: false
                   },
                   class: "text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 data-[active=true]:bg-gray-100" do %>
@@ -61,7 +61,7 @@
               <% end %>
             <% end %>
           </div>
-          <%= turbo_frame_tag "template-selector", data: { template_selector_target: "selector"} %>
+          <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
           <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
           <%= render "topics/generated_reply_form", generated_reply: @generated_reply, topic: @topic %>
         </div>
