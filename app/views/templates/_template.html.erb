@@ -1,6 +1,24 @@
 <tr id="<%= "template-#{template.id}" %>" class="odd:bg-white even:bg-gray-50 border-b">
   <td class="px-6 py-4 text-gray-700">
-    <%= simple_format template.input %>
+    <% if template.examples.any? %>
+      <% template.examples.each do |example| %>
+        <% if example.source.present? %>
+          <div class="mb-2 p-2 bg-gray-50 rounded relative group">
+            <%= simple_format(example.source.body) %>
+            <%= button_to example_path(example), 
+                          method: :delete,
+                          data: { turbo_confirm: "Delete this example?" },
+                          class: "absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <span class="text-gray-400">No examples</span>
+    <% end %>
   </td>
   <td class="px-6 py-4 text-gray-700">
     <%= simple_format template.output %>

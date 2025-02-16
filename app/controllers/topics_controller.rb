@@ -13,12 +13,9 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @template = @topic.template
-    @generated_reply = if @topic.skipped_no_reply_needed?
-      ""
-    else
-      @topic.generated_reply
-    end
+    @templates = @account.inbox.templates.includes(examples: :source).order(id: :asc)
+    @generated_reply = @topic.skipped_no_reply_needed? ? "" : @topic.generated_reply
+
     # TODO — cache this?
     @has_templates = @account.inbox.templates.exists?
 
@@ -27,8 +24,11 @@ class TopicsController < ApplicationController
     @from_inbox = request.referrer == root_url
   end
 
-  def find_template_regenerate_reply
-    @topic.find_best_template
+  def find_template
+    handle_find_templates(@topic)
+  end
+
+  def generate_reply
     handle_regenerate_reply(@topic)
   end
 
@@ -60,7 +60,7 @@ class TopicsController < ApplicationController
         "> #{line}"
       end
     end.join
-    
+
     email_body_plaintext = <<~PLAINTEXT
       #{email_body}
 
@@ -123,17 +123,16 @@ class TopicsController < ApplicationController
     inbox = @account.inbox
     UpdateFromHistoryJob.perform_now inbox.id
 
-    template = @topic.template
-
-    if template
-      Example.create!(
-        message: most_recent_message,
-        template: template,
-        inbox: inbox
-      )
+    if @topic.templates.any?
+      @topic.templates.each do |template|
+        Example.create!(
+          message: most_recent_message,
+          template: template,
+          inbox: inbox
+        )
+      end
     end
 
-    # Redirect back to the topic page
     redirect_to topic_path(@topic)
   end
 
@@ -149,17 +148,25 @@ class TopicsController < ApplicationController
     @templates = @topic.inbox.templates
   end
 
-  def change_template
-    template_id = params.expect(:template_id)
-    template = Template.find(template_id)
+  def change_templates
+    template_ids = params.dig(:topic, :template_ids) || []
+    valid_templates = @account.inbox.templates.where(id: template_ids)
 
-    unless template.inbox.account == @account
-      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+    if valid_templates.count != template_ids.size
+      render file: "#{Rails.root}/public/404.html", status: :not_found
+      return
     end
 
-    @topic.template = template
-    @topic.template_status = :template_attached
-    handle_regenerate_reply(@topic)
+    @topic.templates = valid_templates
+    redirect_to topic_path(@topic)
+  end
+
+  def apply_templates
+    template_ids = params.dig(:topic, :template_ids) || []
+    valid_templates = @account.inbox.templates.where(id: template_ids)
+
+    @topic.templates = valid_templates
+    redirect_to topic_path(@topic), notice: "Templates applied successfully"
   end
 
   private
