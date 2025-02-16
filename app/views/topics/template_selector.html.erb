@@ -18,7 +18,7 @@
       <% end %>
       <% @templates.each do |template| %>
         <div data-template-selector-form-target="templateRow"
-             data-selected="<%= template.id == @topic.template_id %>"
+             data-selected="<%= @topic.template_ids.include?(template.id) %>"
              data-is-checked="false"
              class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
                     data-[selected=true]:[&:not([data-is-checked=true])]:bg-gray-100
