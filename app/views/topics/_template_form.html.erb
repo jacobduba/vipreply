@@ -16,7 +16,7 @@
               placeholder: "Write a template response email here",
               data: { controller: "textbox-autoresize" },
               autocomplete: "off",
-              class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+              class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 focus:outline-none resize-none" %>
           <%= form.hidden_field "templates[#{i}][id]", value: template.id %>
         </div>
       </div>

@@ -149,7 +149,7 @@ class TopicsController < ApplicationController
   end
 
   def change_templates_regenerate_response
-    template_ids = params.dig(:topic, :template_ids) || []
+    template_ids = params.dig(:template_ids) || []
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
     if valid_templates.count != template_ids.size || @account != @topic.inbox.account
