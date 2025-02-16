@@ -124,13 +124,14 @@ class TopicsController < ApplicationController
     UpdateFromHistoryJob.perform_now inbox.id
 
     if @topic.templates.any?
-      @topic.templates.each do |template|
-        Example.create!(
-          message: most_recent_message,
+      examples = @topic.templates.map do |template|
+        {
+          source: most_recent_message,
           template: template,
           inbox: inbox
-        )
+        }
       end
+      Example.create!(examples)
     end
 
     redirect_to topic_path(@topic)
