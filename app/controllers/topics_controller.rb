@@ -158,7 +158,7 @@ class TopicsController < ApplicationController
     end
 
     @topic.templates = valid_templates
-    redirect_to topic_path(@topic)
+    handle_regenerate_reply(@topic)
   end
 
   def update_templates_regenerate_response

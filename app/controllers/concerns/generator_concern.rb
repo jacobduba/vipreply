@@ -9,12 +9,10 @@ module GeneratorConcern
     topic.save!
     render turbo_stream: [
       turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: topic.generated_reply}),
-      turbo_stream.replace("template_form", partial: "templates/template_form", locals: {
+      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {
         input_errors: [],
         output_errors: [],
-        topic: topic,
-        template: (topic.templates.any? ? topic.templates.first : Template.new),
-        show_delete: (topic.templates.any? ? topic.templates.first.persisted? : false)
+        topic: topic
       })
     ]
   end
