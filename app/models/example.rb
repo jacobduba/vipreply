@@ -17,6 +17,8 @@ class Example < ApplicationRecord
   def self.find_best_templates(message, inbox, threshold: THRESHOLD_SIMILARITY)
     target_vector = message.generate_embedding
 
+    debugger
+
     # Get candidate embeddings (ordered by similarity using inner product)
     candidate_embeddings = Embedding.where(inbox: inbox)
       .nearest_neighbors(:vector, target_vector, distance: "inner_product")
@@ -39,6 +41,13 @@ class Example < ApplicationRecord
     matching_embeddings = candidate_embeddings_array.select do |embedding|
       similarity = embedding.vector.zip(target_vector).map { |a, b| a * b }.sum
       similarity >= threshold
+    end
+
+    if false
+      Embedding
+        .where(inbox: inbox)
+        .select(:embeddable_type, :embeddable_id)
+        .nearest_neighbors(:vector, target_vector, distance: "inner_product")
     end
 
     # Map back to Examples, then to their Templates.
