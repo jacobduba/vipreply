@@ -30,8 +30,7 @@ Rails.application.routes.draw do
       post "generate_reply"
       post "change_status"
       post "send_email"
-      patch "change_templates"
-      post "apply_templates"
+      patch "change_templates_regenerate_response"
       post "update_templates_regenerate_reply"
     end
   end

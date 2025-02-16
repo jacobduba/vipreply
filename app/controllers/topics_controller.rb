@@ -148,7 +148,7 @@ class TopicsController < ApplicationController
     @templates = @topic.inbox.templates
   end
 
-  def change_templates
+  def change_templates_regenerate_response
     template_ids = params.dig(:topic, :template_ids) || []
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
@@ -163,14 +163,6 @@ class TopicsController < ApplicationController
 
   def update_templates_regenerate_response
     # TODO
-  end
-
-  def apply_templates
-    template_ids = params.dig(:topic, :template_ids) || []
-    valid_templates = @account.inbox.templates.where(id: template_ids)
-
-    @topic.templates = valid_templates
-    redirect_to topic_path(@topic), notice: "Templates applied successfully"
   end
 
   private
