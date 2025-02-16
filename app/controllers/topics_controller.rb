@@ -152,13 +152,17 @@ class TopicsController < ApplicationController
     template_ids = params.dig(:topic, :template_ids) || []
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
-    if valid_templates.count != template_ids.size
+    if valid_templates.count != template_ids.size || @account != @topic.inbox.account
       render file: "#{Rails.root}/public/404.html", status: :not_found
       return
     end
 
     @topic.templates = valid_templates
     redirect_to topic_path(@topic)
+  end
+
+  def update_templates_regenerate_response
+    # TODO
   end
 
   def apply_templates

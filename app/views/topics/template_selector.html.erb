@@ -40,14 +40,15 @@
               <path class="opacity-0 group-has-[:indeterminate]:opacity-100" d="M3 7H11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
-          <%= form_with url: change_template_topic_path(@topic),
-                        method: :post,
-                        class: "flex-1",
-                        data: {
-                          action: "turbo:submit-end->template-selector-dropdown#toggle
-                                   turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
-                        } do |f| %>
-            <%= f.hidden_field :template_id, value: template.id %>
+          <%= form_with model: @topic,
+                       url: change_templates_topic_path(@topic),
+                       method: :patch,
+                       class: "flex-1",
+                       data: {
+                         action: "turbo:submit-end->template-selector-dropdown#toggle
+                                  turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
+                       } do |f| %>
+            <%= f.hidden_field :template_ids, value: [template.id] %>
             <%= f.submit template.output,
               class: "text-left py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
           <% end %>
