@@ -1,16 +1,26 @@
 <% if topic.template_attached? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
-    <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
-      <div class="col-span-2">
-        <%= form.label :output, "Template email", class: ["block text-sm font-medium text-gray-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
-        <ul class="list-disc list-inside text-red-800 text-sm mb-2">
-          <% output_errors.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-        <%= form.text_area :output, rows: 3, placeholder: "Write a template response email here", data: { controller: "textbox-autoresize" }, autocomplete: "off", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+    <% topic.templates.each_with_index do |template, i| %>
+      <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
+        <div class="col-span-2">
+          <% #we need to do error checking on EACH template %>
+          <%= form.label :output, "Template email", class: ["block text-sm font-medium text-gray-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
+          <ul class="list-disc list-inside text-red-800 text-sm mb-2">
+            <% output_errors.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+          <%= form.text_area "templates[#{i}][output]",
+              value: template.output,
+              rows: 1,
+              placeholder: "Write a template response email here",
+              data: { controller: "textbox-autoresize" },
+              autocomplete: "off",
+              class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+          <%= form.hidden_field "templates[#{i}][id]", value: template.id %>
+        </div>
       </div>
-    </div>
+    <% end %>
     <%= form.hidden_field :regenerate_reply, value: true %>
     <%= form.hidden_field :topic_id, value: topic.id %>
     <div class="flex justify-start mt-4 mb-4">
