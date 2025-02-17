@@ -162,8 +162,39 @@ class TopicsController < ApplicationController
     handle_regenerate_reply(@topic)
   end
 
-  def update_templates_regenerate_response
-    # TODO
+  def update_templates_regenerate_reply
+    template_ids = params.dig(:template_ids) || []
+    valid_templates = @account.inbox.templates.where(id: template_ids)
+
+    if valid_templates.count != template_ids.size || @account != @topic.inbox.account
+      render file: "#{Rails.root}/public/404.html", status: :not_found
+      return
+    end
+
+    @topic.templates = valid_templates
+    handle_regenerate_reply
+  end
+
+  ## Debug Find Template method
+  def find_template
+    # This will calculate and assign the best templates based on the latest message.
+    @topic.find_best_templates
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "template-selector-body",
+          partial: "topics/template_selector_body",
+          locals: {templates: @topic.templates}
+        )
+      end
+      format.html { redirect_to topic_path(@topic) }
+    end
+  end
+
+  def find_template_regenerate_reply
+    @topic.find_best_templates
+    handle_regenerate_reply(@topic)
   end
 
   private

@@ -8,52 +8,69 @@ class Example < ApplicationRecord
 
   validates :embedding, presence: true
 
-  THRESHOLD_SIMILARITY = 0.65
+  THRESHOLD_SIMILARITY = 0.7
 
   before_validation :ensure_embedding
   before_destroy :destroy_source_if_example_message
 
   # Find all best templates that have a similarity above the threshold.
-  def self.find_best_templates(message, inbox, threshold: THRESHOLD_SIMILARITY)
+  def self.find_best_templates(message, inbox, base_threshold: 0.67, log_multiplier: 0.07)    # Print the message being embedded.
+    puts "Message: #{message}"
+
     target_vector = message.generate_embedding
+    target_vector_literal = ActiveRecord::Base.connection.quote("[#{target_vector.join(",")}]")
 
-    debugger
+    # Compute similarity using the pgvector inner product operator (<#>)
+    # and multiply by -1 so that higher similarity appears as a larger positive number.
+    similarity_expr = "(-1 * (embeddings.vector <#> #{target_vector_literal}::vector))"
 
-    # Get candidate embeddings (ordered by similarity using inner product)
-    candidate_embeddings = Embedding.where(inbox: inbox)
-      .nearest_neighbors(:vector, target_vector, distance: "inner_product")
-    candidate_embeddings_array = candidate_embeddings.to_a
+    # Join embeddings -> examples -> templates.
+    # Instead of DISTINCT ON, we group by template so we can aggregate
+    # (using MAX) the similarity across multiple examples.
+    candidate_templates = Embedding
+      .joins("JOIN examples ON examples.embedding_id = embeddings.id")
+      .joins("JOIN templates ON templates.id = examples.template_id")
+      .where(inbox: inbox)
+      .select("templates.id AS template_id, templates.output AS template_text, MAX(#{similarity_expr}) AS similarity")
+      .group("templates.id, templates.output")
+      .order("similarity DESC")
 
-    # For debugging: output the text and similarity score for each candidate embedding.
-    candidate_embeddings_array.each do |embedding|
-      similarity = embedding.vector.zip(target_vector).map { |a, b| a * b }.sum
-      text = if embedding.embeddable.respond_to?(:body)
-        embedding.embeddable.body
-      elsif embedding.embeddable.respond_to?(:plaintext)
-        embedding.embeddable.plaintext
-      else
-        "No text available"
+    candidate_templates.each do |record|
+      puts "Template: #{record.template_text.inspect} - Similarity: #{record.similarity}\n"
+    end
+
+    # matching_template_ids = candidate_templates.select do |record|
+    #   record.similarity.to_f >= base_threshold
+    # end.map(&:template_id)
+
+    selected_candidate_templates = []
+    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
+      # Always select the top candidate if it meets the base_threshold.
+      selected_candidate_templates << candidate_templates.first
+
+      # For subsequent candidates, use a dynamic threshold.
+      candidate_templates[1..-1].each_with_index do |candidate, index|
+        # Candidate rank: top candidate is rank 1, so these start at rank 2.
+        candidate_rank = index + 2
+        dynamic_threshold = base_threshold + (log_multiplier * Math.log(candidate_rank))
+        sim = candidate.similarity.to_f
+        if sim >= dynamic_threshold
+          selected_candidate_templates << candidate
+        else
+          puts "Candidate at rank #{candidate_rank} with similarity #{sim} did not meet the dynamic threshold #{dynamic_threshold}."
+        end
       end
-      puts "Candidate embedding text: #{text.inspect} - Similarity: #{similarity}"
+    else
+      puts "\nNo candidate met the base threshold of #{base_threshold}.\n"
     end
 
-    # Filter embeddings that have a similarity above the threshold.
-    matching_embeddings = candidate_embeddings_array.select do |embedding|
-      similarity = embedding.vector.zip(target_vector).map { |a, b| a * b }.sum
-      similarity >= threshold
+    puts "\n\nSelected candidate templates:"
+    selected_candidate_templates.each do |record|
+      puts "Template: #{record.template_text.inspect} - Similarity: #{record.similarity}\n"
     end
 
-    if false
-      Embedding
-        .where(inbox: inbox)
-        .select(:embeddable_type, :embeddable_id)
-        .nearest_neighbors(:vector, target_vector, distance: "inner_product")
-    end
-
-    # Map back to Examples, then to their Templates.
-    matching_embeddings.map do |embedding|
-      Example.find_by(embedding_id: embedding.id)&.template
-    end.compact.uniq
+    matching_template_ids = selected_candidate_templates.map(&:template_id)
+    Template.where(id: matching_template_ids)
   end
 
   private

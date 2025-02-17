@@ -70,6 +70,15 @@
       </svg>
       <p class="text-sm font-medium">Create a new template</p>
     </div>
+    <div class="p-3 border-b border-gray-200 flex gap-2 text-gray-600">
+      <svg xmlns="http://www.w3.org/2000/svg" ...></svg>
+      <p class="text-sm font-medium">Select template</p>
+      <!-- Auto-select button -->
+      <%= button_to "Auto-select Best Template", find_template_topic_path(@topic),
+                    method: :get,
+                    form: { data: { turbo_frame: "template-selector" } },
+                    class: "ml-auto bg-blue-500 text-white px-3 py-1 rounded" %>
+    </div>
     <div class="hidden data-[loading]:flex absolute top-0 bottom-0 left-0 right-0 bg-white bg-opacity-75 rounded-lg items-center justify-center" data-template-selector-dropdown-target="loadingOverlay">
       <svg class="animate-spin h-8 w-8 text-blue-600 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
