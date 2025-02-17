@@ -14,7 +14,7 @@ class Example < ApplicationRecord
   before_destroy :destroy_source_if_example_message
 
   # Find all best templates that have a similarity above the threshold.
-  def self.find_best_templates(message, inbox, base_threshold: 0.67, log_multiplier: 0.07)    # Print the message being embedded.
+  def self.find_best_templates(message, inbox, base_threshold: 0.67, secondary_threshold: 0.71, margin: 0.07)    # Print the message being embedded.
     puts "Message: #{message}"
 
     target_vector = message.generate_embedding
@@ -44,20 +44,16 @@ class Example < ApplicationRecord
     # end.map(&:template_id)
 
     selected_candidate_templates = []
+    # Only select if the top candidate meets the base threshold.
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
-      # Always select the top candidate if it meets the base_threshold.
+      top_similarity = candidate_templates.first.similarity.to_f
       selected_candidate_templates << candidate_templates.first
 
-      # For subsequent candidates, use a dynamic threshold.
-      candidate_templates[1..-1].each_with_index do |candidate, index|
-        # Candidate rank: top candidate is rank 1, so these start at rank 2.
-        candidate_rank = index + 2
-        dynamic_threshold = base_threshold + (log_multiplier * Math.log(candidate_rank))
+      # Now, include any candidate that meets the secondary threshold and is within `margin` of the top.
+      candidate_templates[1..-1].each do |candidate|
         sim = candidate.similarity.to_f
-        if sim >= dynamic_threshold
+        if sim >= secondary_threshold && (top_similarity - sim) <= margin
           selected_candidate_templates << candidate
-        else
-          puts "Candidate at rank #{candidate_rank} with similarity #{sim} did not meet the dynamic threshold #{dynamic_threshold}."
         end
       end
     else
@@ -70,6 +66,8 @@ class Example < ApplicationRecord
     end
 
     matching_template_ids = selected_candidate_templates.map(&:template_id)
+    Template.where(id: matching_template_ids)
+
     Template.where(id: matching_template_ids)
   end
 
