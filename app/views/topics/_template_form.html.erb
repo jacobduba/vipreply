@@ -1,4 +1,4 @@
-<% if topic.template_attached? %>
+<% if topic.templates.any? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
     <% topic.templates.each_with_index do |template, i| %>
       <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">

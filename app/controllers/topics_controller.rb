@@ -13,7 +13,7 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @templates = @account.inbox.templates.includes(examples: :source).order(id: :asc)
+    @templates = @account.inbox.templates.order(id: :asc)
     @generated_reply = @topic.skipped_no_reply_needed? ? "" : @topic.generated_reply
 
     # TODO — cache this?
