@@ -13,7 +13,6 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @templates = @account.inbox.templates.order(id: :asc)
     @generated_reply = @topic.skipped_no_reply_needed? ? "" : @topic.generated_reply
 
     # TODO — cache this?
@@ -169,7 +168,11 @@ class TopicsController < ApplicationController
   private
 
   def set_topic
-    @topic = Topic.find(params[:id])
+    @topic = if action_name == "show"
+      Topic.includes(:templates).find(params[:id])
+    else
+      Topic.find(params[:id])
+    end
   end
 
   def authorize_account_owns_topic
