@@ -13,7 +13,6 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @generated_reply = @topic.skipped_no_reply_needed? ? "" : @topic.generated_reply
 
     # TODO — cache this?
     @has_templates = @account.inbox.templates.exists?
@@ -132,6 +131,8 @@ class TopicsController < ApplicationController
       end
       Example.create!(examples)
     end
+
+    @topic.update(generated_reply: "", templates: [])
 
     redirect_to topic_path(@topic)
   end

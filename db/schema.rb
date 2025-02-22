@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_22_214536) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -142,7 +142,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
     t.integer "message_count"
     t.bigint "template_id"
     t.string "generated_reply"
-    t.integer "template_status", default: 0
     t.integer "status", default: 0
     t.boolean "awaiting_customer"
     t.boolean "is_spam", default: false

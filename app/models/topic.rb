@@ -6,12 +6,8 @@ class Topic < ApplicationRecord
   has_many :attachments, through: :messages
 
   enum :status, [:needs_reply, :has_reply]
-  enum :template_status, [
-    :could_not_find_template,
-    :template_removed,
-    :template_attached,
-    :skipped_no_reply_needed
-  ]
+
+  scope :not_spam, -> { where(is_spam: false) }
 
   EMBEDDING_TOKEN_LIMIT = 8191
 
@@ -23,10 +19,7 @@ class Topic < ApplicationRecord
     latest_message = messages.order(date: :desc).first
     best_templates = Example.find_best_templates(latest_message, inbox)
     self.templates = best_templates
-    self.template_status = best_templates.any? ? :template_attached : :could_not_find_template
   end
-
-  scope :not_spam, -> { where(is_spam: false) }
 
   def generate_reply
     latest_message = messages.order(date: :desc).first
@@ -132,9 +125,7 @@ class Topic < ApplicationRecord
 
     messages.each { |message| Message.cache_from_gmail(topic, message) }
 
-    if topic.has_reply?
-      topic.template_status = :skipped_no_reply_needed
-    else
+    unless topic.has_reply?
       topic.find_best_templates
       topic.generate_reply
     end
