@@ -24,10 +24,7 @@ Rails.application.routes.draw do
 
   resources :topics do
     member do
-      get "find_template_regenerate_reply"
       get "template_selector"
-      get "find_template"
-      post "generate_reply"
       post "change_status"
       post "send_email"
       patch "change_templates_regenerate_response"

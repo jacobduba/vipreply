@@ -22,14 +22,6 @@ class TopicsController < ApplicationController
     @from_inbox = request.referrer == root_url
   end
 
-  def find_template
-    handle_find_templates(@topic)
-  end
-
-  def generate_reply
-    handle_regenerate_reply(@topic)
-  end
-
   def send_email
     # Extract the email body directly from params[:email]
     email_body = params[:email]
@@ -159,7 +151,7 @@ class TopicsController < ApplicationController
     end
 
     @topic.templates = valid_templates
-    handle_regenerate_reply(@topic)
+    refresh_topic_reply(@topic)
   end
 
   def update_templates_regenerate_response
@@ -167,13 +159,22 @@ class TopicsController < ApplicationController
   end
 
   def remove_template
-    if @topic.template_ids.exclude?(params[:template_id])
+    template_id = params[:template_id].to_i
+
+    if @topic.template_ids.exclude?(template_id)
       render plain: "Template not attached to topic", status: :not_found
       return
     end
 
-    @topic.templates.delete(template)
-    handle_regenerate_reply(@topic)
+    @topic.templates.delete(template_id)
+    @topic.save
+    render turbo_stream: [
+      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {
+        input_errors: [],
+        output_errors: [],
+        topic: @topic
+      })
+    ]
   end
 
   private

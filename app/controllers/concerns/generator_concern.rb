@@ -3,8 +3,8 @@
 module GeneratorConcern
   extend ActiveSupport::Concern
 
-  # Generate Reply button
-  def handle_regenerate_reply(topic)
+  # Regenerates reply, saves topic, and renders HTML changes
+  def refresh_topic_reply(topic)
     topic.generate_reply
     topic.save!
     render turbo_stream: [
@@ -13,26 +13,6 @@ module GeneratorConcern
         input_errors: [],
         output_errors: [],
         topic: topic
-      })
-    ]
-  end
-
-  # Find Templates button
-  def handle_find_templates(topic)
-    message = topic.messages.order(date: :desc).first
-
-    best_templates = message ? Example.find_best_templates(message, topic.inbox) : []
-
-    topic.templates = best_templates
-    topic.save!
-
-    render turbo_stream: [
-      turbo_stream.replace("template_form", partial: "templates/template_form", locals: {
-        input_errors: [],
-        output_errors: [],
-        topic: topic,
-        template: (topic.templates.any? ? topic.templates.first : Template.new),
-        show_delete: (topic.templates.any? ? topic.templates.first.persisted? : false)
       })
     ]
   end
