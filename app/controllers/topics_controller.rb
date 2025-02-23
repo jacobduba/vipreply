@@ -166,10 +166,20 @@ class TopicsController < ApplicationController
     # TODO
   end
 
+  def remove_template
+    if @topic.template_ids.exclude?(params[:template_id])
+      render plain: "Template not attached to topic", status: :not_found
+      return
+    end
+
+    @topic.templates.delete(template)
+    handle_regenerate_reply(@topic)
+  end
+
   private
 
   def set_topic
-    @topic = if action_name == "show"
+    @topic = if ["show", "remove_template"].include?(action_name)
       Topic.includes(:templates).find(params[:id])
     else
       Topic.find(params[:id])

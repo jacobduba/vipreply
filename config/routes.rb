@@ -32,6 +32,9 @@ Rails.application.routes.draw do
       post "send_email"
       patch "change_templates_regenerate_response"
       post "update_templates_regenerate_reply"
+      delete "remove_template/:template_id",
+        action: :remove_template,
+        as: :remove_template
     end
   end
 
