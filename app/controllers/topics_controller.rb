@@ -154,7 +154,8 @@ class TopicsController < ApplicationController
     refresh_topic_reply(@topic)
   end
 
-  def update_templates_regenerate_response
+  def update_templates_regenerate_reply
+    debugger
     # TODO
   end
 
