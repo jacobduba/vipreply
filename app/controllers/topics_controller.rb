@@ -155,7 +155,11 @@ class TopicsController < ApplicationController
   end
 
   def update_templates_regenerate_reply
-    # TODO
+    if params[:templates].blank?
+      refresh_topic_reply(@topic)
+      return
+    end
+
     templates_params = params.expect(templates: [[:output]])
 
     changed_templates = templates_params.keys.map(&:to_i)
