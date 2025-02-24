@@ -2,12 +2,16 @@ class Message < ApplicationRecord
   require "tokenizers"
 
   EMBEDDING_TOKEN_LIMIT = 8191
-
   include ActionView::Helpers::TextHelper
 
   belongs_to :topic
   has_many :attachments, dependent: :destroy
+  has_and_belongs_to_many :templates
 
+  # Vector search functionality
+  has_neighbors :vector, dimensions: 2048
+
+  before_save :generate_embedding, unless: :vector?
   before_save :check_plaintext_nil
 
   def replace_cids_with_urls(host)
@@ -59,14 +63,16 @@ class Message < ApplicationRecord
     TEXT
   end
 
+  # Modified embedding generation
   def generate_embedding
+    return if vector.present?
+
     embedding_text = <<~TEXT
       Subject: #{subject}
-      Body:
-      #{plaintext}
+      Body: #{plaintext}
     TEXT
 
-    fetch_embedding(embedding_text)
+    self.vector = fetch_embedding(truncate_embedding_text(embedding_text))
   end
 
   def self.parse_email_header(header)
@@ -189,33 +195,34 @@ class Message < ApplicationRecord
     @tokenizer ||= Tokenizers::Tokenizer.from_pretrained("voyageai/voyage-3-large")
   end
 
-  def truncate_text(text, token_limit)
+  def truncate_embedding_text(text)
     encoding = tokenizer.encode(text)
+    return text if encoding.tokens.size <= EMBEDDING_TOKEN_LIMIT
 
-    if encoding.tokens.size > token_limit
-      truncated_ids = encoding.ids[0...token_limit]
-      tokenizer.decode(truncated_ids)
-    else
-      text
-    end
+    truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+    tokenizer.decode(truncated_ids)
   end
 
+  # Modified to store directly on message
   def fetch_embedding(text)
     voyage_api_key = Rails.application.credentials.voyage_api_key
-
     url = "https://api.voyageai.com/v1/embeddings"
-    headers = {
+
+    response = Net::HTTP.post(
+      URI(url),
+      {
+        input: text,
+        model: "voyage-3-large",
+        output_dimension: 2048
+      }.to_json,
       "Authorization" => "Bearer #{voyage_api_key}",
       "Content-Type" => "application/json"
-    }
-    data = {
-      input: text,
-      model: "voyage-3-large",
-      output_dimension: 2048
-    }
+    )
 
-    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
     JSON.parse(response.body)["data"][0]["embedding"]
+  rescue => e
+    Rails.logger.error "Embedding generation failed: #{e.message}"
+    nil
   end
 
   def check_plaintext_nil

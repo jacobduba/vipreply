@@ -21,9 +21,58 @@ class Topic < ApplicationRecord
 
   def find_best_templates
     latest_message = messages.order(date: :desc).first
-    best_templates = Example.find_best_templates(latest_message, inbox)
-    self.templates = best_templates
-    self.template_status = best_templates.any? ? :template_attached : :could_not_find_template
+    return Template.none unless latest_message&.vector
+
+    base_threshold = 0.67
+    secondary_threshold = 0.71
+    margin = 0.07
+
+    target_vector = latest_message.vector
+    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+
+    candidate_templates = Template
+      .joins(:messages)
+      .select(<<~SQL)
+        templates.id AS template_id,
+        templates.output AS template_text,
+        MAX(1 - (messages.vector <-> #{target_vector_literal}::vector)) AS similarity
+      SQL
+      .group("templates.id, templates.output")
+      .order("similarity DESC")
+
+    selected_candidates = []
+    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
+      top_similarity = candidate_templates.first.similarity.to_f
+      selected_candidates << candidate_templates.first
+
+      candidate_templates[1..-1].each do |candidate|
+        sim = candidate.similarity.to_f
+        if sim >= secondary_threshold && (top_similarity - sim) <= margin
+          selected_candidates << candidate
+        end
+      end
+    end
+
+    Template.where(id: selected_candidates.map(&:template_id))
+  end
+
+  # Updated template listing
+  def list_templates_by_relevance
+    latest_message = messages.order(date: :desc).first
+    return Template.none unless latest_message&.vector
+
+    target_vector = latest_message.vector
+    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+
+    Template
+      .joins(:messages)
+      .select(<<~SQL)
+        templates.id AS id,
+        templates.output AS output,
+        MAX(1 - (messages.vector <-> #{target_vector_literal}::vector)) AS similarity
+      SQL
+      .group("templates.id, templates.output")
+      .order("similarity DESC")
   end
 
   scope :not_spam, -> { where(is_spam: false) }
@@ -42,6 +91,9 @@ class Topic < ApplicationRecord
     prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
     self.generated_reply = reply
+  end
+
+  def generate_embeddings
   end
 
   private
@@ -116,7 +168,16 @@ class Topic < ApplicationRecord
     to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-    status = (from == inbox.account.email) ? :has_reply : :needs_reply
+    is_old_email = date < 1.weeks.ago
+
+    status = if from == inbox.account.email
+      :has_reply
+    elsif is_old_email
+      :has_reply
+    else
+      :needs_reply
+    end
+
     awaiting_customer = (from == inbox.account.email)
     message_count = response_body.messages.count
 
@@ -131,12 +192,15 @@ class Topic < ApplicationRecord
       awaiting_customer: awaiting_customer,
       message_count: message_count
     )
+
     topic.save!
 
     messages.each { |message| Message.cache_from_gmail(topic, message) }
 
     if topic.has_reply?
       topic.template_status = :skipped_no_reply_needed
+    elsif is_old_email
+      topic.template_status = :skipped_no_reply_needed # Skip old threads
     else
       topic.find_best_templates
       topic.generate_reply

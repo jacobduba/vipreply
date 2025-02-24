@@ -25,7 +25,7 @@ Rails.application.routes.draw do
   resources :topics do
     member do
       get "find_template_regenerate_reply"
-      get "template_selector"
+      get "template_selector_dropdown"
       get "find_template"
       post "generate_reply"
       post "change_status"
@@ -34,8 +34,6 @@ Rails.application.routes.draw do
       post "update_templates_regenerate_reply"
     end
   end
-
-  resources :examples
 
   get "attachments/:id", to: "attachments#show", as: :attachment
 

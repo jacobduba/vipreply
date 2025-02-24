@@ -13,7 +13,7 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @templates = @account.inbox.templates.includes(examples: :source).order(id: :asc)
+    @templates = @account.inbox.templates.order(id: :asc)
     @generated_reply = @topic.skipped_no_reply_needed? ? "" : @topic.generated_reply
 
     # TODO — cache this?
@@ -123,15 +123,11 @@ class TopicsController < ApplicationController
     inbox = @account.inbox
     UpdateFromHistoryJob.perform_now inbox.id
 
+    # Associate sent message with templates
     if @topic.templates.any?
-      examples = @topic.templates.map do |template|
-        {
-          source: most_recent_message,
-          template: template,
-          inbox: inbox
-        }
+      @topic.templates.each do |template|
+        template.messages << most_recent_message unless template.messages.include?(most_recent_message)
       end
-      Example.create!(examples)
     end
 
     redirect_to topic_path(@topic)
@@ -145,8 +141,14 @@ class TopicsController < ApplicationController
     render turbo_stream: turbo_stream.replace("change_status_button", partial: "topics/change_status_button")
   end
 
-  def template_selector
-    @templates = @topic.inbox.templates
+  def template_selector_dropdown
+    # Get all templates from the inbox, ordered by most recently used
+    # Decided we can put this call here, as it'll make sure we always load all templates, and we found out this part is quick.
+    @templates = @account.inbox.templates
+      .left_joins(:messages)
+      .select("templates.*, MAX(messages.created_at) AS last_used")
+      .group("templates.id")
+      .order("last_used DESC")
   end
 
   def change_templates_regenerate_response
@@ -172,7 +174,7 @@ class TopicsController < ApplicationController
     end
 
     @topic.templates = valid_templates
-    handle_regenerate_reply
+    handle_regenerate_reply(@topic)
   end
 
   ## Debug Find Template method

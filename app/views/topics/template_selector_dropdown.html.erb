@@ -1,11 +1,25 @@
 <%= turbo_frame_tag "template-selector" do %>
   <div id="template-selector-body" class="absolute top-11 right-0 w-4/5 border border-gray-200 bg-gray-50 rounded-lg shadow-sm animate-fade-in">
-    <div class="p-3 border-b border-gray-200 flex gap-2 text-gray-600">
+    <div class="p-3 border-b border-gray-200 flex gap-2 text-gray-600 items-center">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
       </svg>
       <p class="text-sm font-medium">Select template</p>
+      
+      <!-- Auto-select button -->
+      <%= button_to "Auto-select Best Template", 
+                    find_template_topic_path(@topic),
+                    method: :get,
+                    form: { 
+                      class: "ml-auto",
+                      data: { 
+                        turbo_frame: "template-selector",
+                        action: "click->template-selector-dropdown#showLoadingOverlay"
+                      } 
+                    },
+                    class: "ml-auto bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600" %>
     </div>
+
     <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px] relative"
          data-controller="template-selector-form">
       <% @templates.each do |template| %>
@@ -37,7 +51,7 @@
               class: "flex-1",
               data: {
                 action: "turbo:submit-end->template-selector-dropdown#toggle
-                          turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
+                        turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
               } do |f| %>
             <%= f.hidden_field :template_ids, value: [template.id] %>
             <%= f.submit template.output,
@@ -45,6 +59,7 @@
           <% end %>
         </div>
       <% end %>
+      
       <%= form_with model: @topic,
           url: change_templates_regenerate_response_topic_path(@topic),
           id: :multi_template_form,
@@ -64,21 +79,23 @@
         </button>
       <% end %>
     </div>
-    <div class="p-3 border-t border-gray-200 flex gap-2 text-gray-600">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      <p class="text-sm font-medium">Create a new template</p>
+
+    <!-- Create New Template Section -->
+    <div class="p-3 border-t border-gray-200">
+      <%= link_to new_template_path(regenerate_reply: true, topic_id: @topic.id),
+                  data: { 
+                    turbo_frame: "create_template_modal",
+                    action: "click->template-selector-dropdown#showLoadingOverlay"
+                  },
+                  class: "flex items-center gap-2 text-gray-600 hover:text-blue-600 cursor-pointer" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span class="text-sm font-medium">Create new template</span>
+      <% end %>
     </div>
-    <div class="p-3 border-b border-gray-200 flex gap-2 text-gray-600">
-      <svg xmlns="http://www.w3.org/2000/svg" ...></svg>
-      <p class="text-sm font-medium">Select template</p>
-      <!-- Auto-select button -->
-      <%= button_to "Auto-select Best Template", find_template_topic_path(@topic),
-                    method: :get,
-                    form: { data: { turbo_frame: "template-selector" } },
-                    class: "ml-auto bg-blue-500 text-white px-3 py-1 rounded" %>
-    </div>
+
+    <!-- Loading Overlay -->
     <div class="hidden data-[loading]:flex absolute top-0 bottom-0 left-0 right-0 bg-white bg-opacity-75 rounded-lg items-center justify-center" data-template-selector-dropdown-target="loadingOverlay">
       <svg class="animate-spin h-8 w-8 text-blue-600 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>

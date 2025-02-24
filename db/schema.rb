@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_23_221909) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -49,40 +49,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
     t.index ["message_id"], name: "index_attachments_on_message_id"
   end
 
-  create_table "embeddings", force: :cascade do |t|
-    t.string "embeddable_type", null: false
-    t.bigint "embeddable_id", null: false
-    t.vector "vector", limit: 2048
-    t.bigint "inbox_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["embeddable_type", "embeddable_id"], name: "index_embeddings_on_embeddable_type_and_embeddable_id"
-    t.index ["inbox_id"], name: "index_embeddings_on_inbox_id"
-  end
-
-  create_table "example_messages", force: :cascade do |t|
-    t.bigint "inbox_id", null: false
-    t.string "subject"
-    t.text "body"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["inbox_id"], name: "index_example_messages_on_inbox_id"
-  end
-
-  create_table "examples", force: :cascade do |t|
-    t.bigint "template_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.bigint "inbox_id", null: false
-    t.bigint "embedding_id"
-    t.integer "source_id"
-    t.string "source_type"
-    t.index ["embedding_id"], name: "index_examples_on_embedding_id"
-    t.index ["inbox_id"], name: "index_examples_on_inbox_id"
-    t.index ["source_type", "source_id"], name: "index_examples_on_source_type_and_source_id"
-    t.index ["template_id"], name: "index_examples_on_template_id"
-  end
-
   create_table "inboxes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -108,8 +74,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
     t.string "to_name"
     t.string "gmail_message_id", limit: 64
     t.string "labels", default: [], array: true
+    t.vector "vector", limit: 2048
     t.index ["message_id"], name: "index_messages_on_message_id", unique: true
     t.index ["topic_id"], name: "index_messages_on_topic_id"
+  end
+
+  create_table "messages_templates", id: false, force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.bigint "template_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "template_id"], name: "index_messages_templates_on_message_id_and_template_id", unique: true
+    t.index ["template_id", "message_id"], name: "index_messages_templates_on_template_id_and_message_id"
   end
 
   create_table "templates", force: :cascade do |t|
@@ -151,11 +127,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_235052) do
   end
 
   add_foreign_key "attachments", "messages"
-  add_foreign_key "embeddings", "inboxes"
-  add_foreign_key "example_messages", "inboxes"
-  add_foreign_key "examples", "embeddings"
-  add_foreign_key "examples", "inboxes"
-  add_foreign_key "examples", "templates"
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "messages", "topics"
   add_foreign_key "templates", "inboxes"
