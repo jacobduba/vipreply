@@ -155,8 +155,26 @@ class TopicsController < ApplicationController
   end
 
   def update_templates_regenerate_reply
-    debugger
     # TODO
+    templates_params = params.expect(templates: [[:output]])
+
+    changed_templates = templates_params.keys.map(&:to_i)
+
+    ActiveRecord::Base.transaction do
+      errors = {}
+
+      Template.where(id: changed_templates).each do |template|
+        unless template.update(templates_params[template.id.to_s])
+          errors[index] = template.errors.full_messages
+        end
+
+        if errors.any?
+          raise ActiveRecord::Rollback, errors
+        end
+      end
+    end
+
+    refresh_topic_reply(@topic)
   end
 
   def remove_template
