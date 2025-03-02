@@ -11,17 +11,20 @@ export default class extends Controller {
     }
 
     event.preventDefault();
+    this.close();
+  }
+
+  showLoadingOverlay() {
+    this.loadingOverlayTarget.dataset.loading = "true";
+  }
+
+  close() {
     this.selectorTarget.innerHTML = "";
     this.buttonTarget.dataset.active = "false";
   }
 
-  showLoadingOverlay() {
-    console.log(this.loadingOverlayTarget);
-    this.loadingOverlayTarget.dataset.loading = "true";
-  }
-
   closeIfOutsideSelector(event) {
-    // If did clicked inside selector, return
+    // If clicked inside selector, return
     if (
       this.selectorTarget.contains(event.target) ||
       this.buttonTarget.contains(event.target)
@@ -29,7 +32,6 @@ export default class extends Controller {
       return;
     }
 
-    this.selectorTarget.innerHTML = "";
-    this.buttonTarget.dataset.active = "false";
+    this.close();
   }
 }
