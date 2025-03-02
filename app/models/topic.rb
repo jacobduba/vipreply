@@ -65,12 +65,9 @@ class Topic < ApplicationRecord
     # Automatically attach templates to the topic
     if selected_templates.any?
       self.templates = selected_templates
-      self.template_status = :template_attached
       save!
       Rails.logger.info "Attached #{selected_templates.count} templates to topic #{id}"
     else
-      self.template_status = :could_not_find_template
-      save!
       Rails.logger.info "Could not find matching templates for topic #{id}"
     end
 
