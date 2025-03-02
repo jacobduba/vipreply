@@ -142,17 +142,20 @@ class Topic < ApplicationRecord
     system_prompt = <<~PROMPT
       You are a compassionate and empathetic business owner receiving customer support emails for a small business.
 
-      Greet the customer briefly and support them with their questions based on an accompanying template.
+      Greet the customer briefly and answer their questions based using the accompanying templates.
+      Make the customer feel heard and understood.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
       Always use ALL of the provided templates.
       Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
       Keep replies short as to not waste the customers time.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
-      DO NOT include any farewell phrases or closing salutations.
+      DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
+      DO NOT ASK if you have any other questions.
     PROMPT
 
     data = {
-      model: "claude-3-5-sonnet-20241022",
+      # model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-7-sonnet-20250219",
       max_tokens: 2048,
       system: system_prompt,
       messages: [
@@ -163,8 +166,8 @@ class Topic < ApplicationRecord
     puts("Fetching generation from Anthropic API")
     puts("Prompt: #{prompt}")
 
-    response = Net::HTTP.post(URI(url), data.to_json, headers).tap(&:value)
-    parsed = JSON.parse(response.body)
+    response = Net::HTTP.post(URI(url), data.to_json, headers)
+    parsed = JSON.parse(response.tap(&:value).body)
     generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
     generated_text.strip
   end
