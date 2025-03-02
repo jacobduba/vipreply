@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   resources :topics do
     member do
       get "template_selector_dropdown"
+      get "create_template_dropdown"
       get "find_template"
       post "generate_reply"
       post "change_status"

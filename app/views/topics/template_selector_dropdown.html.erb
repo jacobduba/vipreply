@@ -83,11 +83,7 @@
     </div>
     <!-- Create New Template Section -->
     <div class="p-3 border-t border-gray-200">
-      <%= link_to new_template_path(regenerate_reply: true, topic_id: @topic.id),
-                  data: {
-                    turbo_frame: "create_template_modal",
-                    action: "click->template-selector-dropdown#showLoadingOverlay"
-                  },
+      <%= link_to create_template_dropdown_topic_path(regenerate_reply: true, topic_id: @topic.id),
                   class: "flex items-center gap-2 text-gray-600 hover:text-blue-600 cursor-pointer" do %>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />

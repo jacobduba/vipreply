@@ -142,6 +142,9 @@ class TopicsController < ApplicationController
     @templates = @topic.list_templates_by_relevance
   end
 
+  def create_template_dropdown
+  end
+
   def change_templates_regenerate_response
     template_ids = params.dig(:template_ids) || []
     valid_templates = @account.inbox.templates.where(id: template_ids)

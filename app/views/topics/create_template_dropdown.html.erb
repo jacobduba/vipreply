@@ -1,0 +1,37 @@
+<%= turbo_frame_tag "template-selector" do %>
+  <div id="template-selector-body" class="absolute top-11 right-0 w-full max-w-[36rem] border border-gray-200 bg-gray-50 rounded-lg shadow-sm ">
+    <div class="p-3 border-b border-gray-200 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <%= link_to template_selector_dropdown_topic_path(@topic),
+                                    class: "flex items-center gap-1 px-2 py-1 bg-gray-200 rounded text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-300" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+          </svg>
+          <span>Back</span>
+        <% end %>
+        <div class="flex gap-2 text-gray-600">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          <p class="text-sm font-medium">Create new template</p>
+        </div>
+      </div>
+      <button type="button"
+              data-action="click->template-selector-dropdown#toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-400 hover:text-gray-600">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px] relative"
+         data-controller="template-selector-form">
+    </div>
+    <!-- Loading Overlay -->
+    <div class="hidden data-[loading]:flex absolute top-0 bottom-0 left-0 right-0 bg-white bg-opacity-75 rounded-lg items-center justify-center" data-template-selector-dropdown-target="loadingOverlay">
+      <svg class="animate-spin h-8 w-8 text-blue-600 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+  </div>
+<% end %>
