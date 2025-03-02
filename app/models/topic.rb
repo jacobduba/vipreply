@@ -156,7 +156,7 @@ class Topic < ApplicationRecord
 
       Greet the customer briefly and support them with their questions based on an accompanying template.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
-      Always use ALL of the provided templates. 
+      Always use ALL of the provided templates.
       Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
       Keep replies short as to not waste the customers time.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
@@ -196,7 +196,7 @@ class Topic < ApplicationRecord
     to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-    is_old_email = date < 1.weeks.ago
+    is_old_email = date < 3.weeks.ago
 
     status = if from == inbox.account.email
       :has_reply
