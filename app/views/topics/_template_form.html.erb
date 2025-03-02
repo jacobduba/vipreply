@@ -14,8 +14,11 @@
           <div class="my-2 w-full flex justify-between items-center">
             <%= form.label "templates[#{template.id}][output]", "Template", class: "font-medium text-gray-600 text-sm" %>
             <%= link_to "Remove", remove_template_topic_path(topic, template),
-              data: { turbo_method: :delete },
-              class: "rounded-lg bg-gray-100 px-2 py-1 text-xs hover:bg-red-100 hover:text-red-600 flex items-center gap-1.5 text-gray-700 font-medium" %>
+              data: {
+                turbo_method: :delete,
+                turbo_confirm: "Are you sure you want to remove this template?"
+              },
+              class: "rounded-lg bg-gray-100 px-2 py-1 text-xs hover:bg-gray-200 flex items-center gap-1.5 text-gray-700 font-medium" %>
           </div>
           <%= form.text_area "templates[#{template.id}][output]",
               value: template.output,
