@@ -39,19 +39,14 @@ class TemplatesController < ApplicationController
   end
 
   def update
-    if @template.update(template_params)
-      handle_regeneration if template_params[:regenerate_reply] == "true"
-      redirect_to templates_path, notice: "Template updated successfully"
-    else
+    unless @template.update(template_params)
       @input_errors = @template.errors.full_messages_for(:input)
       @output_errors = @template.errors.full_messages_for(:output)
       render :edit
+      return
     end
 
-    render turbo_stream: [
-      turbo_stream.replace("template-#{@template.id}", partial: "template", locals: {template: @template}),
-      turbo_stream.remove("edit-template-modal")
-    ]
+    redirect_to templates_path, notice: "Template updated successfully"
   end
 
   def destroy

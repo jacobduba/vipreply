@@ -115,9 +115,6 @@ class Topic < ApplicationRecord
     self.generated_reply = reply
   end
 
-  def generate_embeddings
-  end
-
   private
 
   def tokenizer

@@ -208,7 +208,8 @@ class TopicsController < ApplicationController
     ]
   end
 
-  ## Debug Find Template method
+  # Debug Find Template method
+  # TODO Remove???? Idk what this is used for
   def find_template
     # This will calculate and assign the best templates based on the latest message.
     @topic.find_best_templates
@@ -223,11 +224,6 @@ class TopicsController < ApplicationController
       end
       format.html { redirect_to topic_path(@topic) }
     end
-  end
-
-  def find_template_regenerate_reply
-    @topic.find_best_templates
-    handle_regenerate_reply(@topic)
   end
 
   private
