@@ -14,9 +14,6 @@ class TopicsController < ApplicationController
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
 
-    # TODO — cache this?
-    @has_templates = @account.inbox.templates.exists?
-
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
     @from_inbox = request.referrer == root_url

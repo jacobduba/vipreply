@@ -16,8 +16,9 @@
     </div>
     <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px] relative"
          data-controller="template-selector-form">
-      <% @templates.each do |template| %>
-        <div data-template-selector-form-target="templateRow"
+      <% if @templates.present? %>
+        <% @templates.each do |template| %>
+          <div data-template-selector-form-target="templateRow"
              data-selected="<%= @topic.template_ids.include?(template.id) %>"
              data-is-checked="false"
              class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
@@ -25,8 +26,8 @@
                     data-[is-checked=true]:bg-blue-50
                     data-[is-checked=true]:text-blue-600
                     data-[is-checked=true]:border-blue-200">
-          <div class="group grid size-4 grid-cols-1 mx-4 flex-none">
-            <%= check_box_tag "template_ids[]",
+            <div class="group grid size-4 grid-cols-1 mx-4 flex-none">
+              <%= check_box_tag "template_ids[]",
                               template.id,
                               false,
                               data: {
@@ -35,22 +36,30 @@
                               },
                               form: :multi_template_form,
                               class: "col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white checked:border-blue-600 checked:bg-blue-600" %>
-            <svg class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-[:disabled]:stroke-gray-950/25" viewBox="0 0 14 14" fill="none">
-              <path class="opacity-0 group-has-[:checked]:opacity-100" d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path class="opacity-0 group-has-[:indeterminate]:opacity-100" d="M3 7H11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </div>
-          <%= form_with url: change_templates_regenerate_response_topic_path(@topic),
+              <svg class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-[:disabled]:stroke-gray-950/25" viewBox="0 0 14 14" fill="none">
+                <path class="opacity-0 group-has-[:checked]:opacity-100" d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path class="opacity-0 group-has-[:indeterminate]:opacity-100" d="M3 7H11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <%= form_with url: change_templates_regenerate_response_topic_path(@topic),
               method: :patch,
               class: "flex-1",
               data: {
                 action: "turbo:submit-end->template-selector-dropdown#toggle
                         turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
               } do |f| %>
-            <%= f.hidden_field :template_ids, value: [template.id] %>
-            <%= f.submit template.output,
+              <%= f.hidden_field :template_ids, value: [template.id] %>
+              <%= f.submit template.output,
               class: "text-left py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
-          <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="my-2">
+          <div class="flex justify-center mb-2">
+            <%= image_tag "no_templates.svg", class: "w-40", alt: "No templates available yet." %>
+          </div>
+          <p class="text-center text-gray-500 text-xl">No templates available yet.</p>
         </div>
       <% end %>
       <%= form_with model: @topic,
