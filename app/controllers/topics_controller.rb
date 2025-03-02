@@ -123,20 +123,14 @@ class TopicsController < ApplicationController
     inbox = @account.inbox
     UpdateFromHistoryJob.perform_now inbox.id
 
-    # Associate sent message with templates
     if @topic.templates.any?
-      sleep(3) # Give some time for the history job to complete
+      if most_recent_message
+        # Ensure message embedding exists for the message being replied to
+        MessageEmbedding.create_for_message(most_recent_message) unless most_recent_message.message_embedding
 
-      # Get the newly created message (should be the latest one)
-      new_message = @topic.messages.order(date: :desc).first
-
-      if new_message && new_message.id != most_recent_message.id
-        # Ensure message embedding exists
-        MessageEmbedding.create_for_message(new_message) unless new_message.message_embedding
-
-        if new_message.message_embedding
+        if most_recent_message.message_embedding
           @topic.templates.each do |template|
-            template.message_embeddings << new_message.message_embedding unless template.message_embeddings.include?(new_message.message_embedding)
+            template.message_embeddings << most_recent_message.message_embedding unless template.message_embeddings.include?(most_recent_message.message_embedding)
           end
         end
       end
