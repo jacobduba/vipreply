@@ -114,14 +114,16 @@ class TopicsController < ApplicationController
     UpdateFromHistoryJob.perform_now inbox.id
 
     if @topic.templates.any?
-      examples = @topic.templates.map do |template|
-        {
-          source: most_recent_message,
-          template: template,
-          inbox: inbox
-        }
+      if most_recent_message
+        # Ensure message embedding exists for the message being replied to
+        MessageEmbedding.create_for_message(most_recent_message) unless most_recent_message.message_embedding
+
+        if most_recent_message.message_embedding
+          @topic.templates.each do |template|
+            template.message_embeddings << most_recent_message.message_embedding unless template.message_embeddings.include?(most_recent_message.message_embedding)
+          end
+        end
       end
-      Example.create!(examples)
     end
 
     @topic.update(generated_reply: "", templates: [])
@@ -137,8 +139,14 @@ class TopicsController < ApplicationController
     render turbo_stream: turbo_stream.replace("change_status_button", partial: "topics/change_status_button")
   end
 
-  def template_selector
-    @templates = @topic.inbox.templates
+  def template_selector_dropdown
+    # Get all templates from the inbox, ordered by most recently used
+    # We need to update this since templates are now connected to messages through message_embeddings
+    @templates = @account.inbox.templates
+      .left_joins(message_embeddings: :message)
+      .select("templates.*, MAX(messages.created_at) AS last_used")
+      .group("templates.id")
+      .order("last_used DESC")
   end
 
   def change_templates_regenerate_response
@@ -198,6 +206,28 @@ class TopicsController < ApplicationController
         topic: @topic
       })
     ]
+  end
+
+  ## Debug Find Template method
+  def find_template
+    # This will calculate and assign the best templates based on the latest message.
+    @topic.find_best_templates
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "template-selector-body",
+          partial: "topics/template_selector_body",
+          locals: {templates: @topic.templates}
+        )
+      end
+      format.html { redirect_to topic_path(@topic) }
+    end
+  end
+
+  def find_template_regenerate_reply
+    @topic.find_best_templates
+    handle_regenerate_reply(@topic)
   end
 
   private

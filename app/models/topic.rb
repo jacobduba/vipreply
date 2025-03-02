@@ -17,8 +17,86 @@ class Topic < ApplicationRecord
 
   def find_best_templates
     latest_message = messages.order(date: :desc).first
-    best_templates = Example.find_best_templates(latest_message, inbox)
-    self.templates = best_templates
+    return Template.none unless latest_message&.message_embedding&.vector
+
+    base_threshold = 0.67
+    secondary_threshold = 0.71
+    margin = 0.07
+
+    target_embedding = latest_message.message_embedding
+    return Template.none unless target_embedding
+
+    target_vector = target_embedding.vector
+    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+
+    # Modified to only search templates with message_embeddings
+    candidate_templates = Template
+      .joins(:message_embeddings)
+      .select(<<~SQL)
+        templates.id AS template_id,
+        templates.output AS template_text,
+        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
+      SQL
+      .group("templates.id, templates.output")
+      .order("similarity DESC")
+
+    # Print candidate templates for debugging
+    puts("Candidate Templates:")
+    candidate_templates.each do |candidate|
+      puts("Template ID: #{candidate.template_id}, Similarity: #{candidate.similarity}")
+      puts("Template Text: #{candidate.template_text}")
+    end
+
+    selected_candidates = []
+    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
+      top_similarity = candidate_templates.first.similarity.to_f
+      selected_candidates << candidate_templates.first
+
+      candidate_templates[1..-1].each do |candidate|
+        sim = candidate.similarity.to_f
+        if sim >= secondary_threshold && (top_similarity - sim) <= margin
+          selected_candidates << candidate
+        end
+      end
+    end
+
+    selected_templates = Template.where(id: selected_candidates.map(&:template_id))
+
+    # Automatically attach templates to the topic
+    if selected_templates.any?
+      self.templates = selected_templates
+      self.template_status = :template_attached
+      save!
+      Rails.logger.info "Attached #{selected_templates.count} templates to topic #{id}"
+    else
+      self.template_status = :could_not_find_template
+      save!
+      Rails.logger.info "Could not find matching templates for topic #{id}"
+    end
+
+    selected_templates
+  end
+
+  # Updated list_templates_by_relevance method for Topic model
+  def list_templates_by_relevance
+    latest_message = messages.order(date: :desc).first
+    return Template.none unless latest_message&.message_embedding&.vector
+
+    target_embedding = latest_message.message_embedding
+    return Template.none unless target_embedding
+
+    target_vector = target_embedding.vector
+    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+
+    Template
+      .joins(:message_embeddings)
+      .select(<<~SQL)
+        templates.id AS id,
+        templates.output AS output,
+        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
+      SQL
+      .group("templates.id, templates.output")
+      .order("similarity DESC")
   end
 
   def generate_reply
@@ -35,6 +113,9 @@ class Topic < ApplicationRecord
     prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
     self.generated_reply = reply
+  end
+
+  def generate_embeddings
   end
 
   private
@@ -68,6 +149,9 @@ class Topic < ApplicationRecord
       You are a compassionate and empathetic business owner receiving customer support emails for a small business.
 
       Greet the customer briefly and support them with their questions based on an accompanying template.
+      Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
+      Always use ALL of the provided templates.
+      Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
       Keep replies short as to not waste the customers time.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       DO NOT include any farewell phrases or closing salutations.
@@ -106,7 +190,16 @@ class Topic < ApplicationRecord
     to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
-    status = (from == inbox.account.email) ? :has_reply : :needs_reply
+    is_old_email = date < 3.weeks.ago
+
+    status = if from == inbox.account.email
+      :has_reply
+    elsif is_old_email
+      :has_reply
+    else
+      :needs_reply
+    end
+
     awaiting_customer = (from == inbox.account.email)
     message_count = response_body.messages.count
 
@@ -121,11 +214,12 @@ class Topic < ApplicationRecord
       awaiting_customer: awaiting_customer,
       message_count: message_count
     )
+
     topic.save!
 
     messages.each { |message| Message.cache_from_gmail(topic, message) }
 
-    unless topic.has_reply?
+    unless topic.has_reply? || is_old_email
       topic.find_best_templates
       topic.generate_reply
     end

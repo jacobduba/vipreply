@@ -24,7 +24,9 @@ Rails.application.routes.draw do
 
   resources :topics do
     member do
-      get "template_selector"
+      get "template_selector_dropdown"
+      get "find_template"
+      post "generate_reply"
       post "change_status"
       post "send_email"
       patch "change_templates_regenerate_response"
@@ -34,8 +36,6 @@ Rails.application.routes.draw do
         as: :remove_template
     end
   end
-
-  resources :examples
 
   get "attachments/:id", to: "attachments#show", as: :attachment
 

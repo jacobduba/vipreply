@@ -7,40 +7,15 @@
           <li><%= message %></li>
         <% end %>
       </ul>
-      <%= form.text_area :output, rows: 6, placeholder: "Write a template response email here", class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
-    </div>
-
-    <div class="col-span-2">
-      <% if local_assigns[:existing_examples] %>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-900 mb-2">Existing Examples</label>
-          <% existing_examples.each do |example| %>
-            <% if example.source.present? %>
-              <div class="mb-2 p-2 bg-gray-50 rounded relative group">
-                <%= simple_format example.source.body %>
-                <%= link_to example_path(example), 
-                          method: :delete,
-                          class: "absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700" do %>
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                <% end %>
-              </div>
-            <% end %>
-          <% end %>
-        </div>
-      <% end %>
-
-      <div class="mt-4">
-        <%= form.label :example_message, "Add New Example", class: "block text-sm font-medium text-gray-900 mb-2" %>
-        <%= form.text_area :example_message, rows: 2, class: "block p-2 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500" %>
-      </div>
+      <%= form.text_area :output, rows: 6, 
+                        placeholder: "Write a template response email here", 
+                        class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
     </div>
   </div>
 
-  <%= form.hidden_field :regenerate_reply, value: @regenerate_reply %>
+  <%= hidden_field_tag :regenerate_reply, @regenerate_reply %>
   <% if @regenerate_reply %>
-    <%= form.hidden_field :topic_id, value: @topic_id %>
+    <%= hidden_field_tag :topic_id, @topic_id %>
   <% end %>
 
   <div class="flex gap-2">
