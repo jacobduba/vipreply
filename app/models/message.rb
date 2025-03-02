@@ -6,13 +6,11 @@ class Message < ApplicationRecord
 
   belongs_to :topic
   has_many :attachments, dependent: :destroy
-  has_and_belongs_to_many :templates
+  has_one :message_embedding, dependent: :destroy
 
-  # Vector search functionality
-  has_neighbors :vector, dimensions: 2048
-
-  before_save :generate_embedding, unless: :vector?
   before_save :check_plaintext_nil
+
+  after_save :ensure_embedding_exists, unless: -> { message_embedding.present? }
 
   def replace_cids_with_urls(host)
     return simple_format(plaintext) unless html
@@ -64,15 +62,11 @@ class Message < ApplicationRecord
   end
 
   # Modified embedding generation
-  def generate_embedding
-    return if vector.present?
-
-    embedding_text = <<~TEXT
-      Subject: #{subject}
-      Body: #{plaintext}
-    TEXT
-
-    self.vector = fetch_embedding(truncate_embedding_text(embedding_text))
+  def ensure_embedding_exists
+    MessageEmbedding.create_for_message(self)
+  rescue => e
+    Rails.logger.error "Failed to create message embedding for message #{id}: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
   end
 
   def self.parse_email_header(header)
@@ -189,8 +183,6 @@ class Message < ApplicationRecord
     result
   end
 
-  private
-
   def tokenizer
     @tokenizer ||= Tokenizers::Tokenizer.from_pretrained("voyageai/voyage-3-large")
   end
@@ -224,6 +216,8 @@ class Message < ApplicationRecord
     Rails.logger.error "Embedding generation failed: #{e.message}"
     nil
   end
+
+  private
 
   def check_plaintext_nil
     self.plaintext ||= html

@@ -21,24 +21,35 @@ class Topic < ApplicationRecord
 
   def find_best_templates
     latest_message = messages.order(date: :desc).first
-    return Template.none unless latest_message&.vector
+    return Template.none unless latest_message&.message_embedding&.vector
 
     base_threshold = 0.67
     secondary_threshold = 0.71
     margin = 0.07
 
-    target_vector = latest_message.vector
+    target_embedding = latest_message.message_embedding
+    return Template.none unless target_embedding
+
+    target_vector = target_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
+    # Modified to only search templates with message_embeddings
     candidate_templates = Template
-      .joins(:messages)
+      .joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS template_id,
         templates.output AS template_text,
-        MAX(1 - (messages.vector <-> #{target_vector_literal}::vector)) AS similarity
+        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC")
+
+    # Print candidate templates for debugging
+    puts("Candidate Templates:")
+    candidate_templates.each do |candidate|
+      puts("Template ID: #{candidate.template_id}, Similarity: #{candidate.similarity}")
+      puts("Template Text: #{candidate.template_text}")
+    end
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
@@ -53,23 +64,40 @@ class Topic < ApplicationRecord
       end
     end
 
-    Template.where(id: selected_candidates.map(&:template_id))
+    selected_templates = Template.where(id: selected_candidates.map(&:template_id))
+
+    # Automatically attach templates to the topic
+    if selected_templates.any?
+      self.templates = selected_templates
+      self.template_status = :template_attached
+      save!
+      Rails.logger.info "Attached #{selected_templates.count} templates to topic #{id}"
+    else
+      self.template_status = :could_not_find_template
+      save!
+      Rails.logger.info "Could not find matching templates for topic #{id}"
+    end
+
+    selected_templates
   end
 
-  # Updated template listing
+  # Updated list_templates_by_relevance method for Topic model
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
-    return Template.none unless latest_message&.vector
+    return Template.none unless latest_message&.message_embedding&.vector
 
-    target_vector = latest_message.vector
+    target_embedding = latest_message.message_embedding
+    return Template.none unless target_embedding
+
+    target_vector = target_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
     Template
-      .joins(:messages)
+      .joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
         templates.output AS output,
-        MAX(1 - (messages.vector <-> #{target_vector_literal}::vector)) AS similarity
+        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC")

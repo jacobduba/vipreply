@@ -125,8 +125,20 @@ class TopicsController < ApplicationController
 
     # Associate sent message with templates
     if @topic.templates.any?
-      @topic.templates.each do |template|
-        template.messages << most_recent_message unless template.messages.include?(most_recent_message)
+      sleep(3) # Give some time for the history job to complete
+
+      # Get the newly created message (should be the latest one)
+      new_message = @topic.messages.order(date: :desc).first
+
+      if new_message && new_message.id != most_recent_message.id
+        # Ensure message embedding exists
+        MessageEmbedding.create_for_message(new_message) unless new_message.message_embedding
+
+        if new_message.message_embedding
+          @topic.templates.each do |template|
+            template.message_embeddings << new_message.message_embedding unless template.message_embeddings.include?(new_message.message_embedding)
+          end
+        end
       end
     end
 
@@ -143,9 +155,9 @@ class TopicsController < ApplicationController
 
   def template_selector_dropdown
     # Get all templates from the inbox, ordered by most recently used
-    # Decided we can put this call here, as it'll make sure we always load all templates, and we found out this part is quick.
+    # We need to update this since templates are now connected to messages through message_embeddings
     @templates = @account.inbox.templates
-      .left_joins(:messages)
+      .left_joins(message_embeddings: :message)
       .select("templates.*, MAX(messages.created_at) AS last_used")
       .group("templates.id")
       .order("last_used DESC")

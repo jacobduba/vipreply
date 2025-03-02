@@ -6,7 +6,7 @@ class Template < ApplicationRecord
 
   belongs_to :inbox
   has_and_belongs_to_many :topics
-  has_and_belongs_to_many :messages
+  has_and_belongs_to_many :message_embeddings
 
   validates :output,
     uniqueness: true,
@@ -22,6 +22,10 @@ class Template < ApplicationRecord
       topic.templates.delete(self)
       topic.update(template_status: :template_removed) if topic.templates.empty?
     end
+  end
+
+  def messages
+    Message.where(id: message_embeddings.pluck(:message_id))
   end
 
   def strip_output
