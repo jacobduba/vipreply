@@ -142,11 +142,7 @@ class TopicsController < ApplicationController
   def template_selector_dropdown
     # Get all templates from the inbox, ordered by most recently used
     # We need to update this since templates are now connected to messages through message_embeddings
-    @templates = @account.inbox.templates
-      .left_joins(message_embeddings: :message)
-      .select("templates.*, MAX(messages.created_at) AS last_used")
-      .group("templates.id")
-      .order("last_used DESC")
+    @templates = @topic.list_templates_by_relevance
   end
 
   def change_templates_regenerate_response

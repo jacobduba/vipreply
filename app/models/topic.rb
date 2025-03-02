@@ -86,14 +86,14 @@ class Topic < ApplicationRecord
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
     Template
-      .joins(:message_embeddings)
+      .left_joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
         templates.output AS output,
         MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
-      .order("similarity DESC")
+      .order("similarity DESC NULLS LAST")
   end
 
   def generate_reply
