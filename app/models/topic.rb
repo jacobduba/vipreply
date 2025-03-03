@@ -19,14 +19,7 @@ class Topic < ApplicationRecord
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
 
-    base_threshold = 0.67
-    secondary_threshold = 0.71
-    margin = 0.07
-
-    target_embedding = latest_message.message_embedding
-    return Template.none unless target_embedding
-
-    target_vector = target_embedding.vector
+    target_vector = latest_message.message_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
     # Modified to only search templates with message_embeddings
@@ -43,12 +36,9 @@ class Topic < ApplicationRecord
     # Force query execution
     candidate_count = candidate_templates.size
 
-    # Print candidate templates for debugging
-    puts("Candidate Templates:")
-    candidate_templates.each do |candidate|
-      puts("Template ID: #{candidate.template_id}, Similarity: #{candidate.similarity}")
-      puts("Template Text: #{candidate.template_text}")
-    end
+    base_threshold = 0.67
+    secondary_threshold = 0.71
+    margin = 0.07
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
@@ -76,17 +66,12 @@ class Topic < ApplicationRecord
 
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
-    return Template.none unless latest_message&.message_embedding&.vector
+    # List all templates when no embedding
+    # This is the case for messages loaded before templates v2
+    # Could probaly remove this in a month or two
+    return inbox.templates unless latest_message&.message_embedding&.vector
 
-    target_embedding = latest_message.message_embedding
-    unless target_embedding
-      # Show all templates when no embedding
-      # This is the case for messages loaded before templates v2
-      # Could probaly remove this in a month or two
-      return inbox.templates
-    end
-
-    target_vector = target_embedding.vector
+    target_vector = latest_message.message_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
     inbox.templates
