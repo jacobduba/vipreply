@@ -169,6 +169,7 @@ class TopicsController < ApplicationController
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
     if valid_templates.count != template_ids.size || @account != @topic.inbox.account
+      Rails.logger.error("#{@account.email}: Invalid template IDs or account mismatch. Template IDs: #{template_ids.inspect}, Valid Templates: #{valid_templates.inspect}")
       render file: "#{Rails.root}/public/404.html", status: :not_found
       return
     end
