@@ -79,6 +79,95 @@ class Message < ApplicationRecord
     end
   end
 
+  def self.cache_from_provider(topic, message_data)
+    case topic.inbox.provider
+    when "google_oauth2"
+      cache_from_gmail(topic, message_data)
+    when "microsoft_office365"
+      cache_from_outlook(topic, message_data)
+    else
+      raise "Unknown provider: #{topic.inbox.provider}"
+    end
+  end
+
+  def self.cache_from_outlook(topic, message_data)
+    # Extract data from Microsoft Graph API response
+    message_id = message_data["id"]
+
+    # Handle date parsing
+    received_date = begin
+      DateTime.parse(message_data["receivedDateTime"])
+    rescue
+      DateTime.now
+    end
+
+    subject = message_data["subject"] || "(No Subject)"
+
+    # Handle sender information
+    from_info = message_data.dig("from", "emailAddress") || {}
+    from_name = from_info["name"]
+    from_email = from_info["address"]
+
+    # Handle recipient information
+    to_info = message_data.dig("toRecipients", 0, "emailAddress") || {}
+    to_name = to_info["name"]
+    to_email = to_info["address"]
+
+    # Parse content
+    body_content = message_data["body"] || {}
+    html = (body_content["contentType"] == "html") ? body_content["content"] : nil
+    plaintext = (body_content["contentType"] == "text") ? body_content["content"] : nil
+
+    # If only one format is available, use it for both
+    plaintext ||= ActionView::Base.full_sanitizer.sanitize(html) if html
+    html ||= "<div>#{plaintext}</div>" if plaintext
+
+    # Create or update message
+    msg = topic.messages.find_or_initialize_by(message_id: message_id)
+
+    msg.assign_attributes(
+      date: received_date,
+      subject: subject,
+      from_name: from_name,
+      from_email: from_email,
+      to_email: to_email,
+      to_name: to_name,
+      internal_date: received_date,
+      plaintext: plaintext,
+      html: html,
+      snippet: message_data["bodyPreview"] || "",
+      provider_message_id: message_id,  # Use the renamed field
+      labels: []  # Microsoft doesn't have the same labels concept
+    )
+
+    if msg.changed?
+      msg.save!
+      Rails.logger.info "Saved message: #{msg.id}"
+    else
+      Rails.logger.info "No changes for message: #{msg.id}"
+    end
+
+    # Process attachments if there are any
+    if message_data["hasAttachments"] && message_data["attachments"]
+      msg.attachments.destroy_all
+
+      message_data["attachments"].each do |attachment_data|
+        Attachment.cache_from_provider(msg, {
+          attachment_id: attachment_data["id"],
+          content_id: attachment_data["contentId"],
+          filename: attachment_data["name"] || "attachment.bin",
+          mime_type: attachment_data["contentType"] || "application/octet-stream",
+          size: attachment_data["size"] ? (attachment_data["size"].to_i / 1024) : 0,
+          content_disposition: (attachment_data["isInline"] ? :inline : :attachment)
+        })
+      rescue => e
+        Rails.logger.error "Error saving attachment: #{e.message}"
+      end
+    end
+
+    msg
+  end
+
   # Returns Message
   def self.cache_from_gmail(topic, message)
     headers = message.payload.headers
@@ -113,7 +202,7 @@ class Message < ApplicationRecord
       plaintext: plaintext,
       html: html,
       snippet: snippet,
-      gmail_message_id: gmail_message_id,
+      provider_message_id: gmail_message_id,
       labels: labels
     )
 

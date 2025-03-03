@@ -241,6 +241,9 @@ GEM
       oauth2 (~> 2.0)
       omniauth (~> 2.0)
       omniauth-oauth2 (~> 1.8)
+    omniauth-microsoft-office365 (0.0.8)
+      omniauth
+      omniauth-oauth2
     omniauth-oauth2 (1.8.0)
       oauth2 (>= 1.4, < 3)
       omniauth (~> 2.0)
@@ -253,7 +256,6 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
-    pgvector (0.3.2)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -443,17 +445,19 @@ DEPENDENCIES
   bootsnap
   capybara
   debug
+  faraday (~> 2.0)
   google-api-client (~> 0.53)
   importmap-rails (~> 2.1)
   jbuilder (~> 2.13)
   mail (~> 2.8)
   mission_control-jobs (~> 1.0)
   neighbor (~> 0.5)
+  oauth2 (~> 2.0)
   omniauth (~> 2.1)
   omniauth-google-oauth2 (~> 1.2)
+  omniauth-microsoft-office365 (~> 0.0.8)
   omniauth-rails_csrf_protection (~> 1.0)
   pg (~> 1.5)
-  pgvector (~> 0.3.0)
   propshaft (~> 1.1)
   puma (>= 5.0)
   rails (~> 8.0.0)

@@ -1,36 +1,35 @@
-# frozen_string_literal: true
-
+# app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
   before_action :authorize_account
 
   def authorize_account
     account_id = session[:account_id]
+    inbox_id = session[:inbox_id]
+
     unless account_id
       return redirect_to login_path
     end
 
     begin
-      @account = Account.find account_id
+      @account = Account.find(account_id)
+      @inbox = inbox_id ? Inbox.find(inbox_id) : @account.inboxes.first
     rescue ActiveRecord::RecordNotFound
       reset_session
       return redirect_to login_path
     end
 
-    if @account.refresh_token.nil?
-      Rails.logger.debug "No refresh token found for #{@account.email}"
+    unless @inbox&.refresh_token
       reset_session
       flash[:prompt_consent] = true
       return redirect_to login_path
     end
 
-    return unless @account.expires_at < Time.current + 10.seconds
-
-    Rails.logger.debug "Access token expired for #{@account.email}, attempting refresh."
+    return unless @inbox.expires_at < Time.current + 10.seconds
 
     begin
-      @account.refresh_google_token!
-    rescue Signet::AuthorizationError => e
-      Rails.logger.debug "Refresh token is invalid for #{@account.email} with error: #{e.message}"
+      @inbox.refresh_token!
+    rescue => e
+      Rails.logger.error "Token refresh failed: #{e.message}"
       reset_session
       flash[:prompt_consent] = true
       redirect_to login_path

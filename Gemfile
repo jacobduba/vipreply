@@ -69,6 +69,11 @@ gem "mail", "~> 2.8"
 # Tokenizers for truncating text
 gem "tokenizers"
 
+# For interacting with Microsoft Graph API
+gem "omniauth-microsoft-office365", "~> 0.0.8"
+gem "oauth2", "~> 2.0"
+gem "faraday", "~> 2.0"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows]

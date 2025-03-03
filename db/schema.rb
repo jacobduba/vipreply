@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_02_015558) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_03_002102) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -20,15 +20,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_02_015558) do
     t.datetime "updated_at", null: false
     t.string "access_token", limit: 1020
     t.string "refresh_token", limit: 1020
-    t.string "provider"
-    t.string "uid"
     t.string "email"
     t.string "name"
     t.string "first_name"
     t.string "last_name"
     t.datetime "expires_at"
     t.string "image_url"
-    t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 
   create_table "accounts_models", id: false, force: :cascade do |t|
@@ -54,6 +51,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_02_015558) do
     t.datetime "updated_at", null: false
     t.bigint "account_id", null: false
     t.bigint "history_id"
+    t.string "provider", null: false
+    t.text "refresh_token"
+    t.text "access_token"
+    t.datetime "expires_at"
+    t.string "microsoft_subscription_id"
+    t.string "microsoft_client_state"
+    t.datetime "last_sync_time"
+    t.index ["account_id", "provider"], name: "index_inboxes_on_account_id_and_provider", unique: true
     t.index ["account_id"], name: "index_inboxes_on_account_id"
   end
 
@@ -88,7 +93,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_02_015558) do
     t.string "snippet"
     t.string "from_name"
     t.string "to_name"
-    t.string "gmail_message_id", limit: 64
+    t.text "provider_message_id"
     t.string "labels", default: [], array: true
     t.index ["message_id"], name: "index_messages_on_message_id", unique: true
     t.index ["topic_id"], name: "index_messages_on_topic_id"

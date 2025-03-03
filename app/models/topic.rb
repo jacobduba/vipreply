@@ -172,6 +172,98 @@ class Topic < ApplicationRecord
     generated_text.strip
   end
 
+  def self.cache_from_provider(response_body, inbox)
+    case inbox.provider
+    when "google_oauth2"
+      cache_from_gmail(response_body, response_body.messages.last.snippet, inbox)
+    when "microsoft_office365"
+      cache_from_outlook(response_body, inbox)
+    else
+      raise "Unknown provider: #{inbox.provider}"
+    end
+  end
+
+  def self.cache_from_outlook(conversation, inbox)
+    thread_id = conversation["id"]
+
+    # Make sure we have messages to work with
+    return nil if conversation["messages"].blank?
+
+    # Use the first message for thread metadata and last for date ordering
+    first_message = conversation["messages"].first
+    last_message = conversation["messages"].last
+
+    date = DateTime.parse(last_message["receivedDateTime"])
+    subject = first_message["subject"]
+
+    # Get sender information
+    from = if last_message["from"].present? && last_message["from"]["emailAddress"].present?
+      last_message["from"]["emailAddress"]["address"]
+    else
+      "unknown@example.com"
+    end
+
+    # Get recipient information
+    to = if last_message["toRecipients"].present? && last_message["toRecipients"].first.present?
+      last_message["toRecipients"].first["emailAddress"]["address"]
+    else
+      "unknown@example.com"
+    end
+
+    snippet = last_message["bodyPreview"] || ""
+
+    # Determine if email is old (more than 3 weeks)
+    is_old_email = date < 3.weeks.ago
+
+    # Determine message status based on sender and date
+    status = if from == inbox.account.email
+      :has_reply
+    elsif is_old_email
+      :has_reply
+    else
+      :needs_reply
+    end
+
+    # Determine if we're awaiting a customer response
+    awaiting_customer = (from == inbox.account.email)
+
+    # Message count is simply the number of messages in the conversation
+    message_count = conversation["messages"].count
+
+    # Try to find an existing topic or create a new one
+    topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+
+    topic.assign_attributes(
+      snippet: snippet,
+      date: date,
+      subject: subject,
+      from: from,
+      to: to,
+      status: status,
+      awaiting_customer: awaiting_customer,
+      message_count: message_count
+    )
+
+    topic.save!
+    Rails.logger.info "Saved topic: #{topic.id} '#{topic.subject}' (#{topic.message_count} messages)"
+
+    # Process all messages in the conversation
+    conversation["messages"].each do |message_data|
+      Message.cache_from_outlook(topic, message_data)
+    rescue => e
+      Rails.logger.error "Error processing message for topic #{topic.id}: #{e.message}"
+    end
+
+    # Generate reply if needed
+    unless topic.has_reply? || is_old_email
+      topic.find_best_templates
+      topic.generate_reply
+    end
+
+    topic.save!
+    topic
+  end
+
   def self.cache_from_gmail(response_body, snippet, inbox)
     thread_id = response_body.id
     first_message = response_body.messages.first
@@ -214,7 +306,7 @@ class Topic < ApplicationRecord
 
     topic.save!
 
-    messages.each { |message| Message.cache_from_gmail(topic, message) }
+    messages.each { |message| Message.cache_from_provider(topic, message) }
 
     unless topic.has_reply? || is_old_email
       topic.find_best_templates

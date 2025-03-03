@@ -1,6 +1,6 @@
 class InboxesController < ApplicationController
   def index
-    @inbox = @account.inbox
+    @inbox = @account.inboxes.first
 
     unless @inbox.present?
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
@@ -15,7 +15,7 @@ class InboxesController < ApplicationController
   end
 
   def update
-    inbox = @account.inbox
+    inbox = @account.inboxes.first
 
     if inbox.present?
       UpdateFromHistoryJob.perform_later inbox.id

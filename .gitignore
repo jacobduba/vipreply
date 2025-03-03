@@ -41,3 +41,6 @@ vendor/bundle
 /config/credentials/development.key
 
 /config/credentials/production.key
+
+# Ignore repomix output
+repomix-output.txt

@@ -12,9 +12,14 @@ Rails.application.routes.draw do
 
   get "login" => "sessions#new", :as => :login
   delete "logout" => "sessions#destroy"
-  # Routes for Google authentication
-  get "auth/:provider/callback", to: "sessions#google_auth"
+
+  # Update auth routes to handle both providers
+  get "auth/google_oauth2/callback", to: "sessions#google_auth"
+  get "auth/microsoft_office365/callback", to: "sessions#microsoft_auth"
   get "auth/failure", to: redirect("/")
+
+  # Microsoft subscription validation endpoint
+  post "/pubsub/microsoft_notifications", to: "pubsub#microsoft_notifications"
 
   # Inbox
   root "inboxes#index"

@@ -7,7 +7,7 @@ class TemplatesController < ApplicationController
   before_action :set_template, only: [:edit, :update, :destroy]
 
   def index
-    @templates = @account.inbox.templates.order(id: :asc)
+    @templates = @account.inboxes.first.templates.order(id: :asc)
   end
 
   def new
@@ -19,7 +19,7 @@ class TemplatesController < ApplicationController
   end
 
   def create
-    @template = @account.inbox.templates.new(template_params)
+    @template = @account.inboxes.first.templates.new(template_params)
     regenerate = params[:template][:regenerate_reply] == "true"
     topic_id = params[:template][:topic_id]
 

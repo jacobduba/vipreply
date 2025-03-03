@@ -18,17 +18,15 @@
          data-controller="template-selector-form">
       <% @templates.each do |template| %>
         <div data-template-selector-form-target="templateRow"
-             data-selected="<%= @topic.template_ids.include?(template.id) %>"
-             data-is-checked="false"
+             data-is-checked="<%= @topic.template_ids.include?(template.id) %>"
              class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
-                    data-[selected=true]:[&:not([data-is-checked=true])]:bg-gray-100
                     data-[is-checked=true]:bg-blue-50
                     data-[is-checked=true]:text-blue-600
                     data-[is-checked=true]:border-blue-200">
           <div class="group grid size-4 grid-cols-1 mx-4 flex-none">
             <%= check_box_tag "template_ids[]",
                               template.id,
-                              false,
+                              @topic.template_ids.include?(template.id),
                               data: {
                                 template_selector_form_target: "templateCheckbox",
                                 action: "template-selector-form#toggleCheck"
@@ -40,17 +38,9 @@
               <path class="opacity-0 group-has-[:indeterminate]:opacity-100" d="M3 7H11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
-          <%= form_with url: change_templates_regenerate_response_topic_path(@topic),
-              method: :patch,
-              class: "flex-1",
-              data: {
-                action: "turbo:submit-end->template-selector-dropdown#toggle
-                        turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
-              } do |f| %>
-            <%= f.hidden_field :template_ids, value: [template.id] %>
-            <%= f.submit template.output,
-              class: "text-left py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
-          <% end %>
+          <div class="flex-1 py-3 pr-3 cursor-pointer" data-action="click->template-selector-form#toggleTemplate" data-template-id="<%= template.id %>">
+            <%= template.output %>
+          </div>
         </div>
       <% end %>
       <%= form_with model: @topic,
@@ -61,14 +51,16 @@
             action: "turbo:submit-end->template-selector-dropdown#toggle
                     turbo:submit-start->template-selector-dropdown#showLoadingOverlay",
             template_selector_form_target: "multiselect",
-            total_checked: 0,
+            total_checked: @topic.template_ids.size,
           },
-          class: "data-[total-checked=0]:hidden flex justify-center sticky bottom-0 right-0 left-0" do |form| %>
+          class: "data-[total-checked=0]:hidden flex justify-center sticky bottom-0 right-0 left-0 mt-3 bg-white py-2 border-t border-gray-200" do |form| %>
         <button type="submit" class="text-white bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center inline-flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
-          <span data-template-selector-form-target="buttonText"></span>
+          <span data-template-selector-form-target="buttonText">
+            <%= @topic.template_ids.size == 1 ? "Select 1 template" : "Select #{@topic.template_ids.size} templates" %>
+          </span>
         </button>
       <% end %>
     </div>

@@ -15,7 +15,7 @@ class TopicsController < ApplicationController
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
 
     # TODO — cache this?
-    @has_templates = @account.inbox.templates.exists?
+    @has_templates = @account.inboxes.first.templates.exists?
 
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
@@ -23,11 +23,9 @@ class TopicsController < ApplicationController
   end
 
   def send_email
-    # Extract the email body directly from params[:email]
     email_body = params[:email]
-
-    # Get the most recent message in the topic
     most_recent_message = @topic.messages.order(date: :desc).first
+
     if most_recent_message.nil?
       Rails.logger.info "Cannot send email: No messages found in this topic."
       redirect_to topic_path(@topic) and return
@@ -43,6 +41,7 @@ class TopicsController < ApplicationController
 
     subject = "Re: #{@topic.subject}"
 
+    # Create quoted text
     quoted_plaintext = most_recent_message.plaintext.lines.map do |line|
       if line.starts_with?(">")
         ">#{line}"
@@ -61,8 +60,8 @@ class TopicsController < ApplicationController
     email_body_html = <<~HTML
       #{simple_format(email_body)}
 
-      On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
-      <blockquote>
+      <p>On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
+      <blockquote style="border-left: 1px solid #ccc; margin-left: 10px; padding-left: 10px;">
         #{most_recent_message.html}
       </blockquote>
     HTML
@@ -70,52 +69,21 @@ class TopicsController < ApplicationController
     in_reply_to = most_recent_message.message_id
     references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
 
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = @account.google_credentials
-
-    # Build the email message
-    email = Mail.new do
-      from from
-      to to
-      subject subject
-
-      text_part do
-        body quoted_plaintext # Plain text version
-      end
-
-      html_part do
-        content_type "text/html; charset=UTF-8"
-        body email_body_html
-      end
-
-      # Add headers to attach the email to the thread
-      if most_recent_message.message_id
-        header["In-Reply-To"] = in_reply_to
-        header["References"] = references
-      end
+    # Send email based on provider
+    case @inbox.provider
+    when "google_oauth2"
+      send_gmail_reply(from, to, subject, email_body_plaintext, email_body_html, in_reply_to, references)
+    when "microsoft_office365"
+      send_outlook_reply(from, to, subject, email_body_plaintext, email_body_html, most_recent_message)
     end
 
-    # Encode the email message
-    raw_message = email.encoded
+    # Update the inbox
+    UpdateFromHistoryJob.perform_now @inbox.id
 
-    # Attach the email to the thread by setting `threadId`
-    begin
-      message_object = Google::Apis::GmailV1::Message.new(
-        raw: raw_message,
-        thread_id: @topic.thread_id
-      )
-      gmail_service.send_user_message("me", message_object)
-    rescue Google::Apis::ClientError => e
-      Rails.logger.error "Failed to send email: #{e.message}"
-      return
-    end
-
-    inbox = @account.inbox
-    UpdateFromHistoryJob.perform_now inbox.id
-
+    # Update template associations if any were used
     if @topic.templates.any?
       if most_recent_message
-        # Ensure message embedding exists for the message being replied to
+        # Ensure message embedding exists
         MessageEmbedding.create_for_message(most_recent_message) unless most_recent_message.message_embedding
 
         if most_recent_message.message_embedding
@@ -147,7 +115,7 @@ class TopicsController < ApplicationController
 
   def change_templates_regenerate_response
     template_ids = params.dig(:template_ids) || []
-    valid_templates = @account.inbox.templates.where(id: template_ids)
+    valid_templates = @account.inboxes.first.templates.where(id: template_ids)
 
     if valid_templates.count != template_ids.size || @account != @topic.inbox.account
       render file: "#{Rails.root}/public/404.html", status: :not_found
@@ -223,6 +191,93 @@ class TopicsController < ApplicationController
   end
 
   private
+
+  def send_gmail_reply(from, to, subject, plaintext, html, in_reply_to, references)
+    gmail_service = Google::Apis::GmailV1::GmailService.new
+    gmail_service.authorization = @inbox.credentials
+
+    # Build the email message
+    email = Mail.new do
+      from from
+      to to
+      subject subject
+
+      text_part do
+        body plaintext
+      end
+
+      html_part do
+        content_type "text/html; charset=UTF-8"
+        body html
+      end
+
+      # Add headers to attach the email to the thread
+      if in_reply_to
+        header["In-Reply-To"] = in_reply_to
+        header["References"] = references
+      end
+    end
+
+    # Encode the email message
+    raw_message = email.encoded
+
+    # Attach the email to the thread by setting `threadId`
+    begin
+      message_object = Google::Apis::GmailV1::Message.new(
+        raw: raw_message,
+        thread_id: @topic.thread_id
+      )
+      gmail_service.send_user_message("me", message_object)
+    rescue Google::Apis::ClientError => e
+      Rails.logger.error "Failed to send email: #{e.message}"
+    end
+  end
+
+  def send_outlook_reply(from, to, subject, plaintext, html, reply_to_message)
+    # Clean recipient email from potential format "Name <email@example.com>"
+    to_email = (to =~ /<(.+)>/) ? $1 : to
+
+    conn = @inbox.graph_client  # Use inbox's graph_client method
+
+    draft_response = conn.post("/v1.0/me/messages/#{reply_to_message.provider_message_id}/createReply")
+    unless draft_response.success?
+      Rails.logger.error "Failed to create draft reply: #{draft_response.body}"
+      return
+    end
+
+    draft_message = draft_response.body
+    message_id = draft_message["id"]
+
+    message_data = {
+      subject: subject,
+      body: {
+        contentType: "html",
+        content: html
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: to_email
+          }
+        }
+      ],
+      conversationId: @topic.thread_id
+    }
+
+    update_response = conn.patch("/v1.0/me/messages/#{message_id}") do |req|
+      req.body = message_data
+    end
+
+    unless update_response.success?
+      Rails.logger.error "Failed to update draft reply: #{update_response.body}"
+      return
+    end
+
+    send_response = conn.post("/v1.0/me/messages/#{message_id}/send")
+    unless send_response.success?
+      Rails.logger.error "Failed to send Outlook message: #{send_response.body}"
+    end
+  end
 
   def set_topic
     @topic = if ["show", "remove_template"].include?(action_name)

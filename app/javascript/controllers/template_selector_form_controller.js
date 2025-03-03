@@ -4,17 +4,23 @@ import { Controller } from "@hotwired/stimulus";
 export default class extends Controller {
   static targets = [
     "templateCheckbox",
-    "templateDiv",
+    "templateRow",
     "multiselect",
     "buttonText",
   ];
 
+  connect() {
+    const initialCount = parseInt(this.multiselectTarget.dataset.totalChecked) || 0;
+    this.updateButtonText(initialCount);
+  }
+
   get totalChecked() {
-    return this.multiselectTarget.dataset.totalChecked;
+    return parseInt(this.multiselectTarget.dataset.totalChecked) || 0;
   }
 
   set totalChecked(value) {
     this.multiselectTarget.dataset.totalChecked = value;
+    this.updateButtonText(value);
   }
 
   toggleCheck(event) {
@@ -24,16 +30,37 @@ export default class extends Controller {
     );
     row.dataset.isChecked = checkbox.checked;
 
-    if (checkbox.checked) {
-      this.totalChecked++;
-    } else {
-      this.totalChecked--;
-    }
+    this.totalChecked = this.templateCheckboxTargets.filter(cb => cb.checked).length;
+  }
 
-    if (this.totalChecked == 1) {
+  // Allow clicking anywhere on the template row to toggle the checkbox
+  toggleTemplate(event) {
+    const templateId = event.currentTarget.dataset.templateId;
+    const checkbox = this.templateCheckboxTargets.find(
+      cb => cb.value === templateId
+    );
+    
+    if (checkbox) {
+      checkbox.checked = !checkbox.checked;
+      const row = checkbox.closest('[data-template-selector-form-target="templateRow"]');
+      row.dataset.isChecked = checkbox.checked;
+      
+      this.totalChecked = this.templateCheckboxTargets.filter(cb => cb.checked).length;
+    }
+  }
+
+  updateButtonText(count) {
+    if (count === 1) {
       this.buttonTextTarget.textContent = "Select 1 template";
     } else {
-      this.buttonTextTarget.textContent = `Select ${this.totalChecked} templates`;
+      this.buttonTextTarget.textContent = `Select ${count} templates`;
+    }
+    
+    // Show/hide the button based on checked items
+    if (count > 0) {
+      this.multiselectTarget.classList.remove("hidden");
+    } else {
+      this.multiselectTarget.classList.add("hidden");
     }
   }
 }
