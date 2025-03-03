@@ -1,50 +1,69 @@
 <% content_for :title, @topic.subject %>
 <div class="bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
   <div class="container mx-auto px-3 flex justify-between h-[50px] items-center">
-    <div class="flex text-slate-500 divide-x divide-gray-300">
-      <%= link_to root_path, class: "flex items-center bg-gray-50 border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg px-2 py-0.5 me-3", data: @from_inbox ? { controller: :navigation, action: "navigation#back" } : {} do %>
+    <div class="flex text-slate-500 divide-x divide-gray-300 min-w-0">
+      <%= link_to root_path,
+                  class: "flex items-center bg-gray-50 border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 rounded-lg px-2 py-0.5 me-3",
+                  data: (@from_inbox ? { controller: :navigation, action: "navigation#back" } : {}) do %>
         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
         <p class="pl-2 font-medium">Inbox</p>
       <% end %>
-      <div>
-        <p class="text-lg text-slate-600 font-semibold ms-3"><%= @topic.subject %></p>
+      <div class="min-w-0 flex-shrink">
+        <p class="text-lg text-slate-600 font-semibold ms-3 truncate"><%= @topic.subject %></p>
       </div>
     </div>
-    <%= render "shared/logout" %>
+    <div class="hidden md:block">
+      <%= render "shared/logout" %>
+    </div>
   </div>
 </div>
 <div class="container mx-auto px-3">
-  <div class="flex flex-wrap gap-8">
-    <div class="w-full md:w-[calc(50%-1rem)] relative flex flex-col" id="template">
+  <div class="flex flex-wrap lg:gap-8">
+    <!-- Left column: templates, new buttons, and forms -->
+    <div class="w-full lg:w-[calc(50%-1rem)] relative flex flex-col order-2 lg:order-1" id="template">
       <div class="sticky top-[51px]"> <!-- Is 51px down b/c header is 51px tall -->
-        <div class="flex justify-between mt-3 mb-4">
-          <%= render 'change_status_button' %>
-          <% if @topic.awaiting_customer %>
-            <div class="flex items-center text-sm text-blue-800 rounded-lg gap-1.5" role="alert">
-              <svg class="flex-shrink-0 inline size-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <span class="sr-only">Info</span>
-              <div>
-                <span class="font-medium">Awaiting customer reply.</span>
+        <div data-controller="template-selector-dropdown" data-action="click@window->template-selector-dropdown#closeIfOutsideSelector" class="relative">
+          <div class="flex justify-between lg:mt-3 mb-4">
+            <%= render 'change_status_button' %>
+            <% if @topic.awaiting_customer %>
+              <div class="flex items-center text-sm text-blue-800 rounded-lg gap-1.5" role="alert">
+                <svg class="flex-shrink-0 inline size-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+                <span class="sr-only">Info</span>
+                <div>
+                  <span class="font-medium">Awaiting customer reply</span>
+                </div>
               </div>
-            </div>
-          <% end %>
-          <%= link_to new_template_path(regenerate_reply: true, topic_id: @topic.id), data: { turbo_frame: "create_template_modal" }, class: "text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Create new template
-          <% end %>
+            <% end %>
+            <%= link_to template_selector_dropdown_topic_path,
+                  data: {
+                    turbo_frame: "template-selector",
+                    template_selector_dropdown_target: "button",
+                    action: "click->template-selector-dropdown#toggle",
+                    active: false
+                  },
+                  class: "text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 data-[active=true]:bg-gray-100" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+              Select templates
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+              </svg>
+            <% end %>
+          </div>
+          <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
+          <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
+          <%= render "topics/generated_reply_form", generated_reply: @topic.generated_reply, topic: @topic %>
         </div>
-        <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
-        <%= render "topics/generated_reply_form", generated_reply: @generated_reply, topic: @topic %>
       </div>
     </div>
-    <div class="w-full md:w-[calc(50%-1rem)]" data-controller="iframe-resize">
-      <ul class="divide-y divide-y-gray-300 mb-10">
+    <!-- Right column: messages list -->
+    <div class="w-full lg:w-[calc(50%-1rem)] order-1 lg:order-2" data-controller="iframe-resize">
+      <ul class="divide-y divide-y-gray-300 lg:mb-10">
         <% @messages.each do |message| %>
           <li class="pt-3 pb-5" <%= "data-iframe-resize-target=lastMessage" if message == @messages.last %>>
             <div class="flex justify-between">
@@ -59,7 +78,7 @@
             </div>
             <p class="text-slate-500 truncate mb-1"> to <%= message.to %></p>
             <% attachments_without_cid = message.attachments.select { |att| att.attachment? } %>
-            <% if attachments_without_cid%>
+            <% if attachments_without_cid.any? %>
               <div class="flex flex-wrap gap-x-1">
                 <% attachments_without_cid.each do |attachment| %>
                   <%= link_to attachment_path(attachment), target: "_blank", class: "mb-1 text-gray-600 bg-white border border-gray-200 focus:outline-none hover:bg-gray-100 focus:ring-2 focus:ring-gray-100 font-medium rounded-lg text-sm py-1 px-2 inline-flex items-center gap-1" do %>
@@ -84,7 +103,7 @@
               <iframe
                 srcdoc="<%= message.replace_cids_with_urls request.base_url %>"
                 sandbox="allow-same-origin"
-                class="w-full hidden  rounded bg-white"
+                class="w-full hidden rounded bg-white"
                 data-iframe-resize-target="iframe">
               </iframe>
             </div>
@@ -94,4 +113,3 @@
     </div>
   </div>
 </div>
-<%= turbo_frame_tag "create_template_modal" %>

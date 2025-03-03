@@ -13,19 +13,16 @@
     <table class="w-full text-sm text-left rtl:text-right text-gray-500">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
         <tr>
-          <th scope="col" class="px-6 py-3 w-1/2">
-            Template recieved email
-          </th>
-          <th scope="col" class="px-6 py-3 w-1/2">
-            Template response email
+          <th scope="col" class="px-6 py-3">
+            Template Response
           </th>
           <th scope="col" class="px-6 py-3"></th>
         </tr>
       </thead>
       <tbody id="templates_collection">
-        <%= render @templates %>
-      </table>
-    </div>
+        <%= render partial: 'template', collection: @templates %>
+      </tbody>
+    </table>
   </div>
 </div>
 <%= turbo_frame_tag "create_template_modal" %>

@@ -1,5 +1,3 @@
-require "google/apis/gmail_v1"
-
 class UpdateFromHistoryJob < ApplicationJob
   queue_as :default
 

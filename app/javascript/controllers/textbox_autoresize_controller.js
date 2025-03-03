@@ -8,12 +8,12 @@ export default class extends Controller {
     this.element.addEventListener("input", this.resize.bind(this));
   }
 
+  disconnect() {
+    this.element.removeEventListener("input", this.resize.bind(this));
+  }
+
   resize() {
     this.element.style.height = "auto";
     this.element.style.height = `${this.element.scrollHeight + 2}px`;
-  }
-
-  disconnect() {
-    this.element.removeEventListener("input", this.resize.bind(this));
   }
 }

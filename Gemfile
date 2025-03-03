@@ -10,22 +10,22 @@ gem "rails", "~> 8.0.0"
 gem "propshaft", "~> 1.1"
 
 # Postgres
-gem "pg"
+gem "pg", "~> 1.5"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
-gem "importmap-rails"
+gem "importmap-rails", "~> 2.1"
 
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
-gem "turbo-rails"
+gem "turbo-rails", "~> 2.0"
 
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
-gem "stimulus-rails"
+gem "stimulus-rails", "~> 1.3"
 
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
+gem "jbuilder", "~> 2.13"
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
@@ -46,27 +46,34 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 # Vector search with Postgres
-gem "neighbor"
+gem "neighbor", "~> 0.5"
 
 # TailwindCSS
-gem "tailwindcss-rails", "~> 2.7"
+gem "tailwindcss-rails", "~> 3.3"
 
 # Omniauth for connecting inboxes
-gem "omniauth"
-gem "omniauth-rails_csrf_protection"
-gem "omniauth-google-oauth2"
+gem "omniauth", "~> 2.1"
+gem "omniauth-rails_csrf_protection", "~> 1.0"
+gem "omniauth-google-oauth2", "~> 1.2"
 
 # For interacting with Gmail api
-gem "google-api-client", "~> 0.53.0"
+gem "google-api-client", "~> 0.53"
 
 # Solid Queue for background jobs like generating replies
 gem "solid_queue", "~> 1.1"
 gem "mission_control-jobs", "~> 1.0"
 
+# Mail for formatting text
+gem "mail", "~> 2.8"
+
+# Tokenizers for truncating text
+gem "tokenizers"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows]
-  gem "standard"
+
+  gem "standard", "1.43"
 end
 
 group :development do
@@ -85,5 +92,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-gem "mail", "~> 2.8"

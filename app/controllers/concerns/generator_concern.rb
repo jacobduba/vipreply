@@ -3,15 +3,31 @@
 module GeneratorConcern
   extend ActiveSupport::Concern
 
-  # This method is called when a user clicks the "Regenerate Reply" button
-  def handle_regenerate_reply(topic_id)
-    topic = Topic.find(topic_id)
+  # Regenerates reply, saves topic, and renders HTML changes
+  def refresh_topic_reply(topic)
     topic.generate_reply
     topic.save!
-
     render turbo_stream: [
-      turbo_stream.replace("generated_reply_form", partial: "topics/generated_reply_form", locals: {topic: topic, generated_reply: topic.generated_reply}),
-      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {input_errors: [], output_errors: [], topic: topic})
+      turbo_stream.replace("generated_reply_form",
+        partial: "topics/generated_reply_form",
+        locals: {topic: topic, generated_reply: topic.generated_reply}),
+      turbo_stream.replace("template_form",
+        partial: "topics/template_form",
+        locals: {input_errors: [], output_errors: [], topic: topic})
+    ]
+  end
+
+  # Find Templates button handler
+  # TODO remove?
+  def handle_find_templates(topic)
+    topic.find_best_templates
+    render turbo_stream: [
+      turbo_stream.replace("template_form",
+        partial: "topics/template_form",
+        locals: {input_errors: [], output_errors: [], topic: topic}),
+      turbo_stream.replace("template-selector-body",
+        partial: "topics/template_selector_body",
+        locals: {templates: topic.templates})
     ]
   end
 end
