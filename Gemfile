@@ -46,7 +46,7 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 # Vector search with Postgres
-gem "neighbor", "~> 0.5"
+gem "neighbor", "~> 0.5.2"
 
 # TailwindCSS
 gem "tailwindcss-rails", "~> 3.3"

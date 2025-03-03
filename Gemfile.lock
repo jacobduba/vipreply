@@ -253,7 +253,6 @@ GEM
       ast (~> 2.4.1)
       racc
     pg (1.5.9)
-    pgvector (0.3.2)
     pp (0.6.2)
       prettyprint
     prettyprint (0.2.0)
@@ -448,12 +447,11 @@ DEPENDENCIES
   jbuilder (~> 2.13)
   mail (~> 2.8)
   mission_control-jobs (~> 1.0)
-  neighbor (~> 0.5)
+  neighbor (~> 0.5.2)
   omniauth (~> 2.1)
   omniauth-google-oauth2 (~> 1.2)
   omniauth-rails_csrf_protection (~> 1.0)
   pg (~> 1.5)
-  pgvector (~> 0.3.0)
   propshaft (~> 1.1)
   puma (>= 5.0)
   rails (~> 8.0.0)
