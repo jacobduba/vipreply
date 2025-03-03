@@ -168,15 +168,6 @@ class TopicsController < ApplicationController
     template_ids = params.dig(:template_ids) || []
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
-    Rails.logger.debug(<<~DEBUG)
-      Template ids: #{template_ids}
-      Template count: #{template_ids.count}
-      Valid templates: #{valid_templates.as_json}
-      Valid template count: #{valid_templates.count}
-      valid_templates.count != template_id.size: #{valid_templates.count != template_ids.size}
-      @account != @topic.inbox.account: #{@account != @topic.inbox.account}
-    DEBUG
-
     if valid_templates.count != template_ids.size || @account != @topic.inbox.account
       render file: "#{Rails.root}/public/404.html", status: :not_found
       return
