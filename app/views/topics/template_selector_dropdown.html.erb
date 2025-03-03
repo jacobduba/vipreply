@@ -60,7 +60,7 @@
                 action: "turbo:submit-end->template-selector-dropdown#toggle
                         turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
               } do |f| %>
-              <%= f.hidden_field :template_ids, value: [template.id] %>
+              <%= f.hidden_field "template_ids[]", value: [template.id] %>
               <%= f.submit template.output,
               class: "text-left text-gray-700 py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
             <% end %>
