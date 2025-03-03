@@ -149,6 +149,19 @@ class TopicsController < ApplicationController
   end
 
   def create_template_dropdown
+    template_params = params.expect(template: [:output])
+
+    @template = @topic.inbox.templates.new(template_params)
+
+    unless @template.save
+      @output_errors = @template.errors[:output] || []
+      render :create_template_dropdown
+      return
+    end
+
+    @topic.templates = [@template]
+    refresh_topic_reply(@topic)
+    nil
   end
 
   def change_templates_regenerate_response

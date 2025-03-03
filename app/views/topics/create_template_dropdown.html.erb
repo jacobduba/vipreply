@@ -27,7 +27,12 @@
       </button>
     </div>
     <div class="p-3 flex flex-col gap-3 overflow-y-auto max-h-[550px] relative">
-      <%= form_with model: @template do |form| %>
+      <%= form_with url: create_template_dropdown_topic_path,
+                    scope: :template,
+                    data: {
+                      action: "turbo:submit-end->template-selector-dropdown#toggle
+                              turbo:submit-start->template-selector-dropdown#showLoadingOverlay",
+                    } do |form| %>
         <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
           <div class="col-span-2">
             <%= form.label :output, "Template", class: ["block text-sm font-medium text-gray-900", (@output_errors.empty? ? "mb-2" : "text-red-800")] %>
