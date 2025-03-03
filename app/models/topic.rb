@@ -31,7 +31,6 @@ class Topic < ApplicationRecord
         MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
-      .order("similarity DESC")
 
     # Force query execution
     candidate_count = candidate_templates.size
