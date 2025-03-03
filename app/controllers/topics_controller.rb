@@ -142,9 +142,13 @@ class TopicsController < ApplicationController
     @templates = @topic.list_templates_by_relevance
   end
 
-  def create_template_dropdown
+  def new_template_dropdown
     @template = @topic.inbox.templates.new
     @output_errors = []
+    render :create_template_dropdown
+  end
+
+  def create_template_dropdown
   end
 
   def change_templates_regenerate_response
