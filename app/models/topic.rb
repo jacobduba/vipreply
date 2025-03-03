@@ -16,42 +16,21 @@ class Topic < ApplicationRecord
   end
 
   def find_best_templates
-    start_time = Time.now
-    Rails.logger.info "PERF: Starting find_best_templates for topic #{id}"
-    
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
-    
-    Rails.logger.info "PERF: Got latest message in #{(Time.now - start_time) * 1000}ms"
-    message_check_time = Time.now
 
     base_threshold = 0.67
     secondary_threshold = 0.71
     margin = 0.07
 
     target_embedding = latest_message.message_embedding
-    unless target_embedding
-      # Case message doesn't have an embedding.
-      # Happens when messages loaded before v2 update
-      # Could probaly change this in a month or two
-      Rails.logger.info "PERF: No embedding found, returning inbox templates in #{(Time.now - start_time) * 1000}ms"
-      return inbox.templates
-    end
-    
-    Rails.logger.info "PERF: Got target embedding in #{(Time.now - message_check_time) * 1000}ms"
-    embedding_time = Time.now
+    return Template.none unless target_embedding
 
     target_vector = target_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
-    
-    Rails.logger.info "PERF: Vector preparation took #{(Time.now - embedding_time) * 1000}ms"
-    vector_prep_time = Time.now
 
     # Modified to only search templates with message_embeddings
-    Rails.logger.info "PERF: Starting DB query for template matching"
-    query_start = Time.now
-    
-    candidate_templates = Template
+    candidate_templates = inbox.templates
       .joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS template_id,
@@ -60,11 +39,9 @@ class Topic < ApplicationRecord
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC")
-      
-    # Force query execution to measure actual DB time
+
+    # Force query execution
     candidate_count = candidate_templates.size
-    Rails.logger.info "PERF: DB query completed in #{(Time.now - query_start) * 1000}ms, found #{candidate_count} candidate templates"
-    query_time = Time.now
 
     # Print candidate templates for debugging
     puts("Candidate Templates:")
@@ -72,9 +49,6 @@ class Topic < ApplicationRecord
       puts("Template ID: #{candidate.template_id}, Similarity: #{candidate.similarity}")
       puts("Template Text: #{candidate.template_text}")
     end
-    
-    Rails.logger.info "PERF: Candidate template debug printing took #{(Time.now - query_time) * 1000}ms"
-    debug_time = Time.now
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
@@ -88,41 +62,34 @@ class Topic < ApplicationRecord
         end
       end
     end
-    
-    Rails.logger.info "PERF: Candidate filtering took #{(Time.now - debug_time) * 1000}ms, selected #{selected_candidates.size} candidates"
-    filter_time = Time.now
 
     selected_templates = Template.where(id: selected_candidates.map(&:template_id))
-    
-    Rails.logger.info "PERF: Selected template retrieval took #{(Time.now - filter_time) * 1000}ms"
-    template_time = Time.now
 
     # Automatically attach templates to the topic
     if selected_templates.any?
       self.templates = selected_templates
       save!
-      Rails.logger.info "PERF: Attached #{selected_templates.count} templates to topic #{id} in #{(Time.now - template_time) * 1000}ms"
-    else
-      Rails.logger.info "PERF: Could not find matching templates for topic #{id}"
     end
-    
-    Rails.logger.info "PERF: Total find_best_templates time: #{(Time.now - start_time) * 1000}ms"
 
     selected_templates
   end
 
-  # Updated list_templates_by_relevance method for Topic model
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
 
     target_embedding = latest_message.message_embedding
-    return Template.none unless target_embedding
+    unless target_embedding
+      # Show all templates when no embedding
+      # This is the case for messages loaded before templates v2
+      # Could probaly remove this in a month or two
+      return inbox.templates
+    end
 
     target_vector = target_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
-    Template
+    inbox.templates
       .left_joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
