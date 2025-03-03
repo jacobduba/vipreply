@@ -143,6 +143,8 @@ class TopicsController < ApplicationController
   end
 
   def create_template_dropdown
+    @template = @topic.inbox.templates.new
+    @output_errors = []
   end
 
   def change_templates_regenerate_response
