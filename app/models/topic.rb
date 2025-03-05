@@ -133,13 +133,14 @@ class Topic < ApplicationRecord
       Greet the customer briefly and answer their questions based using the accompanying templates.
       Make the customer feel heard and understood.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
-      Always use ALL of the provided templates.
       Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
       Keep replies short as to not waste the customers time.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
       DO NOT ASK if you have any other questions.
     PROMPT
+
+    # Always use ALL of the provided templates.
 
     data = {
       # model: "claude-3-5-sonnet-20241022",
