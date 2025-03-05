@@ -137,7 +137,6 @@ class Topic < ApplicationRecord
       Keep replies short as to not waste the customers time.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
-      DO NOT ASK if you have any other questions.
     PROMPT
 
     # Always use ALL of the provided templates.
