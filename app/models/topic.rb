@@ -118,68 +118,67 @@ class Topic < ApplicationRecord
   end
 
   def fetch_generation(prompt)
-    # anthropic_api_key = Rails.application.credentials.anthropic_api_key
-    # url = "https://api.anthropic.com/v1/messages"
-    # headers = {
-    #   "x-api-key" => api_key,
-    #   "anthropic-version" => "2023-06-01",
-    #   "Content-Type" => "application/json"
-    # }
-
-    openai_api_key = Rails.application.credentials.openai_api_key
-    url = "https://api.openai.com/v1/chat/completions"
+    anthropic_api_key = Rails.application.credentials.anthropic_api_key
+    url = "https://api.anthropic.com/v1/messages"
     headers = {
-      "Authorization" => "Bearer #{openai_api_key}",
+      "x-api-key" => anthropic_api_key,
+      "anthropic-version" => "2023-06-01",
       "Content-Type" => "application/json"
     }
+
+    # openai_api_key = Rails.application.credentials.openai_api_key
+    # url = "https://api.openai.com/v1/chat/completions"
+    # headers = {
+    #   "Authorization" => "Bearer #{openai_api_key}",
+    #   "Content-Type" => "application/json"
+    # }
 
     system_prompt = <<~PROMPT
       You are a compassionate and empathetic business owner receiving customer support emails for a small business.
 
-      Greet the customer briefly and answer their questions using the accompanying templates in your own words.
-      It is extremely important to make the customer feel heard and understood, make them feel awesome.
+      Your goal is to provide helpful and very concise responses to customer inquiries, using the provided templates as a guide.
+      Greet the customer briefly and answer their questions based using the accompanying templates.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
       Always use ALL of the provided templates.
-      Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
-      Keep replies short as to not waste the customers time.
+      Never mention 'template'. In a scenario where you can't answer a customer question just say you'll look into it.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
-      Break different concepts into short paragraphs.
       DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
+      DO NOT ASK if you have any other questions.
     PROMPT
 
-    # data = {
-    #   # model: "claude-3-5-sonnet-20241022",
-    #   model: "claude-3-7-sonnet-20250219",
-    #   max_tokens: 2048,
-    #   system: system_prompt,
-    #   messages: [
-    #     {
-    #       role: "user", content: prompt
-    #     }
-    #   ]
-    # }
-
     data = {
-      model: "gpt-4.5-preview-2025-02-27",
+      # model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-7-sonnet-20250219",
       max_tokens: 2048,
+      system: system_prompt,
       messages: [
         {
-          role: "developer",
-          content: system_prompt
-        },
-        {
-          role: "user",
-          content: prompt
+          role: "user", content: prompt
         }
       ]
     }
 
+    # data = {
+    #   model: "gpt-4.5-preview-2025-02-27",
+    #   max_tokens: 2048,
+    #   messages: [
+    #     {
+    #       role: "developer",
+    #       content: system_prompt
+    #     },
+    #     {
+    #       role: "user",
+    #       content: prompt
+    #     }
+    #   ]
+    # }
+
     response = Net::HTTP.post(URI(url), data.to_json, headers)
     parsed = JSON.parse(response.tap(&:value).body)
     # Anthropic
-    # generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
+    generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
     # OpenAI
-    generated_text = parsed["choices"][0]["message"]["content"]
+    # generated_text = parsed["choices"][0]["message"]["content"]
     generated_text.strip
   end
 
