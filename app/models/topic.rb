@@ -133,6 +133,7 @@ class Topic < ApplicationRecord
       Greet the customer briefly and answer their questions using the accompanying templates.
       Make the customer feel heard and understood.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
+      Always use ALL of the provided templates.
       Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
       Keep replies short as to not waste the customers time.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
