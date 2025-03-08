@@ -118,12 +118,18 @@ class Topic < ApplicationRecord
   end
 
   def fetch_generation(prompt)
-    anthropic_api_key = Rails.application.credentials.anthropic_api_key
+    # anthropic_api_key = Rails.application.credentials.anthropic_api_key
+    # url = "https://api.anthropic.com/v1/messages"
+    # headers = {
+    #   "x-api-key" => api_key,
+    #   "anthropic-version" => "2023-06-01",
+    #   "Content-Type" => "application/json"
+    # }
 
-    url = "https://api.anthropic.com/v1/messages"
+    openai_api_key = Rails.application.credentials.openai_api_key
+    url = "https://api.openai.com/v1/chat/completions"
     headers = {
-      "x-api-key" => anthropic_api_key,
-      "anthropic-version" => "2023-06-01",
+      "Authorization" => "Bearer #{openai_api_key}",
       "Content-Type" => "application/json"
     }
 
@@ -140,22 +146,39 @@ class Topic < ApplicationRecord
       DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
     PROMPT
 
+    # data = {
+    #   # model: "claude-3-5-sonnet-20241022",
+    #   model: "claude-3-7-sonnet-20250219",
+    #   max_tokens: 2048,
+    #   system: system_prompt,
+    #   messages: [
+    #     {
+    #       role: "user", content: prompt
+    #     }
+    #   ]
+    # }
+
     data = {
-      # model: "claude-3-5-sonnet-20241022",
-      model: "claude-3-7-sonnet-20250219",
+      model: "gpt-4.5-preview-2025-02-27",
       max_tokens: 2048,
-      system: system_prompt,
       messages: [
-        {role: "user", content: prompt}
+        {
+          role: "developer",
+          content: system_prompt
+        },
+        {
+          role: "user",
+          content: prompt
+        }
       ]
     }
 
-    puts("Fetching generation from Anthropic API")
-    puts("Prompt: #{prompt}")
-
     response = Net::HTTP.post(URI(url), data.to_json, headers)
     parsed = JSON.parse(response.tap(&:value).body)
-    generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
+    # Anthropic
+    # generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
+    # OpenAI
+    generated_text = parsed["choices"][0]["message"]["content"]
     generated_text.strip
   end
 
