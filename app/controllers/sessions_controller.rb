@@ -22,11 +22,11 @@ class SessionsController < ApplicationController
   end
 
   def google_auth
-    handle_oauth_callback(request.env["omniauth.auth"], "google_oauth2")
+    handle_google_oauth_callback(request.env["omniauth.auth"])
   end
 
   def microsoft_auth
-    handle_oauth_callback(request.env["omniauth.auth"], "microsoft_office365")
+    handle_microsoft_oauth_callback(request.env["omniauth.auth"])
   end
 
   # Insert this debug helper at the top of the SessionsController class
@@ -67,7 +67,7 @@ class SessionsController < ApplicationController
     begin
       case provider
       when "google_oauth2"
-        handle_oauth_callback(auth, provider)
+        handle_google_oauth_callback(auth)
       when "microsoft_office365"
         handle_microsoft_oauth_callback(auth)
       else
@@ -81,7 +81,9 @@ class SessionsController < ApplicationController
     end
   end
 
-  # Add a specific method for Microsoft authentication
+  private
+
+  # Micorsoft OAuth callback handler
   def handle_microsoft_oauth_callback(auth_hash)
     Rails.logger.info "Processing Microsoft OAuth callback"
     Rails.logger.info "Email: #{auth_hash.info.email}"
@@ -95,7 +97,16 @@ class SessionsController < ApplicationController
     existing_account = if session[:account_id]
       Account.find_by(id: session[:account_id])
     else
-      Account.find_by(email: auth_hash.info.email)
+      # First try to find by primary email
+      auth_email = auth_hash.info.email.downcase.strip
+      account = Account.find_by(email: auth_email)
+
+      # If not found, check if any account has this as a secondary email
+      if account.nil?
+        account = Account.where("secondary_emails @> ARRAY[?]::varchar[]", [auth_email]).first
+      end
+
+      account
     end
 
     if existing_account.nil?
@@ -168,12 +179,10 @@ class SessionsController < ApplicationController
     redirect_to root_path
   end
 
-  private
-
-  # Update this method in SessionsController
-  def handle_oauth_callback(auth_hash, provider)
+  # Google OAuth callback handler
+  def handle_google_oauth_callback(auth_hash)
     if auth_hash.nil?
-      Rails.logger.error "Auth hash is nil for provider: #{provider}"
+      Rails.logger.error "Auth hash is nil for Google OAuth"
       redirect_to login_path, alert: "Authentication failed."
       return
     end
@@ -230,7 +239,7 @@ class SessionsController < ApplicationController
     end
 
     # Find existing inbox for this provider or create a new one
-    inbox = existing_account.inboxes.find_or_initialize_by(provider: provider)
+    inbox = existing_account.inboxes.find_or_initialize_by(provider: "google_oauth2")
 
     # Always update the access token
     inbox.access_token = auth_hash.credentials.token
@@ -249,9 +258,7 @@ class SessionsController < ApplicationController
     if inbox.refresh_token.blank?
       Rails.logger.warn "No refresh token received and none saved. Redirecting to force consent."
       session[:account_id] = existing_account.id  # Save the account ID for the next attempt
-      redirect_to (provider == "google_oauth2") ?
-        "/auth/google_oauth2?prompt=consent&access_type=offline" :
-        "/auth/microsoft_office365?prompt=consent"
+      redirect_to "/auth/google_oauth2?prompt=consent&access_type=offline"
       return
     end
 
