@@ -101,7 +101,7 @@
                 </div>
               </div>
               <iframe
-                srcdoc="<%= message.replace_cids_with_urls request.base_url %>"
+                srcdoc="<%= message.prepare_email_for_rendering request.base_url %>"
                 sandbox="allow-same-origin"
                 class="w-full hidden rounded bg-white"
                 data-iframe-resize-target="iframe">
