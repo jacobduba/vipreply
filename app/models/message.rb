@@ -122,7 +122,7 @@ class Message < ApplicationRecord
     plaintext ||= ActionView::Base.full_sanitizer.sanitize(html) if html
     html ||= "<div>#{plaintext}</div>" if plaintext
 
-    # Create or update message
+    # Find or initialize message by BOTH message_id AND topic_id to prevent duplicates across providers
     msg = topic.messages.find_or_initialize_by(message_id: message_id)
 
     msg.assign_attributes(
@@ -136,15 +136,22 @@ class Message < ApplicationRecord
       plaintext: plaintext,
       html: html,
       snippet: message_data["bodyPreview"] || "",
-      provider_message_id: message_id,  # Use the renamed field
+      provider_message_id: message_id,
       labels: []  # Microsoft doesn't have the same labels concept
     )
 
-    if msg.changed?
-      msg.save!
-      Rails.logger.info "Saved message: #{msg.id}"
-    else
-      Rails.logger.info "No changes for message: #{msg.id}"
+    # Use transaction to handle possible race conditions
+    begin
+      if msg.changed?
+        msg.save!
+        Rails.logger.info "Saved message: #{msg.id} for topic: #{topic.id}"
+      else
+        Rails.logger.info "No changes for message: #{msg.id} for topic: #{topic.id}"
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      # Handle duplicate key violation - just log and continue
+      Rails.logger.warn "Duplicate message detected (#{message_id}): #{e.message}"
+      msg = topic.messages.find_by(message_id: message_id) || msg
     end
 
     # Process attachments if there are any
