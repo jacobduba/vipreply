@@ -236,7 +236,8 @@ class Topic < ApplicationRecord
 
     topic.assign_attributes(
       snippet: snippet,
-      date: date,
+      last_message: date,
+      last_updated: date,
       subject: subject,
       from: from,
       to: to,
@@ -299,60 +300,8 @@ class Topic < ApplicationRecord
     topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
     topic.assign_attributes(
       snippet: snippet,
-      date: date,
-      subject: subject,
-      from: from,
-      to: to,
-      status: status,
-      awaiting_customer: awaiting_customer,
-      message_count: message_count
-    )
-
-    topic.save!
-
-    messages.each { |message| Message.cache_from_provider(topic, message) }
-
-    unless topic.has_reply? || is_old_email
-      topic.find_best_templates
-      topic.generate_reply
-    end
-
-    topic.save!
-  end
-
-  def self.cache_from_gmail(response_body, snippet, inbox)
-    thread_id = response_body.id
-    first_message = response_body.messages.first
-    first_message_headers = first_message.payload.headers
-    last_message = response_body.messages.last
-    last_message_headers = last_message.payload.headers
-    messages = response_body.messages
-
-    date = DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value)
-    subject = first_message_headers.find { |h| h.name.downcase == "subject" }.value
-    from_header = last_message_headers.find { |h| h.name.downcase == "from" }.value
-    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
-    to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
-    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
-
-    is_old_email = date < 3.weeks.ago
-
-    # Use the account.owns_email? method to check if the sender matches any of the account's emails
-    status = if inbox.account.owns_email?(from)
-      :has_reply
-    elsif is_old_email
-      :has_reply
-    else
-      :needs_reply
-    end
-
-    awaiting_customer = inbox.account.owns_email?(from)
-    message_count = response_body.messages.count
-
-    topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
-    topic.assign_attributes(
-      snippet: snippet,
-      date: date,
+      last_message: date,
+      last_updated: date,
       subject: subject,
       from: from,
       to: to,

@@ -63,11 +63,11 @@
                   </span>
                 <% end %>
               </div>
-              <span class="text-slate-500 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
-                <% if topic.date.to_date == Date.today %>
-                  <%= topic.date.strftime("%l:%M %p") %>
+              <span class="text-slate-400 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
+                <% if topic.last_message.to_date == Date.today %>
+                  <%= topic.last_message.strftime("%l:%M %p") %>
                 <% else %>
-                  <%= topic.date.strftime("%b %d") %>
+                  <%= topic.last_message.strftime("%b %d") %>
                 <% end %>
               </span>
             </div>
@@ -99,10 +99,10 @@
                 <% end %>
               </div>
               <span class="text-slate-400 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
-                <% if topic.date.to_date == Date.today %>
-                  <%= topic.date.strftime("%l:%M %p") %>
+                <% if topic.last_message.to_date == Date.today %>
+                  <%= topic.last_message.strftime("%l:%M %p") %>
                 <% else %>
-                  <%= topic.date.strftime("%b %d") %>
+                  <%= topic.last_message.strftime("%b %d") %>
                 <% end %>
               </span>
             </div>

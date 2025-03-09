@@ -102,7 +102,7 @@ class TopicsController < ApplicationController
   def change_status
     new_status = @topic.has_reply? ? :needs_reply : :has_reply
 
-    @topic.update(status: new_status)
+    @topic.update(status: new_status, last_updated: Time.current)
 
     render turbo_stream: turbo_stream.replace("change_status_button", partial: "topics/change_status_button")
   end

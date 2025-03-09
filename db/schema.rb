@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_08_221230) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_09_214903) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -120,7 +120,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_221230) do
   create_table "topics", force: :cascade do |t|
     t.string "thread_id"
     t.string "snippet"
-    t.datetime "date"
+    t.datetime "last_message"
     t.string "subject"
     t.string "from"
     t.string "to"
@@ -133,6 +133,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_08_221230) do
     t.integer "status", default: 0
     t.boolean "awaiting_customer"
     t.boolean "is_spam", default: false
+    t.datetime "last_updated", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["template_id"], name: "index_topics_on_template_id"
   end

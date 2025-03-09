@@ -21,7 +21,7 @@ class InboxesController < ApplicationController
     end
 
     # Get topics from all selected inboxes
-    selected_fields = [:id, :snippet, :date, :subject, :from, :to, :status, :message_count, :inbox_id]
+    selected_fields = [:id, :snippet, :last_message, :subject, :from, :to, :status, :message_count, :inbox_id, :last_updated]
 
     # Initialize empty collections
     @needs_reply_topics = Topic.none
@@ -33,8 +33,8 @@ class InboxesController < ApplicationController
     end
 
     # Sort the combined topics
-    @needs_reply_topics = @needs_reply_topics.order(date: :asc)
-    @has_reply_topics = @has_reply_topics.order(date: :desc)
+    @needs_reply_topics = @needs_reply_topics.order(last_updated: :asc)
+    @has_reply_topics = @has_reply_topics.order(last_updated: :desc)
 
     @turbo_cache_control = true
   end
