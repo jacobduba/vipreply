@@ -4,7 +4,7 @@ class Template < ApplicationRecord
   MIN_TEMPLATE_SIZE = 3
   MAX_TEMPLATE_SIZE = 6000
 
-  belongs_to :inbox
+  belongs_to :account  
   has_and_belongs_to_many :topics
   has_and_belongs_to_many :message_embeddings
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_03_002102) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_08_221230) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -26,6 +26,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_002102) do
     t.string "last_name"
     t.datetime "expires_at"
     t.string "image_url"
+    t.string "secondary_emails", default: [], array: true
   end
 
   create_table "accounts_models", id: false, force: :cascade do |t|
@@ -95,7 +96,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_002102) do
     t.string "to_name"
     t.text "provider_message_id"
     t.string "labels", default: [], array: true
-    t.index ["message_id"], name: "index_messages_on_message_id", unique: true
+    t.index ["message_id", "topic_id"], name: "index_messages_on_message_id_and_topic_id", unique: true
     t.index ["topic_id"], name: "index_messages_on_topic_id"
   end
 
@@ -103,10 +104,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_002102) do
     t.text "input"
     t.text "output"
     t.vector "input_embedding", limit: 3072
-    t.bigint "inbox_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["inbox_id"], name: "index_templates_on_inbox_id"
+    t.bigint "account_id", null: false
+    t.index ["account_id"], name: "index_templates_on_account_id"
   end
 
   create_table "templates_topics", id: false, force: :cascade do |t|
@@ -140,7 +141,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_03_002102) do
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "message_embeddings", "messages"
   add_foreign_key "messages", "topics"
-  add_foreign_key "templates", "inboxes"
+  add_foreign_key "templates", "accounts"
   add_foreign_key "topics", "inboxes"
   add_foreign_key "topics", "templates"
 end

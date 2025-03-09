@@ -29,8 +29,8 @@ class Topic < ApplicationRecord
     target_vector = target_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
-    # Modified to only search templates with message_embeddings
-    candidate_templates = Template
+    # Changed from inbox.templates to inbox.account.templates
+    candidate_templates = inbox.account.templates
       .joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS template_id,
@@ -74,7 +74,6 @@ class Topic < ApplicationRecord
     selected_templates
   end
 
-  # Updated list_templates_by_relevance method for Topic model
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
@@ -85,7 +84,7 @@ class Topic < ApplicationRecord
     target_vector = target_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
-    Template
+    inbox.account.templates
       .left_joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
@@ -142,12 +141,11 @@ class Topic < ApplicationRecord
     system_prompt = <<~PROMPT
       You are a compassionate and empathetic business owner receiving customer support emails for a small business.
 
+      Your goal is to provide helpful and very concise responses to customer inquiries, using the provided templates as a guide.
       Greet the customer briefly and answer their questions based using the accompanying templates.
-      Make the customer feel heard and understood.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
       Always use ALL of the provided templates.
-      Never mention 'template', in a scenario where you can't answer a customer question just say you'll look into it.
-      Keep replies short as to not waste the customers time.
+      Never mention 'template'. In a scenario where you can't answer a customer question just say you'll look into it.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
       DO NOT ASK if you have any other questions.
@@ -183,6 +181,8 @@ class Topic < ApplicationRecord
     end
   end
 
+  # Update the cache_from_outlook method in the Topic model
+
   def self.cache_from_outlook(conversation, inbox)
     thread_id = conversation["id"]
 
@@ -216,7 +216,8 @@ class Topic < ApplicationRecord
     is_old_email = date < 3.weeks.ago
 
     # Determine message status based on sender and date
-    status = if from == inbox.account.email
+    # Check if the sender email matches any of the account's emails
+    status = if inbox.account.owns_email?(from)
       :has_reply
     elsif is_old_email
       :has_reply
@@ -225,7 +226,7 @@ class Topic < ApplicationRecord
     end
 
     # Determine if we're awaiting a customer response
-    awaiting_customer = (from == inbox.account.email)
+    awaiting_customer = inbox.account.owns_email?(from)
 
     # Message count is simply the number of messages in the conversation
     message_count = conversation["messages"].count
@@ -264,6 +265,8 @@ class Topic < ApplicationRecord
     topic
   end
 
+  # Similarly update the cache_from_gmail method:
+
   def self.cache_from_gmail(response_body, snippet, inbox)
     thread_id = response_body.id
     first_message = response_body.messages.first
@@ -281,7 +284,8 @@ class Topic < ApplicationRecord
 
     is_old_email = date < 3.weeks.ago
 
-    status = if from == inbox.account.email
+    # Use the account.owns_email? method to check if the sender matches any of the account's emails
+    status = if inbox.account.owns_email?(from)
       :has_reply
     elsif is_old_email
       :has_reply
@@ -289,7 +293,60 @@ class Topic < ApplicationRecord
       :needs_reply
     end
 
-    awaiting_customer = (from == inbox.account.email)
+    awaiting_customer = inbox.account.owns_email?(from)
+    message_count = response_body.messages.count
+
+    topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+    topic.assign_attributes(
+      snippet: snippet,
+      date: date,
+      subject: subject,
+      from: from,
+      to: to,
+      status: status,
+      awaiting_customer: awaiting_customer,
+      message_count: message_count
+    )
+
+    topic.save!
+
+    messages.each { |message| Message.cache_from_provider(topic, message) }
+
+    unless topic.has_reply? || is_old_email
+      topic.find_best_templates
+      topic.generate_reply
+    end
+
+    topic.save!
+  end
+
+  def self.cache_from_gmail(response_body, snippet, inbox)
+    thread_id = response_body.id
+    first_message = response_body.messages.first
+    first_message_headers = first_message.payload.headers
+    last_message = response_body.messages.last
+    last_message_headers = last_message.payload.headers
+    messages = response_body.messages
+
+    date = DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value)
+    subject = first_message_headers.find { |h| h.name.downcase == "subject" }.value
+    from_header = last_message_headers.find { |h| h.name.downcase == "from" }.value
+    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
+    to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
+    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
+
+    is_old_email = date < 3.weeks.ago
+
+    # Use the account.owns_email? method to check if the sender matches any of the account's emails
+    status = if inbox.account.owns_email?(from)
+      :has_reply
+    elsif is_old_email
+      :has_reply
+    else
+      :needs_reply
+    end
+
+    awaiting_customer = inbox.account.owns_email?(from)
     message_count = response_body.messages.count
 
     topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)

@@ -1,7 +1,51 @@
 <% content_for :title, "Inbox" %>
 <%= render 'shared/tabs', selected_page: "inbox" %>
 <div class="container mx-auto px-3">
-  <% if @inbox %>
+  <div class="flex items-center justify-between py-4">
+    <div class="flex items-center space-x-4">
+      <div class="font-medium text-sm">Filter by:</div>
+      <%= form_tag(root_path, method: :get, class: "flex space-x-4") do %>
+        <label class="inline-flex items-center">
+          <%= check_box_tag 'providers[]', 'google_oauth2', 
+              @selected_providers.include?('google_oauth2'), 
+              class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded", 
+              onchange: "this.form.submit();" %>
+          <span class="ml-2 text-sm text-gray-700">Gmail</span>
+        </label>
+        <label class="inline-flex items-center">
+          <%= check_box_tag 'providers[]', 'microsoft_office365', 
+              @selected_providers.include?('microsoft_office365'), 
+              class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded", 
+              onchange: "this.form.submit();" %>
+          <span class="ml-2 text-sm text-gray-700">Outlook</span>
+        </label>
+      <% end %>
+    </div>
+    
+    <div class="flex space-x-4">
+      <% unless @connected_providers.include?("google_oauth2") %>
+        <%= form_tag("/auth/google_oauth2", method: :post, class: "inline") do %>
+          <button type="submit" class="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-4 py-2 text-center inline-flex items-center">
+            <svg class="w-3 h-3 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
+              <path fill-rule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clip-rule="evenodd"/>
+            </svg>
+            Connect Gmail
+          </button>
+        <% end %>
+      <% end %>
+      
+      <% unless @connected_providers.include?("microsoft_office365") %>
+        <%= link_to "/auth/microsoft_office365", class: "text-white bg-[#0078D4] hover:bg-[#0078D4]/90 focus:ring-4 focus:outline-none focus:ring-[#0078D4]/50 font-medium rounded-lg text-sm px-4 py-2 text-center inline-flex items-center", data: { turbo: false } do %>
+          <svg class="w-3 h-3 me-2" fill="white" viewBox="0 0 24 24">
+            <path d="M11.5 3v8.5H3V3h8.5zm0 18H3v-8.5h8.5V21zm1-18H21v8.5h-8.5V3zm8.5 9.5V21h-8.5v-8.5H21z"/>
+          </svg>
+          Connect Outlook
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @inboxes.present? %>
     <h1 class="font-bold text-slate-400 text-sm mt-6 uppercase">Needs a reply</h1>
     <ul class="divide-y divide-slate-300">
       <% @needs_reply_topics.each do |topic| %>
@@ -12,6 +56,11 @@
                 <p class="text-slate-800 text-lg group-hover/model:text-blue-500"><%= topic.subject %></p>
                 <% if topic.message_count > 1 %>
                   <p class="text-slate-500 text-lg group-hover/model:text-blue-500">(<%= topic.message_count %>)</p>
+                <% end %>
+                <% if @inboxes.count > 1 %>
+                  <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded ml-2">
+                    <%= topic.inbox.provider == "google_oauth2" ? "Gmail" : "Outlook" %>
+                  </span>
                 <% end %>
               </div>
               <span class="text-slate-500 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
@@ -42,6 +91,12 @@
                 <% if topic.message_count > 1 %>
                   <p class="text-slate-500 text-lg group-hover/model:text-blue-500">(<%= topic.message_count %>)</p>
                 <% end %>
+                <!-- Show inbox provider badge -->
+                <% if @inboxes.count > 1 %>
+                  <span class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded ml-2">
+                    <%= topic.inbox.provider == "google_oauth2" ? "Gmail" : "Outlook" %>
+                  </span>
+                <% end %>
               </div>
               <span class="text-slate-400 flex items-center whitespace-nowrap group-hover/model:text-blue-500">
                 <% if topic.date.to_date == Date.today %>
@@ -59,7 +114,33 @@
           <% end %>
         </li>
       <% end %>
-    <% else %>
-      <p>You don't have an inbox connected.</p>
-    <% end %>
-  </div>
+    </ul>
+  <% else %>
+    <div class="mt-6 p-4 bg-white rounded shadow">
+      <% if @account.inboxes.empty? %>
+        <p class="text-center mb-4">You don't have any connected email accounts.</p>
+        <div class="flex flex-col space-y-4 items-center">
+          <%= form_tag("/auth/google_oauth2", method: :post) do %>
+            <button type="submit" class="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center w-60">
+              <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
+                <path fill-rule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z" clip-rule="evenodd"/>
+              </svg>
+              Connect Gmail
+            </button>
+          <% end %>
+          
+          <%= form_tag("/auth/microsoft_office365", method: :post) do %>
+            <button type="submit" class="text-white bg-[#0078D4] hover:bg-[#0078D4]/90 focus:ring-4 focus:outline-none focus:ring-[#0078D4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center w-60">
+              <svg class="w-4 h-4 me-2" fill="white" viewBox="0 0 24 24">
+                <path d="M11.5 3v8.5H3V3h8.5zm0 18H3v-8.5h8.5V21zm1-18H21v8.5h-8.5V3zm8.5 9.5V21h-8.5v-8.5H21z"/>
+              </svg>
+              Connect Outlook
+            </button>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-center">No emails found with your current filter settings.</p>
+      <% end %>
+    </div>
+  <% end %>
+</div>

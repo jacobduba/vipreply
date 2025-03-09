@@ -15,7 +15,7 @@ class TopicsController < ApplicationController
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
 
     # TODO — cache this?
-    @has_templates = @account.inboxes.first.templates.exists?
+    @has_templates = @account.templates.exists?
 
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
@@ -108,14 +108,13 @@ class TopicsController < ApplicationController
   end
 
   def template_selector_dropdown
-    # Get all templates from the inbox, ordered by most recently used
-    # We need to update this since templates are now connected to messages through message_embeddings
+    # Get all templates from the account, ordered by most recently used
     @templates = @topic.list_templates_by_relevance
   end
 
   def change_templates_regenerate_response
     template_ids = params.dig(:template_ids) || []
-    valid_templates = @account.inboxes.first.templates.where(id: template_ids)
+    valid_templates = @account.templates.where(id: template_ids)
 
     if valid_templates.count != template_ids.size || @account != @topic.inbox.account
       render file: "#{Rails.root}/public/404.html", status: :not_found

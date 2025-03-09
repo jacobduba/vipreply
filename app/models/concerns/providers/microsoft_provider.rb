@@ -1,3 +1,4 @@
+# app/models/concerns/providers/microsoft_provider.rb
 module Providers
   module MicrosoftProvider
     extend ActiveSupport::Concern
@@ -13,20 +14,44 @@ module Providers
     end
 
     def refresh_token!
-      token = OAuth2::AccessToken.new(
-        oauth2_client,
-        access_token,
-        refresh_token: refresh_token,
-        expires_at: expires_at.to_i
-      )
+      Rails.logger.info "Refreshing Microsoft token for inbox #{id}"
 
-      new_token = token.refresh!
+      if refresh_token.blank?
+        raise "Missing refresh token for Microsoft inbox #{id}"
+      end
 
-      update!(
-        access_token: new_token.token,
-        refresh_token: new_token.refresh_token || refresh_token,
-        expires_at: Time.at(new_token.expires_at)
-      )
+      begin
+        token = OAuth2::AccessToken.new(
+          oauth2_client,
+          access_token,
+          refresh_token: refresh_token,
+          expires_at: expires_at.to_i
+        )
+
+        new_token = token.refresh!
+
+        Rails.logger.info "Successfully refreshed Microsoft token"
+
+        # Log token info
+        Rails.logger.info "New access token? #{new_token.token != access_token}"
+        Rails.logger.info "New refresh token provided? #{new_token.refresh_token.present?}"
+        Rails.logger.info "New expiry: #{Time.at(new_token.expires_at)}"
+
+        update!(
+          access_token: new_token.token,
+          refresh_token: new_token.refresh_token || refresh_token,
+          expires_at: Time.at(new_token.expires_at)
+        )
+      rescue OAuth2::Error => e
+        Rails.logger.error "OAuth2 error refreshing Microsoft token: #{e.message}"
+        Rails.logger.error "Error description: #{e.description}" if e.respond_to?(:description)
+        Rails.logger.error "Response body: #{e.response.body}" if e.response
+        raise
+      rescue => e
+        Rails.logger.error "Error refreshing Microsoft token: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n") if e.backtrace
+        raise
+      end
     end
 
     def watch_for_changes
@@ -40,25 +65,29 @@ module Providers
       # Create or update subscription
       notification_url = "#{Rails.application.routes.url_helpers.root_url}pubsub/notifications"
 
-      response = graph_client.post("/subscriptions") do |req|
-        req.body = {
-          changeType: "created,updated",
-          notificationUrl: notification_url,
-          resource: "/users/me/mailFolders/inbox/messages",
-          expirationDateTime: (Time.now + 3.days).iso8601,
-          clientState: microsoft_client_state
-        }
-      end
+      begin
+        response = graph_client.post("/subscriptions") do |req|
+          req.body = {
+            changeType: "created,updated",
+            notificationUrl: notification_url,
+            resource: "/users/me/mailFolders/inbox/messages",
+            expirationDateTime: (Time.now + 3.days).iso8601,
+            clientState: microsoft_client_state
+          }
+        end
 
-      if response.success?
-        subscription = response.body
-        update!(microsoft_subscription_id: subscription["id"])
-      else
-        Rails.logger.error "Failed to create Microsoft subscription: #{response.body}"
+        if response.success?
+          subscription = response.body
+          update!(microsoft_subscription_id: subscription["id"])
+          Rails.logger.info "Successfully set up Microsoft subscription: #{subscription["id"]}"
+        else
+          Rails.logger.error "Failed to create Microsoft subscription: #{response.body}"
+        end
+      rescue => e
+        Rails.logger.error "Error setting up Microsoft subscription: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n") if e.backtrace
+        nil
       end
-    rescue => e
-      Rails.logger.error "Error setting up Microsoft subscription: #{e.message}"
-      nil
     end
 
     # Graph API client methods

@@ -34,7 +34,8 @@ class SetupInboxJob < ApplicationJob
       {id: thread.id, snippet: thread.snippet}
     end
 
-    account.refresh_gmail_watch
+    # Use inbox.watch_for_changes instead of account.refresh_gmail_watch
+    inbox.watch_for_changes
 
     gmail_service.batch do |gmail_service|
       thread_info.each do |thread|

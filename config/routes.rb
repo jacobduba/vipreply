@@ -13,10 +13,14 @@ Rails.application.routes.draw do
   get "login" => "sessions#new", :as => :login
   delete "logout" => "sessions#destroy"
 
-  # Update auth routes to handle both providers
+  # OmniAuth routes
+  post "/auth/:provider/callback", to: "sessions#omniauth"
+  get "/auth/:provider/callback", to: "sessions#omniauth"
+  get "/auth/failure", to: redirect("/")
+
+  # Legacy routes for backward compatibility
   get "auth/google_oauth2/callback", to: "sessions#google_auth"
   get "auth/microsoft_office365/callback", to: "sessions#microsoft_auth"
-  get "auth/failure", to: redirect("/")
 
   # Microsoft subscription validation endpoint
   post "/pubsub/microsoft_notifications", to: "pubsub#microsoft_notifications"
