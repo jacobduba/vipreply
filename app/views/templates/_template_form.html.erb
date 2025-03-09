@@ -7,19 +7,17 @@
           <li><%= message %></li>
         <% end %>
       </ul>
-      <%= form.text_area :output, rows: 6, 
-                        placeholder: "Write a template response email here", 
+      <%= form.text_area :output, rows: 6,
+                        placeholder: "Write a template response email here",
                         class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
     </div>
   </div>
-
   <%= hidden_field_tag :regenerate_reply, @regenerate_reply %>
   <% if @regenerate_reply %>
     <%= hidden_field_tag :topic_id, @topic_id %>
   <% end %>
-
   <div class="flex gap-2">
-    <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+    <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center hover:cursor-pointer">
       Save template
     </button>
     <% if show_delete %>
