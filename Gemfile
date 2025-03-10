@@ -69,6 +69,9 @@ gem "mail", "~> 2.8"
 # Tokenizers for truncating text
 gem "tokenizers"
 
+# Nokogiri for parsing email HTML
+gem "nokogiri", "~> 1.18"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows]

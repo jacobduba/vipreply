@@ -450,6 +450,7 @@ DEPENDENCIES
   mail (~> 2.8)
   mission_control-jobs (~> 1.0)
   neighbor (~> 0.5.2)
+  nokogiri (~> 1.18)
   omniauth (~> 2.1)
   omniauth-google-oauth2 (~> 1.2)
   omniauth-rails_csrf_protection (~> 1.0)
