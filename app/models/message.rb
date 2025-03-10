@@ -15,21 +15,25 @@ class Message < ApplicationRecord
   def prepare_email_for_rendering(host)
     html = replace_cids_with_urls(host)
 
-    # Thank you Claude! I have no idea how this works!!!!
-    html_without_reply_quotes = html.gsub(/
-      (On\s+[^<>]+?\s+wrote:)
-      [\s\n]*
-      (<blockquote[^>]*>
-      [\s\S]*?
-      <\/blockquote>)
-    /xi, "")
+    doc = Nokogiri::HTML5(html)
+
+    doc.xpath("//text()").each do |text_node|
+      if text_node.text.match?(/On\s+.+\swrote:/)
+        parent_node = text_node.parent
+        next_node = parent_node.next_element
+        if next_node && next_node.name == "blockquote"
+          next_node.remove
+          text_node.remove
+        end
+      end
+    end
 
     <<~HTML
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
       <div style="font-family: 'Inter', sans-serif; font-size: 16px;">
-        #{html_without_reply_quotes}
+        #{doc.to_html}
       </div>
     HTML
   end
