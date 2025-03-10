@@ -12,18 +12,21 @@ class Message < ApplicationRecord
 
   after_save :ensure_embedding_exists, unless: -> { message_embedding.present? }
 
-  def prepare_email_for_rendering(host)
+  def prepare_email_for_rendering(host, index)
     html = replace_cids_with_urls(host)
 
     doc = Nokogiri::HTML5(html)
 
-    doc.xpath("//text()").each do |text_node|
-      if text_node.text.match?(/On\s+.+\swrote:/)
-        parent_node = text_node.parent
-        next_node = parent_node.next_element
-        if next_node && next_node.name == "blockquote"
-          next_node.remove
-          text_node.remove
+    # Don't hide history if it's the first message
+    unless index == 0
+      doc.xpath("//text()").each do |text_node|
+        if text_node.text.match?(/On\s+.+\swrote:/)
+          parent_node = text_node.parent
+          next_node = parent_node.next_element
+          if next_node && next_node.name == "blockquote"
+            next_node.remove
+            text_node.remove
+          end
         end
       end
     end
