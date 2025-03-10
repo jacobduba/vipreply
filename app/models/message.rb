@@ -15,12 +15,21 @@ class Message < ApplicationRecord
   def prepare_email_for_rendering(host)
     html = replace_cids_with_urls(host)
 
+    # Thank you Claude! I have no idea how this works!!!!
+    html_without_reply_quotes = html.gsub(/
+      (On\s+[^<>]+?\s+wrote:)
+      [\s\n]*
+      (<blockquote[^>]*>
+      [\s\S]*?
+      <\/blockquote>)
+    /xi, "")
+
     <<~HTML
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
       <div style="font-family: 'Inter', sans-serif; font-size: 16px;">
-        #{html}
+        #{html_without_reply_quotes}
       </div>
     HTML
   end
