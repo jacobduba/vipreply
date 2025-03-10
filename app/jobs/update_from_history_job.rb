@@ -18,7 +18,6 @@ class UpdateFromHistoryJob < ApplicationJob
   private
 
   def update_gmail_inbox(inbox)
-    account = inbox.account
     gmail_service = Google::Apis::GmailV1::GmailService.new
     gmail_service.authorization = inbox.credentials
 
@@ -36,10 +35,38 @@ class UpdateFromHistoryJob < ApplicationJob
       )
     rescue Google::Apis::ClientError => e
       Rails.logger.error "Failed to update inbox from history: #{e.message}"
-      nil
+      return
     end
 
-    # Rest of existing Gmail update logic...
+    Rails.logger.info "History response: #{history_response.pretty_inspect}"
+
+    unless history_response.history
+      Rails.logger.info "No new history changes for inbox #{inbox.id}."
+      return
+    end
+
+    history_response.history.each do |history|
+      history_item_id = history.id.to_i
+
+      history.messages_added&.each do |message_meta|
+        # Skip drafts
+        next if message_meta.message.label_ids&.include?("DRAFT")
+
+        thread_id = message_meta.message.thread_id
+
+        # Fetch the entire thread from Gmail
+        thread_response = gmail_service.get_user_thread(user_id, thread_id)
+
+        # Recreate the thread and its messages
+        Topic.cache_from_gmail(thread_response, thread_response.messages.last.snippet, inbox)
+
+        # Update history_id after each successful message processing
+        inbox.update!(history_id: history_item_id)
+      rescue => e
+        Rails.logger.error "Failed to process message in thread #{thread_id}: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n") if e.backtrace
+      end
+    end
   end
 
   def update_outlook_inbox(inbox)
