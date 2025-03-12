@@ -1,9 +1,9 @@
 <%= turbo_frame_tag "template-selector" do %>
-  <div id="template-selector-body" class="absolute top-11 right-0 w-full max-w-[36rem] border border-gray-200 bg-gray-50 rounded-lg shadow-sm animate-fade-in">
-    <div class="px-3 border-b border-gray-200 flex justify-between items-center">
-      <ul class="flex flex-wrap gap-3 pt-3 text-sm font-medium text-center text-slate-500">
+  <div id="template-selector-body" class="absolute top-11 right-0 w-full max-w-[36rem] border border-stone-200 bg-stone-50 rounded-lg shadow-sm animate-fade-in">
+    <div class="px-3 border-b border-stone-200 flex justify-between items-center">
+      <ul class="flex flex-wrap gap-3 pt-3 text-sm font-medium text-center text-stone-500">
         <li class="me-2">
-          <div class="inline-flex items-center gap-2 pb-3 border-b-2 text-gray-800 border-gray-800 hover:cursor-default">
+          <div class="inline-flex items-center gap-2 pb-3 border-b-2 text-stone-800 border-stone-800 hover:cursor-default">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
             </svg>
@@ -11,7 +11,7 @@
           </div>
         </li>
         <li class="me-2">
-          <%= link_to new_template_dropdown_topic_path, class: "inline-flex items-center gap-2 pb-3 border-b-2 border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-500" do %>
+          <%= link_to new_template_dropdown_topic_path, class: "inline-flex items-center gap-2 pb-3 border-b-2 border-transparent text-stone-600 hover:text-stone-900 hover:border-stone-500" do %>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
@@ -22,7 +22,7 @@
       <button type="button"
         data-action="click->template-selector-dropdown#toggle"
         class="hover:cursor-pointer">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-stone-400 hover:text-stone-600">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
         </svg>
       </button>
@@ -34,8 +34,8 @@
           <div data-template-selector-form-target="templateRow"
              data-selected="<%= @topic.template_ids.include?(template.id) %>"
              data-is-checked="false"
-             class="text-sm text-left rounded-lg w-full flex items-center border-gray-200 border text-gray-600
-                    data-[selected=true]:[&:not([data-is-checked=true])]:bg-gray-100
+             class="text-sm text-left rounded-lg w-full flex items-center border-stone-200 border text-stone-600
+                    data-[selected=true]:[&:not([data-is-checked=true])]:bg-stone-100
                     data-[is-checked=true]:bg-blue-50
                     data-[is-checked=true]:text-blue-600
                     data-[is-checked=true]:border-blue-200">
@@ -48,8 +48,8 @@
                                 action: "template-selector-form#toggleCheck"
                               },
                               form: :multi_template_form,
-                              class: "col-start-1 row-start-1 appearance-none rounded border border-gray-300 bg-white checked:border-blue-600 checked:bg-blue-600" %>
-              <svg class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-[:disabled]:stroke-gray-950/25" viewBox="0 0 14 14" fill="none">
+                              class: "col-start-1 row-start-1 appearance-none rounded border border-stone-300 bg-white checked:border-blue-600 checked:bg-blue-600" %>
+              <svg class="pointer-events-none col-start-1 row-start-1 size-3.5 self-center justify-self-center stroke-white group-has-[:disabled]:stroke-stone-950/25" viewBox="0 0 14 14" fill="none">
                 <path class="opacity-0 group-has-[:checked]:opacity-100" d="M3 8L6 11L11 3.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 <path class="opacity-0 group-has-[:indeterminate]:opacity-100" d="M3 7H11" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -63,17 +63,17 @@
               } do |f| %>
               <%= f.hidden_field "template_ids[]", value: [template.id] %>
               <%= f.submit template.output,
-              class: "text-left text-gray-700 py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
+              class: "text-left text-stone-700 py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
             <% end %>
           </div>
         <% end %>
       <% else %>
         <div class="my-2">
           <div class="flex flex-col justify-center items-center my-16 gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 text-stone-600">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 9v.906a2.25 2.25 0 0 1-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 0 0 1.183 1.981l6.478 3.488m8.839 2.51-4.66-2.51m0 0-1.023-.55a2.25 2.25 0 0 0-2.134 0l-1.022.55m0 0-4.661 2.51m16.5 1.615a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V8.844a2.25 2.25 0 0 1 1.183-1.981l7.5-4.039a2.25 2.25 0 0 1 2.134 0l7.5 4.039a2.25 2.25 0 0 1 1.183 1.98V19.5Z" />
             </svg>
-            <p class="text-gray-700">No templates available yet.</p>
+            <p class="text-stone-700">No templates available yet.</p>
           </div>
         </div>
       <% end %>
