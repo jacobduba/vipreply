@@ -8,7 +8,6 @@ class TemplatesController < ApplicationController
 
   def index
     @templates = @account.inbox.templates.order(id: :asc)
-    raise "This is a test error for Honeybadger"
   end
 
   def new
