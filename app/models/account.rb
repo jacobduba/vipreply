@@ -86,11 +86,12 @@ class Account < ApplicationRecord
 
   def to_honeybadger_context
     {
-      account_id: account.uid,
-      email: account.email,
-      name: account.name,
-      provider: account.provider,
-      token_expires_at: account.expires_at
+      id: id,
+      uid: uid,
+      email: email,
+      name: name,
+      provider: provider,
+      token_expires_at: expires_at
     }
   end
 end
