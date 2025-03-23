@@ -83,4 +83,14 @@ class Account < ApplicationRecord
       Rails.logger.error "Failed to refresh Gmail watch for #{account.email}: #{e.message}"
     end
   end
+
+  def to_honeybadger_context
+    {
+      account_id: account.uid,
+      email: account.email,
+      name: account.name,
+      provider: account.provider,
+      token_expires_at: account.expires_at
+    }
+  end
 end

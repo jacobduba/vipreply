@@ -2,12 +2,6 @@
 
 class ApplicationController < ActionController::Base
   before_action :authorize_account
-  before_action do
-    Honeybadger.context({
-      account_id: @account.id,
-      account_email: @account.email
-    })
-  end
 
   def authorize_account
     account_id = session[:account_id]
@@ -21,6 +15,10 @@ class ApplicationController < ActionController::Base
       reset_session
       return redirect_to login_path
     end
+
+    Honeybadger.context({
+      account: @account
+    })
 
     if @account.refresh_token.nil?
       Rails.logger.debug "No refresh token found for #{@account.email}"
