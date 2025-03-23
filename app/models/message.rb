@@ -31,6 +31,11 @@ class Message < ApplicationRecord
       end
     end
 
+    doc.css("a").each do |link|
+      link["target"] = "_blank"
+      link["rel"] = "noopener noreferrer"
+    end
+
     <<~HTML
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
