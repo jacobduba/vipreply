@@ -39,7 +39,7 @@ class Topic < ApplicationRecord
     additional_threshold = 0.8
 
     selected_candidates = []
-    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
+    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= first_threshold
       top_similarity = candidate_templates.first.similarity.to_f
       selected_candidates << candidate_templates.first
 
