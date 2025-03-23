@@ -35,9 +35,8 @@ class Topic < ApplicationRecord
     # Force query execution
     candidate_count = candidate_templates.size
 
-    base_threshold = 0.67
-    secondary_threshold = 0.71
-    margin = 0.07
+    first_threshold = 0.7
+    additional_threshold = 0.8
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
@@ -46,7 +45,7 @@ class Topic < ApplicationRecord
 
       candidate_templates[1..-1].each do |candidate|
         sim = candidate.similarity.to_f
-        if sim >= secondary_threshold && (top_similarity - sim) <= margin
+        if sim >= additional_threshold
           selected_candidates << candidate
         end
       end
