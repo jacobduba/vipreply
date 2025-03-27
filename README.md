@@ -143,3 +143,4 @@ In three seperate terminals:
     ```
 
 Visit `http://localhost:3000` in your browser to see the application running.
+# coms474midterm
