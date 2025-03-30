@@ -30,5 +30,8 @@ module Emailthingy
     #
     config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    # Disable Google API logging
+    Google::Apis.logger.level = Logger::ERROR
   end
 end
