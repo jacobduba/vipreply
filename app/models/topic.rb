@@ -15,6 +15,7 @@ class Topic < ApplicationRecord
     templates.any?
   end
 
+  # during merge rename: autoselect_templates
   def find_best_templates
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
@@ -31,16 +32,13 @@ class Topic < ApplicationRecord
         MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
-
-    # Force query execution
-    candidate_count = candidate_templates.size
+      .order("similarity DESC NULLS LAST")
 
     first_threshold = 0.7
     additional_threshold = 0.8
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= first_threshold
-      top_similarity = candidate_templates.first.similarity.to_f
       selected_candidates << candidate_templates.first
 
       candidate_templates[1..-1].each do |candidate|
@@ -62,6 +60,7 @@ class Topic < ApplicationRecord
     selected_templates
   end
 
+  # during merge: list_templates_by_similiarity
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
     # List all templates when no embedding
@@ -83,7 +82,9 @@ class Topic < ApplicationRecord
       .order("similarity DESC NULLS LAST")
   end
 
-  def find_message_for_template(template_id)
+  # Debugging helper to identify the message most similar to the latest message
+  # that caused this template's similiarity score for the current topic.
+  def debug_closest_message_for_template(template_id)
     latest_message = me ssages.order(date: :desc).first
     # List all templates when no embedding
     # This is the case for messages loaded before templates v2
@@ -96,7 +97,7 @@ class Topic < ApplicationRecord
     Message
       .joins(message_embedding: :templates)
       .where(templates: {id: template_id})
-      .select("messages.*, (message_embeddings.vector <#> #{target_vector_literal}::vector) as DISTANCE")
+      .select("messages.*, (message_embeddings.vector <#> #{target_vector_literal}::vector) AS distance")
       .order("distance")
       .first
   end
