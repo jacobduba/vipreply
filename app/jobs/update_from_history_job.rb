@@ -24,9 +24,10 @@ class UpdateFromHistoryJob < ApplicationJob
       return
     end
 
-    Rails.logger.info "History response: #{history_response.pretty_inspect}"
-
-    unless history_response.history
+    # Log history count instead of the entire response
+    if history_response.history
+      Rails.logger.info "Received #{history_response.history.count} history changes for inbox #{inbox.id}."
+    else
       Rails.logger.info "No new history changes for inbox #{inbox.id}."
       return
     end
