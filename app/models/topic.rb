@@ -83,6 +83,24 @@ class Topic < ApplicationRecord
       .order("similarity DESC NULLS LAST")
   end
 
+  def find_message_for_template(template_id)
+    latest_message = me ssages.order(date: :desc).first
+    # List all templates when no embedding
+    # This is the case for messages loaded before templates v2
+    # Could probaly remove this in a month or two
+    return inbox.templates unless latest_message&.message_embedding&.vector
+
+    target_vector = latest_message.message_embedding.vector
+    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+
+    Message
+      .joins(message_embedding: :templates)
+      .where(templates: {id: template_id})
+      .select("messages.*, (message_embeddings.vector <#> #{target_vector_literal}::vector) as DISTANCE")
+      .order("distance")
+      .first
+  end
+
   def generate_reply
     latest_message = messages.order(date: :desc).first
     message_text = truncate_text(latest_message.to_s, EMBEDDING_TOKEN_LIMIT)
