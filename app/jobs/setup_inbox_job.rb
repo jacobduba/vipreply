@@ -29,6 +29,7 @@ class SetupInboxJob < ApplicationJob
         gmail_service.get_user_thread("me", thread[:id]) do |res, err|
           if err
             Rails.logger.error "Error fetching thread #{thread[:id]}: #{err.message}"
+            Honeybadger.notify(err)
           else
             Topic.cache_from_gmail(res, thread[:snippet], inbox)
           end

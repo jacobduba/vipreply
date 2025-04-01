@@ -12,17 +12,15 @@ class UpdateFromHistoryJob < ApplicationJob
 
     Rails.logger.info "Updating inbox from history_id: #{history_id} for inbox #{inbox.id}"
 
-    begin
-      # Fetch history since the last `history_id`
-      history_response = gmail_service.list_user_histories(
-        user_id,
-        start_history_id: history_id,
-        history_types: ["messageAdded"]
-      )
-    rescue Google::Apis::ClientError => e
-      Rails.logger.error "Failed to update inbox from history: #{e.message}"
-      return
-    end
+    # Fetch history since the last `history_id`
+    history_response = gmail_service.list_user_histories(
+      user_id,
+      start_history_id: history_id,
+      history_types: ["messageAdded"]
+    )
+    # rescue Google::Apis::ClientError => e
+    #   Rails.logger.error "Failed to update inbox from history: #{e.message}"
+    #   return
 
     # Log history count instead of the entire response
     if history_response.history
@@ -46,9 +44,6 @@ class UpdateFromHistoryJob < ApplicationJob
         Topic.cache_from_gmail(thread_response, thread_response.messages.last.snippet, inbox)
 
         inbox.update!(history_id: history_item_id)
-      rescue => e
-        Rails.logger.error "Failed to process history (id=#{history_id}): #{e.message}"
-        Rails.logger.error e.backtrace.join("\n")
       end
     end
   end
