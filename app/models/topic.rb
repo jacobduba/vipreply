@@ -85,7 +85,7 @@ class Topic < ApplicationRecord
   # Debugging helper to identify the message most similar to the latest message
   # that caused this template's similiarity score for the current topic.
   def debug_closest_message_for_template(template_id)
-    latest_message = me ssages.order(date: :desc).first
+    latest_message = messages.order(date: :desc).first
     # List all templates when no embedding
     # This is the case for messages loaded before templates v2
     # Could probaly remove this in a month or two
