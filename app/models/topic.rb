@@ -118,6 +118,32 @@ class Topic < ApplicationRecord
     self.generated_reply = reply
   end
 
+  def debug_refresh
+    account = inbox.account
+    gmail_service = Google::Apis::GmailV1::GmailService.new
+    gmail_service.authorization = account.google_credentials
+    user_id = "me"
+
+    thread_response = gmail_service.get_user_thread(user_id, thread_id)
+
+    ActiveRecord::Base.transaction do
+      messages.destroy_all
+
+      thread_response.messages.each do |message|
+        Message.cache_from_gmail(self, message)
+      end
+
+      last_message = thread_response.messages.last
+      last_message_headers = last_message.payload.headers
+
+      update!(
+        date: DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value),
+        snippet: thread_response.messages.last.snippet,
+        message_count: thread_response.messages.count
+      )
+    end
+  end
+
   private
 
   def tokenizer
