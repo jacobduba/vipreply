@@ -266,8 +266,6 @@ class Topic < ApplicationRecord
     topic
   end
 
-  # Similarly update the cache_from_gmail method:
-
   def self.cache_from_gmail(response_body, snippet, inbox)
     thread_id = response_body.id
     first_message = response_body.messages.first
@@ -275,16 +273,27 @@ class Topic < ApplicationRecord
     last_message = response_body.messages.last
     last_message_headers = last_message.payload.headers
     messages = response_body.messages
-
-    date = DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value)
-    subject = first_message_headers.find { |h| h.name.downcase == "subject" }.value
-    from_header = last_message_headers.find { |h| h.name.downcase == "from" }.value
+  
+    # Safely get date
+    date_header = last_message_headers.find { |h| h.name.downcase == "date" }
+    date = date_header ? DateTime.parse(date_header.value) : DateTime.now
+    
+    # Safely get subject
+    subject_header = first_message_headers.find { |h| h.name.downcase == "subject" }
+    subject = subject_header ? subject_header.value : "(No Subject)"
+    
+    # Safely get from
+    from_header_obj = last_message_headers.find { |h| h.name.downcase == "from" }
+    from_header = from_header_obj ? from_header_obj.value : "unknown@example.com"
     from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
-    to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
+    
+    # Safely get to - this is where the error occurs
+    to_header_obj = last_message_headers.find { |h| h.name.downcase == "to" }
+    to_header = to_header_obj ? to_header_obj.value : "unknown@example.com"
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
-
+  
     is_old_email = date < 3.weeks.ago
-
+  
     # Use the account.owns_email? method to check if the sender matches any of the account's emails
     status = if inbox.account.owns_email?(from)
       :has_reply
@@ -293,10 +302,10 @@ class Topic < ApplicationRecord
     else
       :needs_reply
     end
-
+  
     awaiting_customer = inbox.account.owns_email?(from)
     message_count = response_body.messages.count
-
+  
     topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
     topic.assign_attributes(
       snippet: snippet,
@@ -309,16 +318,17 @@ class Topic < ApplicationRecord
       awaiting_customer: awaiting_customer,
       message_count: message_count
     )
-
+  
     topic.save!
-
+  
     messages.each { |message| Message.cache_from_provider(topic, message) }
-
+  
     unless topic.has_reply? || is_old_email
       topic.find_best_templates
       topic.generate_reply
     end
-
+  
     topic.save!
+    topic
   end
 end

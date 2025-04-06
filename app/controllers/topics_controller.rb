@@ -31,6 +31,16 @@ class TopicsController < ApplicationController
       redirect_to topic_path(@topic) and return
     end
 
+    # Use the inbox associated with the topic, not the current session inbox
+    topic_inbox = @topic.inbox
+
+    # Check if user has access to this inbox
+    unless @account.inboxes.include?(topic_inbox)
+      Rails.logger.error "User doesn't have access to the inbox associated with this topic"
+      redirect_to topic_path(@topic), alert: "You don't have access to the email account for this message"
+      return
+    end
+
     # Determine the 'from' and 'to' fields using the most recent message
     from = "#{@account.name} <#{@account.email}>"
     to = if most_recent_message.from_email == @account.email
@@ -52,14 +62,14 @@ class TopicsController < ApplicationController
 
     email_body_plaintext = <<~PLAINTEXT
       #{email_body}
-
+  
       On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
       #{quoted_plaintext}
     PLAINTEXT
 
     email_body_html = <<~HTML
       #{simple_format(email_body)}
-
+  
       <p>On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
       <blockquote style="border-left: 1px solid #ccc; margin-left: 10px; padding-left: 10px;">
         #{most_recent_message.html}
@@ -70,15 +80,15 @@ class TopicsController < ApplicationController
     references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
 
     # Send email based on provider
-    case @inbox.provider
+    case topic_inbox.provider
     when "google_oauth2"
-      send_gmail_reply(from, to, subject, email_body_plaintext, email_body_html, in_reply_to, references)
+      send_gmail_reply(topic_inbox, from, to, subject, email_body_plaintext, email_body_html, in_reply_to, references)
     when "microsoft_office365"
-      send_outlook_reply(from, to, subject, email_body_plaintext, email_body_html, most_recent_message)
+      send_outlook_reply(topic_inbox, from, to, subject, email_body_plaintext, email_body_html, most_recent_message)
     end
 
     # Update the inbox
-    UpdateFromHistoryJob.perform_now @inbox.id
+    UpdateFromHistoryJob.perform_now topic_inbox.id
 
     # Update template associations if any were used
     if @topic.templates.any?
@@ -191,9 +201,9 @@ class TopicsController < ApplicationController
 
   private
 
-  def send_gmail_reply(from, to, subject, plaintext, html, in_reply_to, references)
+  def send_gmail_reply(inbox, from, to, subject, plaintext, html, in_reply_to, references)
     gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = @inbox.credentials
+    gmail_service.authorization = inbox.credentials
 
     # Build the email message
     email = Mail.new do
@@ -232,11 +242,22 @@ class TopicsController < ApplicationController
     end
   end
 
-  def send_outlook_reply(from, to, subject, plaintext, html, reply_to_message)
+  def send_outlook_reply(inbox, from, to, subject, plaintext, html, reply_to_message)
+    # First ensure the token is fresh
+    if inbox.expires_at && inbox.expires_at < Time.current + 5.minutes
+      begin
+        inbox.refresh_token!
+        Rails.logger.info "Successfully refreshed token for Outlook inbox #{inbox.id}"
+      rescue => e
+        Rails.logger.error "Failed to refresh token for Outlook inbox #{inbox.id}: #{e.message}"
+        return
+      end
+    end
+
     # Clean recipient email from potential format "Name <email@example.com>"
     to_email = (to =~ /<(.+)>/) ? $1 : to
 
-    conn = @inbox.graph_client  # Use inbox's graph_client method
+    conn = inbox.graph_client  # Use inbox's graph_client method
 
     draft_response = conn.post("/v1.0/me/messages/#{reply_to_message.provider_message_id}/createReply")
     unless draft_response.success?
