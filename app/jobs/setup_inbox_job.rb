@@ -23,30 +23,39 @@ class SetupInboxJob < ApplicationJob
     gmail_service.authorization = inbox.credentials
     user_id = "me"
 
-    # Fetch the user's profile to get the latest history_id
-    profile = gmail_service.get_user_profile(user_id)
-    inbox.update!(history_id: profile.history_id.to_i)
+    begin
+      # Fetch the user's profile to get the latest history_id
+      profile = gmail_service.get_user_profile(user_id)
+      inbox.update!(history_id: profile.history_id.to_i)
 
-    # Fetch thread IDs with a single request
-    query = "newer_than:21d"
-    threads_response = gmail_service.list_user_threads(user_id, q: query)
-    thread_info = threads_response.threads.map do |thread|
-      {id: thread.id, snippet: thread.snippet}
-    end
+      # Fetch thread IDs with a single request
+      # Using 90 days temporarily
+      query = "newer_than:90d"
+      threads_response = gmail_service.list_user_threads(user_id, q: query) 
 
-    # Use inbox.watch_for_changes instead of account.refresh_gmail_watch
-    inbox.watch_for_changes
-
-    gmail_service.batch do |gmail_service|
-      thread_info.each do |thread|
-        gmail_service.get_user_thread("me", thread[:id]) do |res, err|
-          if err
-            Rails.logger.error "Error fetching thread #{thread[:id]}: #{err.message}"
-          else
-            Topic.cache_from_gmail(res, thread[:snippet], inbox)
-          end
+      # Ensure threads_response and threads_response.threads are not nil before proceeding
+      if threads_response&.threads
+        thread_info = threads_response.threads.map do |thread|
+          {id: thread.id, snippet: thread.snippet}
         end
+
+        Rails.logger.info "Found #{thread_info.count} threads for inbox #{inbox.id}. Enqueuing individual fetch jobs."
+
+        inbox.watch_for_changes
+
+        thread_info.each do |thread|
+          FetchGmailThreadJob.perform_later(inbox.id, thread[:id], thread[:snippet])
+        end
+        Rails.logger.info "Finished enqueuing fetch jobs for inbox #{inbox.id}."
+      else
+        Rails.logger.info "No threads found for inbox #{inbox.id} matching query '#{query}'."
+        # Still set up the watch even if no threads are found initially
+        inbox.watch_for_changes
       end
+
+    rescue Google::Apis::Error => e
+      Rails.logger.error "Error setting up Gmail inbox #{inbox.id}: #{e.message}"
+      # Consider re-raising or specific error handling if needed
     end
   end
 
