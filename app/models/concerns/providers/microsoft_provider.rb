@@ -55,38 +55,71 @@ module Providers
     end
 
     def watch_for_changes
-      return if Rails.env.development?
-
-      # Generate a unique client state for this inbox if not present
-      unless microsoft_client_state.present?
-        update!(microsoft_client_state: SecureRandom.uuid)
+      # Use BASE_URL environment variable, crucial for development with ngrok
+      # In production, ensure this ENV variable is set to your app's public domain.
+      base_url = ENV['BASE_URL']
+      unless base_url.present?
+        Rails.logger.error "MicrosoftProvider#watch_for_changes: BASE_URL environment variable not set. Cannot create webhook subscription for Inbox #{id}."
+        return nil
       end
 
-      # Create or update subscription
-      notification_url = "#{Rails.application.routes.url_helpers.root_url}pubsub/notifications"
+      # Generate the correct notification URL using the named route
+      # Ensure host is provided, especially needed outside of request context.
+      begin
+        notification_url = Rails.application.routes.url_helpers.microsoft_webhook_callback_url(host: base_url)
+        Rails.logger.info "MicrosoftProvider#watch_for_changes: Using notification URL: #{notification_url} for Inbox #{id}"
+      rescue => e
+        Rails.logger.error "MicrosoftProvider#watch_for_changes: Failed to generate notification URL for Inbox #{id}: #{e.message}"
+        return nil
+      end
+
+      # Ensure a unique client state for this inbox if not present
+      unless microsoft_client_state.present?
+        update!(microsoft_client_state: SecureRandom.uuid)
+        Rails.logger.info "MicrosoftProvider#watch_for_changes: Generated client state for Inbox #{id}: #{microsoft_client_state}"
+      end
+
+      # Define subscription details
+      subscription_payload = {
+        changeType: "created", # Only trigger on new messages initially? Or "created,updated"? Check Graph docs.
+        notificationUrl: notification_url,
+        resource: "/me/mailFolders('inbox')/messages", # More specific resource path
+        expirationDateTime: (Time.now + 2.days + 23.hours).iso8601, # Max expiry is a bit less than 3 days
+        clientState: microsoft_client_state # Use the stored client state
+      }
+
+      Rails.logger.info "MicrosoftProvider#watch_for_changes: Attempting to create/update subscription for Inbox #{id} with payload: #{subscription_payload.except(:clientState)}" # Don't log clientState
 
       begin
-        response = graph_client.post("/subscriptions") do |req|
-          req.body = {
-            changeType: "created,updated",
-            notificationUrl: notification_url,
-            resource: "/users/me/mailFolders/inbox/messages",
-            expirationDateTime: (Time.now + 3.days).iso8601,
-            clientState: microsoft_client_state
-          }
+        # Ensure token is fresh before making the API call
+        refresh_token! if expires_at.present? && expires_at < Time.current + 5.minutes
+
+        response = graph_client.post("/v1.0/subscriptions") do |req|
+          req.headers['Content-Type'] = 'application/json'
+          req.body = subscription_payload.to_json
         end
 
         if response.success?
           subscription = response.body
           update!(microsoft_subscription_id: subscription["id"])
-          Rails.logger.info "Successfully set up Microsoft subscription: #{subscription["id"]}"
+          Rails.logger.info "MicrosoftProvider#watch_for_changes: Successfully created/updated Microsoft subscription for Inbox #{id}. Subscription ID: #{subscription['id']}"
+          return subscription # Return the subscription object
         else
-          Rails.logger.error "Failed to create Microsoft subscription: #{response.body}"
+          Rails.logger.error "MicrosoftProvider#watch_for_changes: Failed to create Microsoft subscription for Inbox #{id}. Status: #{response.status}, Body: #{response.body}"
+          # Consider clearing microsoft_subscription_id if creation fails?
+          # update!(microsoft_subscription_id: nil)
+          return nil
         end
+      rescue OAuth2::Error => e
+        Rails.logger.error "MicrosoftProvider#watch_for_changes: OAuth error during token refresh or API call for Inbox #{id}: #{e.message}"
+        return nil
+      rescue Faraday::Error => e
+        Rails.logger.error "MicrosoftProvider#watch_for_changes: Faraday error creating subscription for Inbox #{id}: #{e.message}"
+        return nil
       rescue => e
-        Rails.logger.error "Error setting up Microsoft subscription: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n") if e.backtrace
-        nil
+        Rails.logger.error "MicrosoftProvider#watch_for_changes: Unexpected error creating subscription for Inbox #{id}: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        return nil
       end
     end
 

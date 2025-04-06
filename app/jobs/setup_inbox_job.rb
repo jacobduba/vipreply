@@ -29,9 +29,9 @@ class SetupInboxJob < ApplicationJob
       inbox.update!(history_id: profile.history_id.to_i)
 
       # Fetch thread IDs with a single request
-      # Using 90 days temporarily
-      query = "newer_than:90d"
-      threads_response = gmail_service.list_user_threads(user_id, q: query) 
+      # Using 180 days temporarily
+      query = "newer_than:180d"
+      threads_response = gmail_service.list_user_threads(user_id, q: query)
 
       # Ensure threads_response and threads_response.threads are not nil before proceeding
       if threads_response&.threads
@@ -52,7 +52,6 @@ class SetupInboxJob < ApplicationJob
         # Still set up the watch even if no threads are found initially
         inbox.watch_for_changes
       end
-
     rescue Google::Apis::Error => e
       Rails.logger.error "Error setting up Gmail inbox #{inbox.id}: #{e.message}"
       # Consider re-raising or specific error handling if needed

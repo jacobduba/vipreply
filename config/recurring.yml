@@ -13,3 +13,7 @@ production:
   refresh_all_gmail_watches:
     class: PubsubRefreshJob
     schedule: every day at 2am
+
+  renew_microsoft_subscriptions:
+    class: RenewMicrosoftSubscriptionsJob
+    schedule: every day at 2am

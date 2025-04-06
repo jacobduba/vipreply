@@ -22,8 +22,8 @@ Rails.application.routes.draw do
   get "auth/google_oauth2/callback", to: "sessions#google_auth"
   get "auth/microsoft_office365/callback", to: "sessions#microsoft_auth"
 
-  # Microsoft subscription validation endpoint
-  post "/pubsub/microsoft_notifications", to: "pubsub#microsoft_notifications"
+  # Add 'as: :microsoft_webhook_callback'
+  post "/pubsub/microsoft_notifications", to: "pubsub#microsoft_notifications", as: :microsoft_webhook_callback
 
   # Inbox
   root "inboxes#index"
