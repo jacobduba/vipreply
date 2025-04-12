@@ -7,7 +7,7 @@ class InboxesController < ApplicationController
       return
     end
 
-    selected_fields = [:id, :snippet, :date, :subject, :from, :to, :status, :message_count]
+    selected_fields = [:id, :snippet, :date, :subject, :from_email, :from_name, :to_email, :to_name, :status, :message_count]
     @needs_reply_topics = @inbox.topics.not_spam.select(selected_fields).where(status: :needs_reply).order(date: :asc)
     @has_reply_topics = @inbox.topics.not_spam.select(selected_fields).where(status: :has_reply).order(date: :desc)
 

@@ -11,6 +11,15 @@ class Topic < ApplicationRecord
 
   EMBEDDING_TOKEN_LIMIT = 8191
 
+  # Maintain compatibility with views that may use from/to
+  def from
+    from_name.present? ? "#{from_name} <#{from_email}>" : from_email.to_s
+  end
+
+  def to
+    to_name.present? ? "#{to_name} <#{to_email}>" : to_email.to_s
+  end
+
   def template_attached?
     templates.any?
   end
@@ -137,10 +146,23 @@ class Topic < ApplicationRecord
       last_message = thread_response.messages.last
       last_message_headers = last_message.payload.headers
 
+      date_header = last_message_headers.find { |h| h.name.downcase == "date" }
+      date = date_header ? DateTime.parse(date_header.value) : DateTime.now
+
+      from_header = last_message_headers.find { |h| h.name.downcase == "from" }&.value || ""
+      from_name, from_email = Message.parse_email_header(from_header)
+
+      to_header = last_message_headers.find { |h| h.name.downcase == "to" }&.value || ""
+      to_name, to_email = Message.parse_email_header(to_header)
+
       update!(
-        date: DateTime.parse(last_message_headers.find { |h| h.name.downcase == "date" }.value),
+        date: date,
         snippet: thread_response.messages.last.snippet,
-        message_count: thread_response.messages.count
+        message_count: thread_response.messages.count,
+        from_name: from_name,
+        from_email: from_email,
+        to_name: to_name,
+        to_email: to_email
       )
     end
   end
@@ -238,12 +260,17 @@ class Topic < ApplicationRecord
         Message.cache_from_gmail(topic, api_message)
       }
 
-      date = cached_messages.last.date
-      subject = cached_messages.first.subject
-      from = cached_messages.last.from
-      to = cached_messages.last.to
+      first_message = cached_messages.first
+      last_message = cached_messages.last
+
+      date = last_message.date
+      subject = first_message.subject
+      from_email = last_message.from_email
+      from_name = last_message.from_name
+      to_email = last_message.to_email
+      to_name = last_message.to_name
       is_old_email = date < 3.weeks.ago
-      status = if from == inbox.account.email
+      status = if from_email == inbox.account.email
         :has_reply
       elsif is_old_email
         :has_reply
@@ -251,14 +278,16 @@ class Topic < ApplicationRecord
         :needs_reply
       end
       message_count = response_body.messages.count
-      awaiting_customer = (from == inbox.account.email)
+      awaiting_customer = (from_email == inbox.account.email)
 
       topic.assign_attributes(
         snippet: snippet,
         date: date,
         subject: subject,
-        from: from,
-        to: to,
+        from_email: from_email,
+        from_name: from_name,
+        to_email: to_email,
+        to_name: to_name,
         status: status,
         awaiting_customer: awaiting_customer,
         message_count: message_count
