@@ -44,7 +44,6 @@ class UpdateFromHistoryJob < ApplicationJob
         rescue Google::Apis::ClientError => e
           if e.status_code == 404
             Rails.logger.error "Thread not found (404): #{thread_id}. Skipping."
-            next
           else
             raise e
           end

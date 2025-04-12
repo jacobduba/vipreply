@@ -118,6 +118,7 @@ class Topic < ApplicationRecord
     self.generated_reply = reply
   end
 
+  # Delete all messages, and readd them back.
   def debug_refresh
     account = inbox.account
     gmail_service = Google::Apis::GmailV1::GmailService.new
@@ -241,11 +242,11 @@ class Topic < ApplicationRecord
     subject = subject_header&.value || "(No Subject)"
 
     from_header_obj = last_message_headers.find { |h| h.name.downcase == "from" }
-    from_header = from_header_obj&.value || "unknown@example.com"
+    from_header = from_header_obj&.value || ""
     from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
 
     to_header_obj = last_message_headers.find { |h| h.name.downcase == "to" }
-    to_header = to_header_obj&.value || "unknown@example.com"
+    to_header = to_header_obj&.value || ""
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
     is_old_email = date < 3.weeks.ago

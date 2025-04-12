@@ -118,13 +118,25 @@ class Message < ApplicationRecord
     headers = message.payload.headers
     gmail_message_id = message.id
     labels = message.label_ids
-    date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
-    subject = headers.find { |h| h.name.downcase == "subject" }.value
-    from_header = headers.find { |h| h.name.downcase == "from" }.value
+
+    date_header = headers.find { |h| h.name.downcase == "date" }
+    date = date_header ? DateTime.parse(date_header.value) : DateTime.now
+
+    subject_header = headers.find { |h| h.name.downcase == "subject" }
+    subject = subject_header&.value || "(No Subject)"
+
+    from_header_obj = headers.find { |h| h.name.downcase == "from" }
+    from_header = from_header_obj&.value || ""
     from_name, from_email = parse_email_header(from_header)
-    to_header = headers.find { |h| h.name.downcase == "to" }.value
+
+    to_header_obj = headers.find { |h| h.name.downcase == "to" }
+    to_header = to_header_obj&.value || ""
     to_name, to_email = parse_email_header(to_header)
-    message_id = headers.find { |h| h.name.downcase == "message-id" }.value
+
+    message_id_header = headers.find { |h| h.name.downcase == "message-id" }
+    message_id = message_id_header&.value || "#{SecureRandom.uuid}@generated.id"
+
+    # Gmail's date for message in milliseconds. That's why divide by 1000.
     internal_date = Time.at(message.internal_date / 1000).to_datetime
     snippet = message.snippet
 
