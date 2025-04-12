@@ -166,9 +166,6 @@ class Message < ApplicationRecord
 
     if msg.changed?
       msg.save!
-      Rails.logger.info "Saved message: #{msg.id}"
-    else
-      Rails.logger.info "No changes for message: #{msg.id}"
     end
 
     if msg.labels.include?("SPAM")
