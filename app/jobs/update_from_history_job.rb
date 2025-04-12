@@ -16,7 +16,7 @@ class UpdateFromHistoryJob < ApplicationJob
     history_response = gmail_service.list_user_histories(
       user_id,
       start_history_id: history_id,
-      history_types: ["messageAdded"]
+      history_types: ["messageAdded", "messageDeleted"]
     )
     # rescue Google::Apis::ClientError => e
     #   Rails.logger.error "Failed to update inbox from history: #{e.message}"
@@ -38,10 +38,17 @@ class UpdateFromHistoryJob < ApplicationJob
 
         thread_id = message_meta.message.thread_id
 
-        # Fetch the entire thread from Gmail
-        thread_response = gmail_service.get_user_thread(user_id, thread_id)
-        # Recreate the thread and its messages
-        Topic.cache_from_gmail(thread_response, thread_response.messages.last.snippet, inbox)
+        begin
+          thread_response = gmail_service.get_user_thread(user_id, thread_id)
+          Topic.cache_from_gmail(thread_response, thread_response.messages.last.snippet, inbox)
+        rescue Google::Apis::ClientError => e
+          if e.status_code == 404
+            Rails.logger.error "Thread not found (404): #{thread_id}. Skipping."
+            next
+          else
+            raise e
+          end
+        end
 
         inbox.update!(history_id: history_item_id)
       end
