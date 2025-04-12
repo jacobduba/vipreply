@@ -139,31 +139,7 @@ class Topic < ApplicationRecord
     ActiveRecord::Base.transaction do
       messages.destroy_all
 
-      thread_response.messages.each do |message|
-        Message.cache_from_gmail(self, message)
-      end
-
-      last_message = thread_response.messages.last
-      last_message_headers = last_message.payload.headers
-
-      date_header = last_message_headers.find { |h| h.name.downcase == "date" }
-      date = date_header ? DateTime.parse(date_header.value) : DateTime.now
-
-      from_header = last_message_headers.find { |h| h.name.downcase == "from" }&.value || ""
-      from_name, from_email = Message.parse_email_header(from_header)
-
-      to_header = last_message_headers.find { |h| h.name.downcase == "to" }&.value || ""
-      to_name, to_email = Message.parse_email_header(to_header)
-
-      update!(
-        date: date,
-        snippet: thread_response.messages.last.snippet,
-        message_count: thread_response.messages.count,
-        from_name: from_name,
-        from_email: from_email,
-        to_name: to_name,
-        to_email: to_email
-      )
+      Topic.cache_from_gmail(thread_response, snippet, inbox)
     end
   end
 
