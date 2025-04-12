@@ -228,61 +228,48 @@ class Topic < ApplicationRecord
   end
 
   def self.cache_from_gmail(response_body, snippet, inbox)
-    thread_id = response_body.id
-    first_message = response_body.messages.first
-    first_message_headers = first_message.payload.headers
-    last_message = response_body.messages.last
-    last_message_headers = last_message.payload.headers
-    messages = response_body.messages
+    ActiveRecord::Base.transaction do
+      thread_id = response_body.id
+      topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+      topic.save!
 
-    date_header = last_message_headers.find { |h| h.name.downcase == "date" }
-    date = date_header ? DateTime.parse(date_header.value) : DateTime.now
+      api_messages = response_body.messages
+      cached_messages = api_messages.map { |api_message|
+        Message.cache_from_gmail(topic, api_message)
+      }
 
-    subject_header = first_message_headers.find { |h| h.name.downcase == "subject" }
-    subject = subject_header&.value || "(No Subject)"
+      date = cached_messages.last.date
+      subject = cached_messages.first.subject
+      from = cached_messages.last.from
+      to = cached_messages.last.to
+      is_old_email = date < 3.weeks.ago
+      status = if from == inbox.account.email
+        :has_reply
+      elsif is_old_email
+        :has_reply
+      else
+        :needs_reply
+      end
+      message_count = response_body.messages.count
+      awaiting_customer = (from == inbox.account.email)
 
-    from_header_obj = last_message_headers.find { |h| h.name.downcase == "from" }
-    from_header = from_header_obj&.value || ""
-    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
+      topic.assign_attributes(
+        snippet: snippet,
+        date: date,
+        subject: subject,
+        from: from,
+        to: to,
+        status: status,
+        awaiting_customer: awaiting_customer,
+        message_count: message_count
+      )
 
-    to_header_obj = last_message_headers.find { |h| h.name.downcase == "to" }
-    to_header = to_header_obj&.value || ""
-    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
+      unless topic.has_reply? || is_old_email
+        topic.find_best_templates
+        topic.generate_reply
+      end
 
-    is_old_email = date < 3.weeks.ago
-
-    status = if from == inbox.account.email
-      :has_reply
-    elsif is_old_email
-      :has_reply
-    else
-      :needs_reply
+      topic.save!
     end
-
-    awaiting_customer = (from == inbox.account.email)
-    message_count = response_body.messages.count
-
-    topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
-    topic.assign_attributes(
-      snippet: snippet,
-      date: date,
-      subject: subject,
-      from: from,
-      to: to,
-      status: status,
-      awaiting_customer: awaiting_customer,
-      message_count: message_count
-    )
-
-    topic.save!
-
-    messages.each { |message| Message.cache_from_gmail(topic, message) }
-
-    unless topic.has_reply? || is_old_email
-      topic.find_best_templates
-      topic.generate_reply
-    end
-
-    topic.save!
   end
 end
