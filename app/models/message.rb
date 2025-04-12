@@ -123,14 +123,15 @@ class Message < ApplicationRecord
     date = date_header ? DateTime.parse(date_header.value) : DateTime.now
 
     subject_header = headers.find { |h| h.name.downcase == "subject" }
-    subject = subject_header&.value || "(No Subject)"
+    subject = subject_header&.value
+    subject = "(No subject)" if subject.nil? || subject.empty?
 
     from_header_obj = headers.find { |h| h.name.downcase == "from" }
-    from_header = from_header_obj&.value || ""
+    from_header = from_header_obj&.value || "(Email not provided)"
     from_name, from_email = parse_email_header(from_header)
 
     to_header_obj = headers.find { |h| h.name.downcase == "to" }
-    to_header = to_header_obj&.value || ""
+    to_header = to_header_obj&.value || "(Email not provided)"
     to_name, to_email = parse_email_header(to_header)
 
     message_id_header = headers.find { |h| h.name.downcase == "message-id" }
