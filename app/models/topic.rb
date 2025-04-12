@@ -234,28 +234,18 @@ class Topic < ApplicationRecord
     last_message_headers = last_message.payload.headers
     messages = response_body.messages
 
-    # Safely get date
     date_header = last_message_headers.find { |h| h.name.downcase == "date" }
     date = date_header ? DateTime.parse(date_header.value) : DateTime.now
 
-    # Safely get subject
     subject_header = first_message_headers.find { |h| h.name.downcase == "subject" }
-    subject = subject_header&.value : "(No Subject)"
+    subject = subject_header&.value || "(No Subject)"
 
-    # Safely get from
     from_header_obj = last_message_headers.find { |h| h.name.downcase == "from" }
-
-    from_header = from_header_obj ? from_header_obj.value : "unknown@example.com"
+    from_header = from_header_obj&.value || "unknown@example.com"
     from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
 
-    # Safely get to - this is where the error occurs
     to_header_obj = last_message_headers.find { |h| h.name.downcase == "to" }
-
-    to_header = to_header_obj ? to_header_obj.value : "unknown@example.com"
-    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
-
-    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
-    to_header = last_message_headers.find { |h| h.name.downcase == "to" }.value
+    to_header = to_header_obj&.value || "unknown@example.com"
     to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
 
     is_old_email = date < 3.weeks.ago
