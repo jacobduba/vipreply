@@ -213,7 +213,9 @@ class Message < ApplicationRecord
         elsif cid_header
           "cid:#{cid_header[1..-2]}"
         end
-        content_disposition = content_disposition_header&.split(";")&.first&.strip
+        # Sometimes content-disposition is not present in the header
+        # Thus make it inline else will violate content-disposition being non-null
+        content_disposition = content_disposition_header&.split(";")&.first&.strip || "inline"
         result[:attachments] << {
           attachment_id: part.body.attachment_id,
           content_id: cid,
