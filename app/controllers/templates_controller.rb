@@ -23,13 +23,16 @@ class TemplatesController < ApplicationController
     regenerate = params[:template][:regenerate_reply] == "true"
     topic_id = params[:template][:topic_id]
 
-    if @template.save
-      handle_regeneration(topic_id) if regenerate
-      redirect_to templates_path, notice: "Template created successfully"
-    else
+    unless @template.save
       @input_errors = @template.errors.full_messages_for(:input)
       @output_errors = @template.errors.full_messages_for(:output)
       render :new
+    end
+
+    if regenerate
+      handle_regeneration topic_id
+    else
+      render turbo_stream: turbo_stream.append("templates_collection", partial: "template", locals: {template: @template})
     end
   end
 
@@ -46,11 +49,15 @@ class TemplatesController < ApplicationController
       return
     end
 
-    redirect_to templates_path, notice: "Template updated successfully"
+    render turbo_stream: [
+      turbo_stream.replace(@template, partial: "template", locals: {template: @template}),
+      turbo_stream.remove("edit-template-modal")
+    ]
   end
 
   def destroy
     @template.destroy
+
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: [
