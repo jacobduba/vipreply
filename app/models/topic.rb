@@ -43,8 +43,8 @@ class Topic < ApplicationRecord
       .group("templates.id, templates.output")
       .order("similarity DESC NULLS LAST")
 
-    first_threshold = 0.7
-    additional_threshold = 0.8
+    first_threshold = 0.85
+    additional_threshold = 0.9
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= first_threshold
