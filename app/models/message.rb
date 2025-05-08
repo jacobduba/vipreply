@@ -70,19 +70,21 @@ class Message < ApplicationRecord
     to_name ? "#{to_name} <#{to_email}>" : to_email.to_s
   end
 
-  # Stipe everything after "On .... wrote:"
-  # Used for embedding vector
-  def message_without_history
-    return html unless plaintext
-    lines = plaintext.lines
+  # Looks like this isn't being used right now!
+  # I intend to switch to this to improve embedding quality.
+  # # Stipe everything after "On .... wrote:"
+  # # Used for embedding vector
+  # def message_without_history
+  #   return html unless plaintext
+  #   lines = plaintext.lines
 
-    cutoff_index = lines.find_index { |line|
-      line.start_with?("On") && line.include?("wrote:")
-    }
+  #   cutoff_index = lines.find_index { |line|
+  #     line.start_with?("On") && line.include?("wrote:")
+  #   }
 
-    plaintext.strip unless cutoff_index
-    lines[0...cutoff_index].join.strip
-  end
+  #   plaintext.strip unless cutoff_index
+  #   lines[0...cutoff_index].join.strip
+  # end
 
   def to_s
     <<~TEXT
