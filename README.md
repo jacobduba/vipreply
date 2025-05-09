@@ -29,45 +29,56 @@ Things you may want to cover:
 
 - Git
 - Docker (for PostgreSQL)
+- Ruby 3.4.2
 
 ### Installation
 
-1. Install Ruby 3.3.6 using your preferred method ([rbenv recommended](https://rbenv.org/):
+1. Clone the repository and enter the directory:
     ```sh
-    rbenv install 3.3.6
-    rbenv global 3.3.6
+    git clone git@github.com:jacobduba/vipreply.git
+    cd vipreply
     ```
 
-2. Clone the repository and enter the directory:
-    ```sh
-    git clone git@github.com:jacobduba/emailthingy.git
-    cd emailthingy
-    ```
-
-3. Install dependencies:
+2. Install dependencies:
     ```sh
     bundle install
     ```
 
-4. Set up the development key (get it from a team member):
+3. Set up the development key (get it from a team member):
     ```sh
     touch config/credentials/development.key
-    chmod 600 config/credentials/development.key # Set correct permissions
+    chmod 600 config/credentials/development.key
     ```
    Then paste the master key into `config/credentials/development.key` (never commit this file)
 
-5. Start Postgres:
+4. Start Postgres:
     ```sh
     docker-compose up
     ```
 
-6. In another terminal, set up the database:
+5. In another terminal, set up the database:
     ```sh
     bin/rails db:setup
     ```
 
-### VSCode Setup
+### Running the Application
 
+In three seperate terminals:
+
+1. Start Postgres
+    ```sh
+    docker-compose up
+    ```
+
+2. Start the Rails server:
+    ```sh
+    bin/dev
+    ```
+
+Visit `http://localhost:3000` in your browser to see the application running.
+Note that only localhost:3000 will work due to OAuth.
+
+### VSCode Setup
 
 Install **Ruby LSP:** [https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp)
 
@@ -127,20 +138,3 @@ gem install ruby-lsp htmlbeautifier
   }
 }
 ```
-
-### Running the Application
-
-In three seperate terminals:
-
-1. Start Postgres
-    ```sh
-    docker-compose up
-    ```
-
-2. Start the Rails server:
-    ```sh
-    bin/dev
-    ```
-
-Visit `http://localhost:3000` in your browser to see the application running.
-# coms474midterm
