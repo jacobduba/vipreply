@@ -106,9 +106,6 @@ gem install ruby-lsp htmlbeautifier
 ```json
 {
   "languages": {
-    "HTML": {
-      "tab_size": 2
-    },
     "ERB": {
       "format_on_save": "on",
       "tab_size": 2,
