@@ -265,6 +265,17 @@ class Message < ApplicationRecord
     nil
   end
 
+  # Returns all the attachments that ARE NOT inline
+  def get_file_attachments
+    # content_id.nil? - Someth
+    attachments.select {
+      it.content_disposition == :attachment ||
+        it.content_id.nil? # Ran into case where disposition was inline
+      # but no Content-ID provided. Since we cannot show inline, show
+      # in attachment list so the user can access it.
+    }
+  end
+
   private
 
   def check_plaintext_nil

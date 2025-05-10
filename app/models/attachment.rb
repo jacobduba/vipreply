@@ -1,13 +1,11 @@
 class Attachment < ApplicationRecord
   belongs_to :message
 
+  # An inline attachment appears directly embedded within the message content
+  # Attachment disposition means the file should be downloaded rather than displayed
   enum :content_disposition, [:inline, :attachment]
 
   def self.cache_from_gmail(message, attachment_data)
-    Rails.logger.info(
-      event_type: "attachment_created",
-      attachment: attachment_data
-    )
     # Attachments are deleted and recreated because gmail doesn't have static IDs for them
     # https://serverfault.com/questions/398962/does-the-presence-of-a-content-id-header-in-an-email-mime-mean-that-the-attachm
     attachment = create!(
@@ -20,7 +18,11 @@ class Attachment < ApplicationRecord
       content_disposition: attachment_data[:content_disposition]
     )
 
-    Rails.logger.info "Saved attachment: #{attachment.id}"
+    # I added this logging for honeybadger to debug phantom missing attachments
+    Rails.logger.info(
+      event_type: "attachment_created",
+      attachment: attachment_data
+    )
   end
 
   # Get url

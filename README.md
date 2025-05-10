@@ -135,3 +135,11 @@ gem install ruby-lsp htmlbeautifier
   }
 }
 ```
+
+### Debugging Tips
+
+If you need to delete and readd all messages for a Topic, in rails console run:
+
+```ruby
+Topic.find(42).debug_refresh # Replace 42 witht the ID of the topic
+```
