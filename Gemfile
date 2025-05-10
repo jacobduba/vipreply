@@ -75,6 +75,9 @@ gem "nokogiri", "~> 1.18"
 # Honeybadger for error reporting
 gem "honeybadger", "~> 5.27"
 
+# Log data in JSON
+gem "rails_semantic_logger"
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri windows]
@@ -91,6 +94,9 @@ group :development do
 
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+
+  # Makes JSON objects pretty (useful for semantic logger)
+  gem "amazing_print"
 end
 
 group :test do

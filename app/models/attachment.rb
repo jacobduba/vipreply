@@ -4,6 +4,10 @@ class Attachment < ApplicationRecord
   enum :content_disposition, [:inline, :attachment]
 
   def self.cache_from_gmail(message, attachment_data)
+    Rails.logger.info(
+      event_type: "attachment_created",
+      attachment: attachment_data
+    )
     # Attachments are deleted and recreated because gmail doesn't have static IDs for them
     # https://serverfault.com/questions/398962/does-the-presence-of-a-content-id-header-in-an-email-mime-mean-that-the-attachm
     attachment = create!(

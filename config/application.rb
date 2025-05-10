@@ -30,5 +30,8 @@ module Emailthingy
     #
     config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Send logs to Honeybadger
+    config.semantic_logger.add_appender(appender: :honeybadger_insights)
   end
 end
