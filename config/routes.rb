@@ -7,39 +7,46 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", :as => :rails_health_check
 
-  # Dashboard for Solid Queue
-  mount MissionControl::Jobs::Engine, at: "/jobs"
+  root "marketing#landing"
+  get "privacy", to: "marketing#privacy"
 
-  get "login" => "sessions#new", :as => :login
-  delete "logout" => "sessions#destroy"
+  get "login", to: "sessions#new", as: :login
+  delete "logout", to: "sessions#destroy"
   # Routes for Google authentication
   get "auth/:provider/callback", to: "sessions#google_auth"
   get "auth/failure", to: redirect("/")
 
   # Inbox
-  root "inboxes#index"
-  get "update", to: "inboxes#update"
+  scope :inbox do
+    get "", to: "inboxes#index", as: :inbox
+    get "update", to: "inboxes#update"
 
-  resources :templates
+    resources :templates
 
-  resources :topics do
-    member do
-      get "template_selector_dropdown"
-      get "new_template_dropdown"
-      post "create_template_dropdown"
-      get "find_template"
-      post "generate_reply"
-      post "change_status"
-      post "send_email"
-      patch "change_templates_regenerate_response"
-      post "update_templates_regenerate_reply"
-      delete "remove_template/:template_id",
-        action: :remove_template,
-        as: :remove_template
+    resources :topics do
+      member do
+        get "template_selector_dropdown"
+        get "new_template_dropdown"
+        post "create_template_dropdown"
+        get "find_template"
+        post "generate_reply"
+        post "change_status"
+        post "send_email"
+        patch "change_templates_regenerate_response"
+        post "update_templates_regenerate_reply"
+        delete "remove_template/:template_id",
+          action: :remove_template,
+          as: :remove_template
+      end
     end
   end
 
+  # Attachments
   get "attachments/:id", to: "attachments#show", as: :attachment
 
+  # Webhooks
   post "/pubsub/notifications", to: "pubsub#notifications"
+
+  # Dashboard for Solid Queue
+  mount MissionControl::Jobs::Engine, at: "/jobs"
 end
