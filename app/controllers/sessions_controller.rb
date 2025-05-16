@@ -62,7 +62,7 @@ class SessionsController < ApplicationController
     end
 
     session[:account_id] = account.id
-    redirect_to root_path
+    redirect_to inbox_path
   end
 
   private
