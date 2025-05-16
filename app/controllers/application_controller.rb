@@ -6,14 +6,14 @@ class ApplicationController < ActionController::Base
   def authorize_account
     account_id = session[:account_id]
     unless account_id
-      return redirect_to login_path
+      return redirect_to root_path
     end
 
     begin
       @account = Account.find account_id
     rescue ActiveRecord::RecordNotFound
       reset_session
-      return redirect_to login_path
+      return redirect_to root_path
     end
 
     Honeybadger.context({
@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
       Rails.logger.debug "No refresh token found for #{@account.email}"
       reset_session
       flash[:prompt_consent] = true
-      return redirect_to login_path
+      return redirect_to root_path
     end
 
     return unless @account.expires_at < Time.current + 10.seconds
@@ -37,7 +37,7 @@ class ApplicationController < ActionController::Base
       Rails.logger.debug "Refresh token is invalid for #{@account.email} with error: #{e.message}"
       reset_session
       flash[:prompt_consent] = true
-      redirect_to login_path
+      redirect_to root_path
     end
   end
 end
