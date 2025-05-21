@@ -78,6 +78,8 @@ We also store information you may volunteer, for example, written responses to s
 **To provide products or services you’ve requested**
 We use a number of third-party subprocessors to help run our applications and provide Services to you. These subprocessors support essential functionality such as AI processing, error tracking, analytics, and integration with your Gmail account. Below is a list of third-party processors we currently use at VIPReply:
 
+- **DigitalOcean** - for hosting our infrastructure.
+- **Cloudflare** - for DNS managment and CDN services.
 - **VoyageAI** – for generating text embeddings.
 - **OpenRouter** – for accessing large language models (LLMs).
 - **Google** – for fetching Gmail information when connected.
