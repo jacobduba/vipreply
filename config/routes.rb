@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   root "marketing#landing"
   get "privacy", to: "marketing#privacy"
+  get "terms", to: "marketing#terms"
 
   get "login", to: "sessions#new", as: :login
   delete "logout", to: "sessions#destroy"
