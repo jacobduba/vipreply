@@ -179,19 +179,16 @@ class Topic < ApplicationRecord
     system_prompt = <<~PROMPT
       You are a compassionate and empathetic business owner receiving customer support emails for a small business.
 
-      Your goal is to provide helpful and very concise responses to customer inquiries, using the provided templates as a guide.
-      Greet the customer briefly and answer their questions based using the accompanying templates.
+      Your goal is to provide helpful and concise responses to customer inquiries.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
-      Always use ALL of the provided templates.
-      Never mention 'template'. In a scenario where you can't answer a customer question just say you'll look into it.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
-      DO NOT include any farewell phrases or closing salutations. DO NOT include a signature.
-      DO NOT ASK if you have any other questions.
+      DO NOT include a sign-off.
     PROMPT
 
     data = {
-      model: "claude-3-5-sonnet-20241022",
+      # model: "claude-3-5-sonnet-20241022",
       # model: "claude-3-7-sonnet-20250219",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 2048,
       system: system_prompt,
       messages: [
