@@ -53,8 +53,8 @@
         @apply text-2xl font-semibold text-gray-900 mt-8 mb-4;
     }
 
-    .blog-last-updated {
-        @apply text-gray-600 mb-6 italic;
+    .blog-container h3 {
+        @apply text-xl font-semibold text-gray-900 mt-6 mb-3;
     }
 
     .blog-container p {
@@ -83,17 +83,5 @@
 
     .blog-container ul ul {
         @apply list-disc pl-6 mt-2 mb-2 space-y-2 text-gray-800;
-    }
-
-    .blog-container .callout {
-        @apply text-gray-800 mb-4 leading-relaxed italic bg-gray-50 p-4 rounded border border-gray-200;
-    }
-
-    .blog-container .final-paragraph {
-        @apply text-gray-800 mb-8 leading-relaxed;
-    }
-
-    .blog-container .continued-list {
-        @apply list-decimal pl-6 mb-6 space-y-4 text-gray-800;
     }
 }

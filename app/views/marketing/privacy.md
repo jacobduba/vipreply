@@ -33,7 +33,7 @@ Our guiding principle is to collect only what we need to provide and improve our
 
 ### Identity and access
 
-When you sign in with Google, we automatically collect certain information from your Google account, such as your name, email address, and profile picture, as authorized by your Google account settings. This information allows us to create and personalize your VIPReply account without requiring manual input. We use this data to streamline your onboarding experience, send essential product updates, and, with your consent, provide optional communications like newsletters and surveys.
+**When you sign in with Google:** we automatically collect certain information from your Google account, such as your name, email address, and profile picture, as authorized by your Google account settings. This information allows us to create and personalize your VIPReply account without requiring manual input. We use this data to streamline your onboarding experience, send essential product updates, and, with your consent, provide optional communications like newsletters and surveys.
 
 Our use of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the [Limited Use requirements](https://developers.google.com/terms/api-services-user-data-policy#limited-use).
 
@@ -45,7 +45,11 @@ If you subscribe to VIPReply, you will be asked to provide your payment informat
 
 ### Product interactions
 
-We store on our servers the content that you upload or receive or maintain in your VIPReply account. This is so you can use our products as intended, for example, to reply to a customer with VIPReply. We use this data to generate a personalized AI model for your account, which helps improve the relevance and effectiveness of our services for you. We keep this content as long as your account is active. If you delete your account, we'll delete the content within 60 days.
+We store on our servers the content that you upload or receive or maintain in your VipReply account. This includes any data you directly upload to VIPReply as well as Gmail data when you connect your Gmail account.
+
+**Gmail integration (when you connect your Gmail account):** When you choose to connect your Gmail account to VipReply, we store a copy of your Gmail threads, messages, and attachments on our servers. This Gmail data is necessary to provide our core services, including generating AI-powered email replies and managing your inbox through VIPReply. We only access and store Gmail data for accounts that you explicitly connect to our service.
+
+We keep this content as long as your account is active. If you delete your account, we'll delete the content within 60 days.
 
 ### General Geolocation data
 
@@ -80,12 +84,16 @@ We use a number of third-party subprocessors to help run our applications and pr
 - **DigitalOcean** - for hosting our infrastructure.
 - **Cloudflare** - for DNS managment and CDN services.
 - **VoyageAI** – for generating text embeddings.
-- **OpenRouter** – for accessing large language models (LLMs).
-- **Google** – for fetching Gmail information when connected.
+- **OpenRouter** – for routing AI requests to improve reliability.
+  - **Anthropic** - primary AI provider for generating personalized email replies.
+  - **OpenAI** - backup AI provider when Anthropic is unavailable.
+- **Google** – for OAuth authentication, fetching Gmail messages and attachments when you connect your inbox, and delivering web fonts to your browser.
 - **Honeybadger** – for application error monitoring and reporting.
 - **PostHog** – for product analytics and usage tracking.
 
-We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
+**We do not transfer or disclose your information to third parties for purposes other than the ones provided.** We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
+
+**Data storage vs. processing:** Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and PostHog retain only technical metadata and usage analytics - not your email content or personal communications. AI providers (VoyageAI, Anthropic, OpenAI via OpenRouter) process your data in real-time to generate responses but do not store or retain your information.
 
 No VIPReply human looks at your content except for limited purposes with your express permission, for example, if an error occurs that stops an automated process from working and requires manual intervention to fix. These are rare cases, and when they happen, we look for root cause solutions as much as possible to avoid them recurring. We may also access your data if required in order to respond to legal process (see "When required under applicable law" below).
 
