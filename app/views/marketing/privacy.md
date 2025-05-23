@@ -1,6 +1,5 @@
 <!-- This was adapted from 37signal's privacy policy, which is MIT licensed -->
-<!-- This is the markdown source for the privacy.html.erb file -->
-<!-- To edit it, because im lazy rn, edit this source file and then convert to html tell AI to style it -->
+<!-- Edit the markdown and then export it as HTML at stackedit.io, paste into privacy.html.erb -->
 
 # Privacy policy
 

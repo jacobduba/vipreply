@@ -37,3 +37,63 @@
             "Inter", system-ui, sans-serif; /* Replace 'Inter' with your desired font */
     }
 }
+
+/* Markdown elements can't be styled with tailwind classes */
+/* Terms of service and privacy policy are generated from markdown */
+@layer components {
+    .blog-container {
+        @apply mx-auto px-4 py-8 max-w-4xl;
+    }
+
+    .blog-container h1 {
+        @apply text-3xl font-bold text-gray-900 mb-4;
+    }
+
+    .blog-container h2 {
+        @apply text-2xl font-semibold text-gray-900 mt-8 mb-4;
+    }
+
+    .blog-last-updated {
+        @apply text-gray-600 mb-6 italic;
+    }
+
+    .blog-container p {
+        @apply text-gray-800 mb-4 leading-relaxed;
+    }
+
+    .blog-container a {
+        @apply text-blue-600 hover:text-blue-800 hover:underline;
+    }
+
+    .blog-container strong {
+        @apply font-semibold;
+    }
+
+    .blog-container ol {
+        @apply list-decimal pl-6 mb-6 space-y-4 text-gray-800;
+    }
+
+    .blog-container ul {
+        @apply list-disc pl-6 mb-6 space-y-3 text-gray-800;
+    }
+
+    .blog-container li {
+        @apply leading-relaxed;
+    }
+
+    .blog-container ul ul {
+        @apply list-disc pl-6 mt-2 mb-2 space-y-2 text-gray-800;
+    }
+
+    .blog-container .callout {
+        @apply text-gray-800 mb-4 leading-relaxed italic bg-gray-50 p-4 rounded border border-gray-200;
+    }
+
+    .blog-container .final-paragraph {
+        @apply text-gray-800 mb-8 leading-relaxed;
+    }
+
+    .blog-container .continued-list {
+        @apply list-decimal pl-6 mb-6 space-y-4 text-gray-800;
+    }
+}
