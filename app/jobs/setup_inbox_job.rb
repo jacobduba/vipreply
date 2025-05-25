@@ -16,6 +16,7 @@ class SetupInboxJob < ApplicationJob
 
     # Fetch thread IDs with a single request
     # Using 180 days temporarily
+    # TODO: Change back to 21 b/c privacy says only past 21
     query = "newer_than:180d"
     threads_response = gmail_service.list_user_threads(user_id, q: query)
 
