@@ -33,15 +33,6 @@ class FetchGmailThreadJob < ApplicationJob
       # This exception will be caught by retry_on, but log it for visibility
       Rails.logger.warn "FetchGmailThreadJob: Rate limit error fetching thread #{thread_id} for inbox #{inbox.id}. Error: #{e.message}. Retrying..."
       raise e # Re-raise to trigger retry mechanism
-    rescue Google::Apis::ClientError => e
-      # Handle other client errors (e.g., 404 Not Found if thread deleted, 401/403 auth issues)
-      Rails.logger.error "FetchGmailThreadJob: Client error fetching thread #{thread_id} for inbox #{inbox.id}. Error: #{e.status_code} - #{e.message}"
-      # Depending on the error, you might not want to retry (e.g., 404)
-    rescue => e
-      # Catch unexpected errors
-      Rails.logger.error "FetchGmailThreadJob: Unexpected error fetching thread #{thread_id} for inbox #{inbox.id}. Error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-      # Consider whether to retry unexpected errors or not
     end
   end
 end
