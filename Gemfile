@@ -76,7 +76,7 @@ gem "nokogiri", "~> 1.18"
 gem "honeybadger", "~> 5.27"
 
 # Log data in JSON
-gem "rails_semantic_logger"
+# gem "rails_semantic_logger"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -96,7 +96,7 @@ group :development do
   # gem "spring"
 
   # Makes JSON objects pretty (useful for semantic logger)
-  gem "amazing_print"
+  # gem "amazing_print"
 end
 
 group :test do
