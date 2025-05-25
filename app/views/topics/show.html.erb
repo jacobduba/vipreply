@@ -63,9 +63,9 @@
     </div>
     <!-- Right column: messages list -->
     <div class="w-full lg:w-[calc(50%-1rem)] order-1 lg:order-2" data-controller="iframe-resize">
-      <ul class="divide-y divide-stone-300 lg:mb-10">
+      <ul class="divide-y divide-stone-200 lg:mb-10">
         <% @messages.each_with_index do |message, index| %>
-          <li class="pt-3 pb-5" <%= "data-iframe-resize-target=lastMessage" if message == @messages.last %>>
+          <li class="pt-3 pb-4" <%= "data-iframe-resize-target=lastMessage" if message == @messages.last %>>
             <div class="flex justify-between">
               <p class="truncate">
                 <span class="text-stone-700 font-semibold"><%= message.from_name %></span> <span class="text-stone-500"><%= h("<") %><%= message.from_email %><%= h(">") %></span>
@@ -105,7 +105,7 @@
               <iframe
                 srcdoc="<%= message.prepare_email_for_rendering request.base_url, index %>"
                 sandbox="allow-same-origin allow-popups"
-                class="w-full hidden rounded bg-white"
+                class="w-full hidden rounded bg-white border border-slate-100"
                 data-iframe-resize-target="iframe">
               </iframe>
             </div>

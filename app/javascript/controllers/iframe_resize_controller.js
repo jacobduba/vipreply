@@ -51,7 +51,7 @@ export default class extends Controller {
   setIframeHeight = async (iframe) => {
     const document = iframe.contentWindow.document;
     const html = document.documentElement;
-    const height = html.scrollHeight;
+    const height = html.scrollHeight + 2; // Add 2 pixels to account for border 1px padding
     iframe.style.height = `${height}px`;
   };
 }
