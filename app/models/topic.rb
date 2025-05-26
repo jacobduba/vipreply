@@ -9,6 +9,7 @@ class Topic < ApplicationRecord
 
   scope :not_spam, -> { where(is_spam: false) }
 
+  # TODO: this is outdated
   EMBEDDING_TOKEN_LIMIT = 8191
 
   # Maintain compatibility with views that may use from/to
@@ -113,6 +114,7 @@ class Topic < ApplicationRecord
 
   def generate_reply
     latest_message = messages.order(date: :desc).first
+    # TODO: why do we need to truncate the last message with the embedding token limit?
     message_text = truncate_text(latest_message.to_s, EMBEDDING_TOKEN_LIMIT)
 
     template_prompt = if templates.any?
@@ -145,16 +147,14 @@ class Topic < ApplicationRecord
 
   private
 
-  def tokenizer
-    @tokenizer ||= Tokenizers::Tokenizer.from_pretrained("voyageai/voyage-3-large")
-  end
-
+  # TODO: Make this more like MVC.
+  # By that I mean, load emb
   def truncate_text(text, token_limit)
-    encoding = tokenizer.encode(text)
+    encoding = TOKENIZER.encode(text)
 
     if encoding.tokens.size > token_limit
       truncated_ids = encoding.ids[0...token_limit]
-      tokenizer.decode(truncated_ids)
+      TOKENIZER.decode(truncated_ids)
     else
       text
     end

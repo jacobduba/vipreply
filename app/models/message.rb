@@ -1,6 +1,7 @@
 class Message < ApplicationRecord
-  EMBEDDING_TOKEN_LIMIT = 8191
   include ActionView::Helpers::TextHelper
+
+  EMBEDDING_TOKEN_LIMIT = 32_000
 
   belongs_to :topic
   has_many :attachments, dependent: :destroy
@@ -8,6 +9,7 @@ class Message < ApplicationRecord
 
   before_save :check_plaintext_nil
 
+  # Embedding is in another model, create that model AFTER message is created (dependent relationship)
   after_save :ensure_embedding_exists, unless: -> { message_embedding.present? }
 
   def prepare_email_for_rendering(host, index)
@@ -98,9 +100,6 @@ class Message < ApplicationRecord
   # Modified embedding generation
   def ensure_embedding_exists
     MessageEmbedding.create_for_message(self)
-  rescue => e
-    Rails.logger.error "Failed to create message embedding for message #{id}: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
   end
 
   def self.parse_email_header(header)
@@ -229,16 +228,14 @@ class Message < ApplicationRecord
     result
   end
 
-  def tokenizer
-    @tokenizer ||= Tokenizers::Tokenizer.from_pretrained("voyageai/voyage-3-large")
-  end
-
+  # TODO: make this more MVC like, process the message's text and save it here.
+  # Better yet, move this to the class THAT STORES AN EMBEDDING (message_embedding)
   def truncate_embedding_text(text)
-    encoding = tokenizer.encode(text)
+    encoding = TOKENIZER.encode(text)
     return text if encoding.tokens.size <= EMBEDDING_TOKEN_LIMIT
 
     truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-    tokenizer.decode(truncated_ids)
+    TOKENIZER.decode(truncated_ids)
   end
 
   # Modified to store directly on message
