@@ -1,6 +1,4 @@
 class Message < ApplicationRecord
-  require "tokenizers"
-
   EMBEDDING_TOKEN_LIMIT = 8191
   include ActionView::Helpers::TextHelper
 
