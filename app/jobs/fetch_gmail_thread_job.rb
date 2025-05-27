@@ -29,10 +29,8 @@ class FetchGmailThreadJob < ApplicationJob
       Topic.cache_from_gmail(thread_response, snippet, inbox)
 
       Rails.logger.info "FetchGmailThreadJob: Successfully processed thread #{thread_id} for inbox #{inbox.id}"
-    rescue Google::Apis::RateLimitError => e
-      # This exception will be caught by retry_on, but log it for visibility
-      Rails.logger.warn "FetchGmailThreadJob: Rate limit error fetching thread #{thread_id} for inbox #{inbox.id}. Error: #{e.message}. Retrying..."
-      raise e # Re-raise to trigger retry mechanism
+    ensure
+      inbox.decrement!(:initial_import_jobs_remaining)
     end
   end
 end

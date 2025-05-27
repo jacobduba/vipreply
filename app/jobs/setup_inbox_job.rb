@@ -15,20 +15,21 @@ class SetupInboxJob < ApplicationJob
     inbox.update!(history_id: profile.history_id.to_i)
 
     # Fetch thread IDs with a single request
-    # Using 180 days temporarily
-    # TODO: Change back to 21 b/c privacy says only past 21
-    query = "newer_than:180d"
+    query = "newer_than:21d"
     threads_response = gmail_service.list_user_threads(user_id, q: query)
+
+    account.refresh_gmail_watch
 
     # Ensure threads_response and threads_response.threads are not nil before proceeding
     if threads_response&.threads
+      # If import jobs remaining > 0, then we show a banner
+      inbox.update!(initial_import_jobs_remaining: threads_response.threads.count)
+
       thread_info = threads_response.threads.map do |thread|
         {id: thread.id, snippet: thread.snippet}
       end
 
       Rails.logger.info "Found #{thread_info.count} threads for inbox #{inbox.id}. Enqueuing individual fetch jobs."
-
-      account.refresh_gmail_watch
 
       thread_info.each do |thread|
         FetchGmailThreadJob.perform_later(inbox.id, thread[:id], thread[:snippet])
@@ -36,7 +37,6 @@ class SetupInboxJob < ApplicationJob
       Rails.logger.info "Finished enqueuing fetch jobs for inbox #{inbox.id}."
     else
       Rails.logger.info "No threads found for inbox #{inbox.id} matching query '#{query}'."
-      # Still set up the watch even if no threads are found initially
       account.refresh_gmail_watch
     end
   end
