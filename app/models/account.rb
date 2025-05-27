@@ -15,7 +15,7 @@ class Account < ApplicationRecord
       client_id: Rails.application.credentials.google_client_id,
       client_secret: Rails.application.credentials.google_client_secret,
       refresh_token: refresh_token,
-      scope: ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+      scope: ["email", "profile", "https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
     )
 
     credentials.refresh!
@@ -33,7 +33,7 @@ class Account < ApplicationRecord
       refresh_token: refresh_token,
       access_token: access_token,
       expires_at: expires_at,
-      scope: ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+      scope: ["email", "profile", "https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
     )
   end
 
