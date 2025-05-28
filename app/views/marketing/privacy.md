@@ -86,7 +86,7 @@ We also store information you may volunteer, for example, written responses to s
 - **Honeybadger**: for application error monitoring and reporting.
 - **PostHog**: for product analytics and usage tracking.
 
-Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and PostHog retain only technical metadata and usage analytics - not your email content. AI providers (VoyageAI, OpenRouter, Anthropic, and OpenAI) process your data in real-time to generate responses but do not store or retain your information.
+Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and PostHog retain only technical metadata and usage analytics - not your email content. AI providers (VoyageAI, OpenRouter, Anthropic, and OpenAI) process your data in real-time to generate responses but do not store, retain, or train on your information.
 
 **We do not transfer or disclose your information to third parties for purposes other than the ones provided**: We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
 
@@ -109,6 +109,8 @@ Finally, if VIPReply is acquired by or merges with another company — we don’
 ## Third-party compliance
 
 Our use of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the [Limited Use requirements](https://developers.google.com/terms/api-services-user-data-policy#limited-use).
+
+Google Workspace data will only be used to train personalized AI/ML models. In other words, no Google Workspace data will be used to develop, improve, or train generalized AI/ML models.
 
 ## Your rights with respect to your information
 
