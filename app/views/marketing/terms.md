@@ -1,6 +1,3 @@
-<!-- This was adapted from 37signal's terms of service, which is MIT licensed -->
-<!-- Edit the markdown and then export it as HTML at stackedit.io, paste into privacy.html.erb -->
-
 # Terms of Service
 
 *Last updated: May 21, 2025*

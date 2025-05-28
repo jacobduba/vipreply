@@ -1,6 +1,3 @@
-<!-- This was adapted from 37signal's privacy policy, which is MIT licensed -->
-<!-- Edit the markdown and then export it as HTML at stackedit.io, paste into privacy.html.erb -->
-
 # Privacy policy
 
 *Last updated: May 21, 2025*
@@ -12,6 +9,7 @@ This policy is split into sections. For your convenience, links to each of those
 * [Privacy policy](#privacy-policy)
 * [What we collect and why](#what-we-collect-and-why)
 * [When we access or disclose your information](#when-we-access-or-disclose-your-information)
+* [Third-party compliance](#third-party-compliance)
 * [Your rights with respect to your information](#your-rights-with-respect-to-your-information)
 * [How we secure your data](#how-we-secure-your-data)
 * [What happens when you delete content in your product accounts](#what-happens-when-you-delete-content-in-your-product-accounts)
@@ -33,9 +31,7 @@ Our guiding principle is to collect only what we need to provide and improve our
 
 ### Identity and access
 
-**When you sign in with Google:** we automatically collect certain information from your Google account, such as your name, email address, and profile picture, as authorized by your Google account settings. This information allows us to create and personalize your VIPReply account without requiring manual input. We use this data to streamline your onboarding experience, send essential product updates, and, with your consent, provide optional communications like newsletters and surveys.
-
-Our use of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the [Limited Use requirements](https://developers.google.com/terms/api-services-user-data-policy#limited-use).
+When you sign in with Google, we automatically collect certain information from your Google account, such as your name, email address, and profile picture, as authorized by your Google account settings. This information allows us to create and personalize your VIPReply account without requiring manual input. We use this data to streamline your onboarding experience, send essential product updates, and, with your consent, provide optional communications like newsletters and surveys.
 
 We’ll never sell your personal information to third parties, and we won’t use your name or company in marketing statements without your permission either.
 
@@ -47,7 +43,7 @@ If you subscribe to VIPReply, you will be asked to provide your payment informat
 
 We store on our servers the content that you upload or receive or maintain in your VipReply account. This includes any data you directly upload to VIPReply as well as Gmail data when you connect your Gmail account.
 
-**Gmail integration (when you connect your Gmail account):** When you choose to connect your Gmail account to VipReply, we store a copy of your Gmail threads, messages, and attachments on our servers. This Gmail data is necessary to provide our core services, including generating AI-powered email replies and managing your inbox through VIPReply. We only access and store Gmail data for accounts that you explicitly connect to our service.
+When you choose to connect your Gmail account to VIPReply, we import up to 100 of your most recent emails from the past 60 days and any new emails while your account is connected. We store a copy of your Gmail threads, messages, and attachments on our servers. This Gmail data is necessary to provide our core services, including generating AI-powered email replies and managing your inbox through VIPReply. We only access and store Gmail data for accounts that you explicitly connect to our service.
 
 We keep this content as long as your account is active. If you delete your account, we'll delete the content within 60 days.
 
@@ -78,32 +74,29 @@ When you email VIPReply with a question or to ask for help, we keep that corresp
 We also store information you may volunteer, for example, written responses to surveys. If you agree to a customer interview, we may ask for your permission to record the conversation for future reference or use. We will only do so with your express consent.
 
 ## When we access or disclose your information
-**To provide products or services you’ve requested**
-We use a number of third-party subprocessors to help run our applications and provide Services to you. These subprocessors support essential functionality such as AI processing, error tracking, analytics, and integration with your Gmail account. Below is a list of third-party processors we currently use at VIPReply:
+**To provide products or services you’ve requested**: We use a number of third-party subprocessors to help run our applications and provide Services to you. These subprocessors support essential functionality such as AI processing, error tracking, analytics, and integration with your Gmail account. Below is a list of third-party processors we currently use at VIPReply:
 
-- **DigitalOcean** - for hosting our infrastructure.
-- **Cloudflare** - for DNS managment and CDN services.
-- **VoyageAI** – for generating text embeddings.
-- **OpenRouter** – for routing AI requests to improve reliability.
-  - **Anthropic** - primary AI provider for generating personalized email replies.
-  - **OpenAI** - backup AI provider when Anthropic is unavailable.
-- **Google** – for OAuth authentication, fetching Gmail messages and attachments when you connect your inbox, and delivering web fonts to your browser.
-- **Honeybadger** – for application error monitoring and reporting.
-- **PostHog** – for product analytics and usage tracking.
+- **DigitalOcean**: for hosting our infrastructure.
+- **Cloudflare**: for DNS management and CDN services.
+- **VoyageAI**: for generating text embeddings.
+- **OpenRouter**: for routing AI requests to improve reliability.
+  - **Anthropic**: primary AI provider for generating personalized email replies.
+  - **OpenAI**: backup AI provider when Anthropic is unavailable.
+- **Google**: for OAuth authentication, fetching Gmail messages and attachments when you connect your inbox, and delivering web fonts to your browser.
+- **Honeybadger**: for application error monitoring and reporting.
+- **PostHog**: for product analytics and usage tracking.
 
-**We do not transfer or disclose your information to third parties for purposes other than the ones provided.** We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
+Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and PostHog retain only technical metadata and usage analytics - not your email content. AI providers (VoyageAI, OpenRouter, Anthropic, and OpenAI) process your data in real-time to generate responses but do not store or retain your information.
 
-**Data storage vs. processing:** Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and PostHog retain only technical metadata and usage analytics - not your email content or personal communications. AI providers (VoyageAI, Anthropic, OpenAI via OpenRouter) process your data in real-time to generate responses but do not store or retain your information.
+**We do not transfer or disclose your information to third parties for purposes other than the ones provided**: We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
 
-No VIPReply human looks at your content except for limited purposes with your express permission, for example, if an error occurs that stops an automated process from working and requires manual intervention to fix. These are rare cases, and when they happen, we look for root cause solutions as much as possible to avoid them recurring. We may also access your data if required in order to respond to legal process (see "When required under applicable law" below).
+**To help you troubleshoot or squash a software bug, with your permission**: If at any point we need to access your content to help you with a support case, we will ask for your consent before proceeding.
 
-**To help you troubleshoot or squash a software bug, with your permission.** If at any point we need to access your content to help you with a support case, we will ask for your consent before proceeding.
+**To investigate, prevent, or take action regarding restricted uses**: Accessing a customer’s account when investigating potential abuse is a measure of last resort. We want to protect the privacy and safety of both our customers and the people reporting issues to us, and we do our best to balance those responsibilities throughout the process. If we discover you are using our products for a restricted purpose, we will take action as necessary, including notifying appropriate authorities where warranted.
 
-**To investigate, prevent, or take action regarding restricted uses.** Accessing a customer’s account when investigating potential abuse is a measure of last resort. We want to protect the privacy and safety of both our customers and the people reporting issues to us, and we do our best to balance those responsibilities throughout the process. If we discover you are using our products for a restricted purpose, we will take action as necessary, including notifying appropriate authorities where warranted.
+**Aggregated and de-identified data**: We may aggregate and/or de-identify information collected through the services. We may use de-identified or aggregated data for any purpose, including marketing or analytics.
 
-**Aggregated and de-identified data.** We may aggregate and/or de-identify information collected through the services. We may use de-identified or aggregated data for any purpose, including marketing or analytics.
-
-**When required under applicable law.** All data infrastructure are located in the U.S.
+**When required under applicable law**: All data infrastructure are located in the U.S.
 
 * Requests for user data. Our policy is to not respond to government requests for user data unless we are compelled by legal process or in limited circumstances in the event of an emergency request. However, if U.S. law enforcement authorities have the necessary warrant, criminal subpoena, or court order requiring us to disclose data, we must comply. Likewise, we will only respond to requests from government authorities outside the U.S. if compelled by the U.S. government through procedures outlined in a mutual legal assistance treaty or agreement. It is VIPReply policy to notify affected users before we disclose data unless we are legally prohibited from doing so, and except in some emergency cases.
 
@@ -112,6 +105,10 @@ No VIPReply human looks at your content except for limited purposes with your ex
 * If we are audited by a tax authority, we may be required to disclose billing-related information. If that happens, we will disclose only the minimum needed, such as billing addresses and tax exemption information.
 
 Finally, if VIPReply is acquired by or merges with another company — we don’t plan on that, but if it happens — we’ll notify you well before any of your personal information is transferred or becomes subject to a different privacy policy.
+
+## Third-party compliance
+
+Our use of information received from Google APIs will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the [Limited Use requirements](https://developers.google.com/terms/api-services-user-data-policy#limited-use).
 
 ## Your rights with respect to your information
 
