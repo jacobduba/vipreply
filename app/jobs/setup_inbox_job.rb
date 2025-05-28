@@ -15,7 +15,7 @@ class SetupInboxJob < ApplicationJob
     inbox.update!(history_id: profile.history_id.to_i)
 
     # Fetch thread IDs with a single request
-    query = "newer_than:21d"
+    query = "newer_than:60d"
     threads_response = gmail_service.list_user_threads(user_id, q: query)
 
     account.refresh_gmail_watch

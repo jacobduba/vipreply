@@ -39,7 +39,6 @@ class SessionsController < ApplicationController
     account.first_name = auth_hash.info.first_name
     account.last_name = auth_hash.info.last_name
     account.image_url = auth_hash.info.image
-
     begin
       account.save!
     rescue ActiveRecord::RecordInvalid => e
@@ -51,6 +50,8 @@ class SessionsController < ApplicationController
     # Create inbox if it doesn't exist
     if account.inbox.nil?
       account.create_inbox
+      # HACK: Set to -1 to indicate we are importing but don't have number of emails yet
+      account.inbox.update(initial_import_jobs_remaining: -1)
       SetupInboxJob.perform_later account.inbox.id
     elsif new_refresh_token.present?
       # We lost refresh token and just got it back
