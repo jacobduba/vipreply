@@ -23,6 +23,15 @@ class SessionsController < ApplicationController
     # https://github.com/zquestz/omniauth-google-oauth2?tab=readme-ov-file#auth-hash
     auth_hash = request.env["omniauth.auth"]
 
+    scopes = auth_hash.credentials.scope.split(" ")
+
+    unless contains_all_oauth_scopes?(scopes)
+      flash[:prompt_consent] = true
+      flash[:alert] = "Not all required permissions were granted. Try granting VIPReply access to read and send emails from your inbox."
+      redirect_to login_path
+      return
+    end
+
     account = Account.find_by(provider: auth_hash.provider, uid: auth_hash.uid)
 
     account ||= Account.new
@@ -43,7 +52,8 @@ class SessionsController < ApplicationController
       account.save!
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error e.message
-      redirect_to "/login", alert: "Failed to link your Gmail account."
+      flash[:alert] = "There was an error linking your Google account. Please try again."
+      redirect_to login_path
       return
     end
 
