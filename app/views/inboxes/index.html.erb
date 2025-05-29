@@ -43,7 +43,7 @@
             </div>
             <div class="truncate">
               <p class="text-stone-500 group-hover/model:text-blue-500 truncate">
-                <%= topic.from == @account.email ? "Me → #{topic.to}" : topic.from %> — <%= topic.snippet.html_safe %>
+                <%= display_sender(topic, @account.email) %> — <%= topic.snippet.html_safe %>
               </p>
             </div>
           <% end %>
@@ -74,7 +74,7 @@
             </div>
             <div class="truncate">
               <p class="text-stone-400 group-hover/model:text-blue-500 truncate">
-                <%= topic.from == @account.email ? "Me → #{topic.to}" : topic.from  %> — <%= topic.snippet.html_safe %>
+                <%= display_sender(topic, @account.email) %> — <%= topic.snippet.html_safe %>
               </p>
             </div>
           <% end %>
