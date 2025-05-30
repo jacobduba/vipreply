@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
       reset_session
       flash[:prompt_consent] = true
       flash[:alert] = "Your Google connection expired. Try logging in again."
-      return redirect_to root_path
+      return redirect_to login_path
     end
 
     return unless @account.expires_at < Time.current + 10.seconds
@@ -39,7 +39,7 @@ class ApplicationController < ActionController::Base
       reset_session
       flash[:alert] = "Your Google connection expired. Try logging in again."
       flash[:prompt_consent] = true
-      redirect_to root_path
+      redirect_to login_path
     end
   end
 
