@@ -8,21 +8,11 @@ class Template < ApplicationRecord
   has_and_belongs_to_many :topics
   has_and_belongs_to_many :message_embeddings
 
-  validates :output,
-    uniqueness: true,
-    length: {in: MIN_TEMPLATE_SIZE..MAX_TEMPLATE_SIZE}
+  validates :output, length: {in: MIN_TEMPLATE_SIZE..MAX_TEMPLATE_SIZE}
 
   before_save :strip_output, if: :output_changed?
-  before_destroy :remove_template_from_topics
 
   private
-
-  def remove_template_from_topics
-    topics.each do |topic|
-      topic.templates.delete(self)
-      topic.update(template_status: :template_removed) if topic.templates.empty?
-    end
-  end
 
   def messages
     Message.where(id: message_embeddings.pluck(:message_id))

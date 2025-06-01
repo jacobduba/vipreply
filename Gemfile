@@ -27,12 +27,6 @@ gem "stimulus-rails", "~> 1.3"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder", "~> 2.13"
 
-# Use Redis adapter to run Action Cable in production
-# gem "redis", ">= 4.0.1"
-
-# Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
-# gem "kredis"
-
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
 
@@ -49,7 +43,7 @@ gem "bootsnap", require: false
 gem "neighbor", "~> 0.5"
 
 # TailwindCSS
-gem "tailwindcss-rails", "~> 3.3"
+gem "tailwindcss-rails", "~> 4.1"
 
 # Omniauth for connecting inboxes
 gem "omniauth", "~> 2.1"
@@ -67,7 +61,13 @@ gem "mission_control-jobs", "~> 1.0"
 gem "mail", "~> 2.8"
 
 # Tokenizers for truncating text
-gem "tokenizers"
+gem "tokenizers", "~> 0.5.4"
+
+# Nokogiri for parsing email HTML
+gem "nokogiri", "~> 1.18"
+
+# Honeybadger for error reporting
+gem "honeybadger", "~> 5.27"
 
 # For interacting with Microsoft Graph API
 gem "omniauth-microsoft-office365", "~> 0.0.8"

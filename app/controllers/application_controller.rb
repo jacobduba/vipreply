@@ -35,6 +35,10 @@ class ApplicationController < ActionController::Base
       return redirect_to login_path
     end
 
+    Honeybadger.context({
+      account: @account
+    })
+
     # Verify inbox has a refresh token
     unless @inbox.refresh_token.present?
       Rails.logger.error "Missing refresh token for inbox #{@inbox.id}"

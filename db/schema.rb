@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_09_214903) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_12_212949) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -122,8 +122,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_214903) do
     t.string "snippet"
     t.datetime "last_message"
     t.string "subject"
-    t.string "from"
-    t.string "to"
+    t.string "from_email"
+    t.string "to_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "inbox_id", null: false
@@ -134,6 +134,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_214903) do
     t.boolean "awaiting_customer"
     t.boolean "is_spam", default: false
     t.datetime "last_updated", default: -> { "CURRENT_TIMESTAMP" }
+    t.string "from_name"
+    t.string "to_name"
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["template_id"], name: "index_topics_on_template_id"
   end

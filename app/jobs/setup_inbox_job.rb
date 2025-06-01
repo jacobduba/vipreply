@@ -52,9 +52,6 @@ class SetupInboxJob < ApplicationJob
         # Still set up the watch even if no threads are found initially
         inbox.watch_for_changes
       end
-    rescue Google::Apis::Error => e
-      Rails.logger.error "Error setting up Gmail inbox #{inbox.id}: #{e.message}"
-      # Consider re-raising or specific error handling if needed
     end
   end
 
@@ -108,9 +105,6 @@ class SetupInboxJob < ApplicationJob
         conversation = {"id" => conversation_id, "messages" => sorted_messages}
         Topic.cache_from_outlook(conversation, inbox)
       end
-    rescue => e
-      Rails.logger.error "Error setting up Outlook inbox: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
     end
   end
 end

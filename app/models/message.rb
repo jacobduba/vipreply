@@ -12,6 +12,40 @@ class Message < ApplicationRecord
 
   after_save :ensure_embedding_exists, unless: -> { message_embedding.present? }
 
+  def prepare_email_for_rendering(host, index)
+    html = replace_cids_with_urls(host)
+
+    doc = Nokogiri::HTML5(html)
+
+    # Don't hide history if it's the first message
+    unless index == 0
+      doc.xpath("//text()").each do |text_node|
+        if text_node.text.match?(/On\s+.+\swrote:/)
+          parent_node = text_node.parent
+          next_node = parent_node.next_element
+          if next_node && next_node.name == "blockquote"
+            next_node.remove
+            text_node.remove
+          end
+        end
+      end
+    end
+
+    doc.css("a").each do |link|
+      link["target"] = "_blank"
+      link["rel"] = "noopener noreferrer"
+    end
+
+    <<~HTML
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+      <div style="font-family: 'Inter', sans-serif; font-size: 16px;">
+        #{doc.to_html}
+      </div>
+    HTML
+  end
+
   def replace_cids_with_urls(host)
     return simple_format(plaintext) unless html
 
@@ -69,16 +103,6 @@ class Message < ApplicationRecord
     Rails.logger.error e.backtrace.join("\n")
   end
 
-  def self.parse_email_header(header)
-    if header.include?("<")
-      name = header.split("<").first.strip
-      email = header[/<(.+?)>/, 1]
-      [name, email]
-    else
-      [nil, header]
-    end
-  end
-
   def self.cache_from_provider(topic, message_data)
     case topic.inbox.provider
     when "google_oauth2"
@@ -90,112 +114,52 @@ class Message < ApplicationRecord
     end
   end
 
-  def self.cache_from_outlook(topic, message_data)
-    # Extract data from Microsoft Graph API response
-    message_id = message_data["id"]
-
-    # Handle date parsing
-    received_date = begin
-      DateTime.parse(message_data["receivedDateTime"])
-    rescue
-      DateTime.now
+  def self.parse_email_header(header)
+    if header
+      [nil, nil]
+    elsif header.include?("<")
+      name = header.split("<").first.strip
+      email = header[/<(.+?)>/, 1]
+      [name, email]
+    else
+      [nil, header]
     end
-
-    subject = message_data["subject"] || "(No Subject)"
-
-    # Handle sender information
-    from_info = message_data.dig("from", "emailAddress") || {}
-    from_name = from_info["name"]
-    from_email = from_info["address"]
-
-    # Handle recipient information
-    to_info = message_data.dig("toRecipients", 0, "emailAddress") || {}
-    to_name = to_info["name"]
-    to_email = to_info["address"]
-
-    # Parse content
-    body_content = message_data["body"] || {}
-    html = (body_content["contentType"] == "html") ? body_content["content"] : nil
-    plaintext = (body_content["contentType"] == "text") ? body_content["content"] : nil
-
-    # If only one format is available, use it for both
-    plaintext ||= ActionView::Base.full_sanitizer.sanitize(html) if html
-    html ||= "<div>#{plaintext}</div>" if plaintext
-
-    # Find or initialize message by BOTH message_id AND topic_id to prevent duplicates across providers
-    msg = topic.messages.find_or_initialize_by(message_id: message_id)
-
-    msg.assign_attributes(
-      date: received_date,
-      subject: subject,
-      from_name: from_name,
-      from_email: from_email,
-      to_email: to_email,
-      to_name: to_name,
-      internal_date: received_date,
-      plaintext: plaintext,
-      html: html,
-      snippet: message_data["bodyPreview"] || "",
-      provider_message_id: message_id,
-      labels: []  # Microsoft doesn't have the same labels concept
-    )
-
-    # Use transaction to handle possible race conditions
-    begin
-      if msg.changed?
-        msg.save!
-        Rails.logger.info "Saved message: #{msg.id} for topic: #{topic.id}"
-      else
-        Rails.logger.info "No changes for message: #{msg.id} for topic: #{topic.id}"
-      end
-    rescue ActiveRecord::RecordNotUnique => e
-      # Handle duplicate key violation - just log and continue
-      Rails.logger.warn "Duplicate message detected (#{message_id}): #{e.message}"
-      msg = topic.messages.find_by(message_id: message_id) || msg
-    end
-
-    # Process attachments if there are any
-    if message_data["hasAttachments"] && message_data["attachments"]
-      msg.attachments.destroy_all
-
-      message_data["attachments"].each do |attachment_data|
-        Attachment.cache_from_provider(msg, {
-          attachment_id: attachment_data["id"],
-          content_id: attachment_data["contentId"],
-          filename: attachment_data["name"] || "attachment.bin",
-          mime_type: attachment_data["contentType"] || "application/octet-stream",
-          size: attachment_data["size"] ? (attachment_data["size"].to_i / 1024) : 0,
-          content_disposition: (attachment_data["isInline"] ? :inline : :attachment)
-        })
-      rescue => e
-        Rails.logger.error "Error saving attachment: #{e.message}"
-      end
-    end
-
-    msg
   end
-
+  
   # Returns Message
   def self.cache_from_gmail(topic, message)
     headers = message.payload.headers
     gmail_message_id = message.id
     labels = message.label_ids
-    date = DateTime.parse(headers.find { |h| h.name.downcase == "date" }.value)
-    subject = headers.find { |h| h.name.downcase == "subject" }.value
-    from_header = headers.find { |h| h.name.downcase == "from" }.value
+  
+    date_header = headers.find { |h| h.name.downcase == "date" }
+    date = date_header ? DateTime.parse(date_header.value) : DateTime.now
+  
+    subject_header = headers.find { |h| h.name.downcase == "subject" }
+    subject = subject_header&.value
+    subject = nil if subject.nil? || subject.empty? # If the subject string is empty, we want to show on the front-end as "(No Subject)"
+  
+    from_header_obj = headers.find { |h| h.name.downcase == "from" }
+    from_header = from_header_obj&.value
     from_name, from_email = parse_email_header(from_header)
-    to_header = headers.find { |h| h.name.downcase == "to" }.value
+  
+    to_header_obj = headers.find { |h| h.name.downcase == "to" }
+    to_header = to_header_obj&.value
     to_name, to_email = parse_email_header(to_header)
-    message_id = headers.find { |h| h.name.downcase == "message-id" }.value
+  
+    message_id_header = headers.find { |h| h.name.downcase == "message-id" }
+    message_id = message_id_header&.value || "#{SecureRandom.uuid}@generated.id"
+  
+    # Gmail's date for message in milliseconds. That's why divide by 1000.
     internal_date = Time.at(message.internal_date / 1000).to_datetime
     snippet = message.snippet
-
+  
     collected_parts = extract_parts(message.payload)
-
+  
     plaintext = collected_parts[:plain]
     html = collected_parts[:html]
     attachments = collected_parts[:attachments]
-
+  
     # Find or create message
     msg = topic.messages.find_or_initialize_by(message_id: message_id)
     msg.assign_attributes(
@@ -212,28 +176,125 @@ class Message < ApplicationRecord
       provider_message_id: gmail_message_id,
       labels: labels
     )
-
+  
     if msg.changed?
       msg.save!
-      Rails.logger.info "Saved message: #{msg.id}"
-    else
-      Rails.logger.info "No changes for message: #{msg.id}"
     end
-
+  
     if msg.labels.include?("SPAM")
       topic.update(is_spam: true)
     end
-
+  
     topic.save
-
+  
     # Attachment ids change whenever the topic is updated
     # https://stackoverflow.com/questions/28104157/how-can-i-find-the-definitive-attachmentid-for-an-attachment-retrieved-via-googl
-    # My "solution" is to destory all the attachments and recreate them
+    # My "solution" is to destroy all the attachments and recreate them
     msg.attachments.destroy_all
     attachments.each do |attachment|
       Attachment.cache_from_gmail(msg, attachment)
     end
+  
+    msg
+  end
+  
+  # Returns Message
+  def self.cache_from_outlook(topic, message_data)
+    # Extract data from Microsoft Graph API response
+    message_id = message_data["id"]
+  
+    # Handle date parsing
+    received_date = begin
+      DateTime.parse(message_data["receivedDateTime"])
+    rescue
+      DateTime.now
+    end
+  
+    subject = message_data["subject"] || "(No Subject)"
+  
+    # Handle sender information with fallbacks
+    if message_data["from"].present? && message_data["from"]["emailAddress"].present?
+      from_info = message_data["from"]["emailAddress"]
+      from_name = from_info["name"]
+      from_email = from_info["address"]
+    else
+      from_name = nil
+      from_email = nil
+    end
 
+    # Handle recipient information with fallbacks
+    if message_data["toRecipients"].present? && message_data["toRecipients"].first.present? &&
+      message_data["toRecipients"].first["emailAddress"].present?
+      to_info = message_data["toRecipients"].first["emailAddress"]
+      to_name = to_info["name"]
+      to_email = to_info["address"]
+    else
+      to_name = nil
+      to_email = nil
+    end
+  
+    # Parse content
+    body_content = message_data["body"] || {}
+    html = (body_content["contentType"] == "html") ? body_content["content"] : nil
+    plaintext = (body_content["contentType"] == "text") ? body_content["content"] : nil
+
+    # Parse snippet
+    snippet = message_data["bodyPreview"] || nil  # If the subject string is empty, we want to show on the front-end as "(No Subject)"
+  
+    # If only one format is available, use it for both
+    plaintext ||= ActionView::Base.full_sanitizer.sanitize(html) if html
+    html ||= "<div>#{plaintext}</div>" if plaintext
+  
+    # Find or initialize message by message_id
+    msg = topic.messages.find_or_initialize_by(message_id: message_id)
+  
+    msg.assign_attributes(
+      date: received_date,
+      subject: subject,
+      from_name: from_name,
+      from_email: from_email,
+      to_email: to_email,
+      to_name: to_name,
+      internal_date: received_date,
+      plaintext: plaintext,
+      html: html,
+      snippet: snippet,
+      provider_message_id: message_id,
+      labels: []  # Microsoft doesn't have the same labels concept
+    )
+  
+    # Use transaction to handle possible race conditions
+    begin
+      if msg.changed?
+        msg.save!
+        Rails.logger.info "Saved message: #{msg.id} for topic: #{topic.id}"
+      else
+        Rails.logger.info "No changes for message: #{msg.id} for topic: #{topic.id}"
+      end
+    rescue ActiveRecord::RecordNotUnique => e
+      # Handle duplicate key violation - just log and continue
+      Rails.logger.warn "Duplicate message detected (#{message_id}): #{e.message}"
+      msg = topic.messages.find_by(message_id: message_id) || msg
+    end
+  
+    # Process attachments if there are any
+    if message_data["hasAttachments"] && message_data["attachments"]
+      msg.attachments.destroy_all
+  
+      message_data["attachments"].each do |attachment_data|
+        Attachment.cache_from_provider(msg, {
+          attachment_id: attachment_data["id"],
+          content_id: attachment_data["contentId"],
+          filename: attachment_data["name"] || "attachment.bin",
+          mime_type: attachment_data["contentType"] || "application/octet-stream",
+          size: attachment_data["size"] ? (attachment_data["size"].to_i / 1024) : 0,
+          content_disposition: (attachment_data["isInline"] ? :inline : :attachment)
+        })
+      rescue => e
+        Rails.logger.error "Error saving attachment: #{e.message}"
+      end
+    end
+  
     msg
   end
 

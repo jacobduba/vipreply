@@ -26,21 +26,20 @@ class UpdateFromHistoryJob < ApplicationJob
 
     Rails.logger.info "Updating Gmail inbox from history_id: #{history_id} for inbox #{inbox.id}"
 
-    begin
-      # Fetch history since the last `history_id`
-      history_response = gmail_service.list_user_histories(
-        user_id,
-        start_history_id: history_id,
-        history_types: ["messageAdded"]
-      )
-    rescue Google::Apis::ClientError => e
-      Rails.logger.error "Failed to update inbox from history: #{e.message}"
-      return
-    end
+    # Fetch history since the last `history_id`
+    history_response = gmail_service.list_user_histories(
+      user_id,
+      start_history_id: history_id,
+      history_types: ["messageAdded", "messageDeleted"]
+    )
+    # rescue Google::Apis::ClientError => e
+    #   Rails.logger.error "Failed to update inbox from history: #{e.message}"
+    #   return
 
-    Rails.logger.info "History response: #{history_response.pretty_inspect}"
-
-    unless history_response.history
+    # Log history count instead of the entire response
+    if history_response.history
+      Rails.logger.info "Received #{history_response.history.count} history changes for inbox #{inbox.id}."
+    else
       Rails.logger.info "No new history changes for inbox #{inbox.id}."
       return
     end
@@ -62,9 +61,6 @@ class UpdateFromHistoryJob < ApplicationJob
 
         # Update history_id after each successful message processing
         inbox.update!(history_id: history_item_id)
-      rescue => e
-        Rails.logger.error "Failed to process message in thread #{thread_id}: #{e.message}"
-        Rails.logger.error e.backtrace.join("\n") if e.backtrace
       end
     end
   end

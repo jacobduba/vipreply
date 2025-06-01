@@ -14,9 +14,6 @@ class TopicsController < ApplicationController
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
 
-    # TODO — cache this?
-    @has_templates = @account.templates.exists?
-
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
     @from_inbox = request.referrer == root_url
@@ -69,9 +66,9 @@ class TopicsController < ApplicationController
 
     email_body_html = <<~HTML
       #{simple_format(email_body)}
-  
+
       <p>On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
-      <blockquote style="border-left: 1px solid #ccc; margin-left: 10px; padding-left: 10px;">
+      <blockquote>
         #{most_recent_message.html}
       </blockquote>
     HTML
@@ -120,6 +117,28 @@ class TopicsController < ApplicationController
   def template_selector_dropdown
     # Get all templates from the account, ordered by most recently used
     @templates = @topic.list_templates_by_relevance
+  end
+
+  def new_template_dropdown
+    @template = @topic.inbox.templates.new
+    @output_errors = []
+    render :create_template_dropdown
+  end
+
+  def create_template_dropdown
+    template_params = params.expect(template: [:output])
+
+    @template = @topic.inbox.templates.new(template_params)
+
+    unless @template.save
+      @output_errors = @template.errors[:output] || []
+      render :create_template_dropdown
+      return
+    end
+
+    @topic.templates = [@template]
+    refresh_topic_reply(@topic)
+    nil
   end
 
   def change_templates_regenerate_response

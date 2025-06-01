@@ -1,25 +1,23 @@
 <%= form_with model: template do |form| %>
   <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
     <div class="col-span-2">
-      <%= form.label :output, "Template response email", class: ["block text-sm font-medium text-gray-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
+      <%= form.label :output, "Template response email", class: ["block text-sm font-medium text-stone-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
       <ul class="list-disc list-inside text-red-800 text-sm mb-2">
         <% output_errors.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
-      <%= form.text_area :output, rows: 6, 
-                        placeholder: "Write a template response email here", 
-                        class: "block p-4 w-full text-sm text-gray-900 bg-gray-100 rounded-lg border border-gray-200 focus:ring-blue-500 focus:border-blue-500 resize-none" %>
+      <%= form.text_area :output, rows: 6,
+                        placeholder: "Write a template response email here",
+                        class: "block p-4 w-full text-sm text-stone-900 bg-stone-100 rounded-lg border border-stone-200 focus:border-blue-500/90 resize-none" %>
     </div>
   </div>
-
   <%= hidden_field_tag :regenerate_reply, @regenerate_reply %>
   <% if @regenerate_reply %>
     <%= hidden_field_tag :topic_id, @topic_id %>
   <% end %>
-
   <div class="flex gap-2">
-    <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+    <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center hover:cursor-pointer">
       Save template
     </button>
     <% if show_delete %>

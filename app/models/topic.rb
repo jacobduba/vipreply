@@ -11,25 +11,27 @@ class Topic < ApplicationRecord
 
   EMBEDDING_TOKEN_LIMIT = 8191
 
+  # Maintain compatibility with views that may use from/to
+  def from
+    from_name.present? ? "#{from_name} <#{from_email}>" : from_email.to_s
+  end
+
+  def to
+    to_name.present? ? "#{to_name} <#{to_email}>" : to_email.to_s
+  end
+
   def template_attached?
     templates.any?
   end
 
+  # during merge rename: autoselect_templates
   def find_best_templates
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
 
-    base_threshold = 0.67
-    secondary_threshold = 0.71
-    margin = 0.07
-
-    target_embedding = latest_message.message_embedding
-    return Template.none unless target_embedding
-
-    target_vector = target_embedding.vector
+    target_vector = latest_message.message_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
-    # Changed from inbox.templates to inbox.account.templates
     candidate_templates = inbox.account.templates
       .joins(:message_embeddings)
       .select(<<~SQL)
@@ -38,23 +40,18 @@ class Topic < ApplicationRecord
         MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
-      .order("similarity DESC")
+      .order("similarity DESC NULLS LAST")
 
-    # Print candidate templates for debugging
-    puts("Candidate Templates:")
-    candidate_templates.each do |candidate|
-      puts("Template ID: #{candidate.template_id}, Similarity: #{candidate.similarity}")
-      puts("Template Text: #{candidate.template_text}")
-    end
+    first_threshold = 0.7
+    additional_threshold = 0.8
 
     selected_candidates = []
-    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= base_threshold
-      top_similarity = candidate_templates.first.similarity.to_f
+    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= first_threshold
       selected_candidates << candidate_templates.first
 
       candidate_templates[1..-1].each do |candidate|
         sim = candidate.similarity.to_f
-        if sim >= secondary_threshold && (top_similarity - sim) <= margin
+        if sim >= additional_threshold
           selected_candidates << candidate
         end
       end
@@ -66,9 +63,6 @@ class Topic < ApplicationRecord
     if selected_templates.any?
       self.templates = selected_templates
       save!
-      Rails.logger.info "Attached #{selected_templates.count} templates to topic #{id}"
-    else
-      Rails.logger.info "Could not find matching templates for topic #{id}"
     end
 
     selected_templates
@@ -76,12 +70,12 @@ class Topic < ApplicationRecord
 
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
-    return Template.none unless latest_message&.message_embedding&.vector
+    # List all templates when no embedding
+    # This is the case for messages loaded before templates v2
+    # Could probaly remove this in a month or two
+    return inbox.templates unless latest_message&.message_embedding&.vector
 
-    target_embedding = latest_message.message_embedding
-    return Template.none unless target_embedding
-
-    target_vector = target_embedding.vector
+    target_vector = latest_message.message_embedding.vector
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
     inbox.account.templates
@@ -93,6 +87,26 @@ class Topic < ApplicationRecord
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC NULLS LAST")
+  end
+
+  # Debugging helper to identify the message most similar to the latest message
+  # that caused this template's similiarity score for the current topic.
+  def debug_closest_message_for_template(template_id)
+    latest_message = messages.order(date: :desc).first
+    # List all templates when no embedding
+    # This is the case for messages loaded before templates v2
+    # Could probaly remove this in a month or two
+    return inbox.templates unless latest_message&.message_embedding&.vector
+
+    target_vector = latest_message.message_embedding.vector
+    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+
+    Message
+      .joins(message_embedding: :templates)
+      .where(templates: {id: template_id})
+      .select("messages.*, (message_embeddings.vector <#> #{target_vector_literal}::vector) AS distance")
+      .order("distance")
+      .first
   end
 
   def generate_reply
@@ -109,6 +123,169 @@ class Topic < ApplicationRecord
     prompt = "#{template_prompt}#{email_prompt}"
     reply = fetch_generation(prompt)
     self.generated_reply = reply
+  end
+
+  # Delete all messages, and readd them back.
+  def debug_refresh
+    account = inbox.account
+    gmail_service = Google::Apis::GmailV1::GmailService.new
+    gmail_service.authorization = account.google_credentials
+    user_id = "me"
+
+    thread_response = gmail_service.get_user_thread(user_id, thread_id)
+
+    ActiveRecord::Base.transaction do
+      messages.destroy_all
+
+      Topic.cache_from_gmail(thread_response, snippet, inbox)
+    end
+  end
+
+  def self.cache_from_provider(response_body, inbox)
+    case inbox.provider
+    when "google_oauth2"
+      cache_from_gmail(response_body, response_body.messages.last.snippet, inbox)
+    when "microsoft_office365"
+      cache_from_outlook(response_body, inbox)
+    else
+      raise "Unknown provider: #{inbox.provider}"
+    end
+  end
+
+  def self.cache_from_outlook(conversation, inbox)
+    ActiveRecord::Base.transaction do
+      thread_id = conversation["id"]
+
+      # Find or create the topic
+      topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+      topic.save!
+      
+      # Cache all messages first and collect them
+      cached_messages = conversation["messages"].map do |message_data|
+        begin
+          Message.cache_from_outlook(topic, message_data)
+        rescue => e
+          Rails.logger.error "Error processing message for topic #{topic.id}: #{e.message}"
+          nil
+        end
+      end.compact
+      
+      # Get data from first and last messages
+      first_message = cached_messages.first
+      last_message = cached_messages.last
+      
+      # If we couldn't cache any messages, exit
+      return nil if first_message.nil? || last_message.nil?
+      
+      # Use cached message data
+      date = last_message.date
+      subject = first_message.subject
+      from_email = last_message.from_email
+      from_name = last_message.from_name
+      to_email = last_message.to_email
+      to_name = last_message.to_name
+      snippet = last_message.snippet || ""
+      
+      # Determine if email is old (more than 3 weeks)
+      is_old_email = date < 3.weeks.ago
+      
+      # Determine message status based on sender and date
+      status = if inbox.account.owns_email?(from_email)
+        :has_reply
+      elsif is_old_email
+        :has_reply
+      else
+        :needs_reply
+      end
+      
+      # Determine if we're awaiting a customer response
+      awaiting_customer = inbox.account.owns_email?(from_email)
+      
+      # Message count is the number of successfully cached messages
+      message_count = cached_messages.count
+      
+      # Update topic with extracted data
+      topic.assign_attributes(
+        snippet: snippet,
+        last_message: date,
+        last_updated: date,
+        subject: subject,
+        from_email: from_email,
+        from_name: from_name,
+        to_email: to_email,
+        to_name: to_name,
+        status: status,
+        awaiting_customer: awaiting_customer,
+        message_count: message_count
+      )
+      
+      # Generate reply if needed
+      unless topic.has_reply? || is_old_email
+        topic.find_best_templates
+        topic.generate_reply
+      end
+      
+      topic.save!
+      Rails.logger.info "Saved topic: #{topic.id} '#{topic.subject}' (#{topic.message_count} messages)"
+      
+      topic
+    end
+  end
+
+
+  def self.cache_from_gmail(response_body, snippet, inbox)
+
+    ActiveRecord::Base.transaction do
+      thread_id = response_body.id
+      topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
+      topic.save!
+
+      api_messages = response_body.messages
+      cached_messages = api_messages.map { |api_message|
+        Message.cache_from_gmail(topic, api_message)
+      }
+
+      first_message = cached_messages.first
+      last_message = cached_messages.last
+
+      date = last_message.date
+      subject = first_message.subject
+      from_email = last_message.from_email
+      from_name = last_message.from_name
+      to_email = last_message.to_email
+      to_name = last_message.to_name
+      is_old_email = date < 3.weeks.ago
+      status = if from_email == inbox.account.email
+        :has_reply
+      elsif is_old_email
+        :has_reply
+      else
+        :needs_reply
+      end
+      message_count = response_body.messages.count
+      awaiting_customer = (from_email == inbox.account.email)
+
+      topic.assign_attributes(
+        snippet: snippet,
+        date: date,
+        subject: subject,
+        from_email: from_email,
+        from_name: from_name,
+        to_email: to_email,
+        to_name: to_name,
+        status: status,
+        awaiting_customer: awaiting_customer,
+        message_count: message_count
+      )
+
+      unless topic.has_reply? || is_old_email
+        topic.find_best_templates
+        topic.generate_reply
+      end
+
+      topic.save!
+
+    end
   end
 
   private
@@ -130,13 +307,19 @@ class Topic < ApplicationRecord
 
   def fetch_generation(prompt)
     anthropic_api_key = Rails.application.credentials.anthropic_api_key
-
     url = "https://api.anthropic.com/v1/messages"
     headers = {
       "x-api-key" => anthropic_api_key,
       "anthropic-version" => "2023-06-01",
       "Content-Type" => "application/json"
     }
+
+    # openai_api_key = Rails.application.credentials.openai_api_key
+    # url = "https://api.openai.com/v1/chat/completions"
+    # headers = {
+    #   "Authorization" => "Bearer #{openai_api_key}",
+    #   "Content-Type" => "application/json"
+    # }
 
     system_prompt = <<~PROMPT
       You are a compassionate and empathetic business owner receiving customer support emails for a small business.
@@ -157,178 +340,33 @@ class Topic < ApplicationRecord
       max_tokens: 2048,
       system: system_prompt,
       messages: [
-        {role: "user", content: prompt}
+        {
+          role: "user", content: prompt
+        }
       ]
     }
 
-    puts("Fetching generation from Anthropic API")
-    puts("Prompt: #{prompt}")
+    # data = {
+    #   model: "gpt-4.5-preview-2025-02-27",
+    #   max_tokens: 2048,
+    #   messages: [
+    #     {
+    #       role: "developer",
+    #       content: system_prompt
+    #     },
+    #     {
+    #       role: "user",
+    #       content: prompt
+    #     }
+    #   ]
+    # }
 
     response = Net::HTTP.post(URI(url), data.to_json, headers)
     parsed = JSON.parse(response.tap(&:value).body)
+    # Anthropic
     generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
+    # OpenAI
+    # generated_text = parsed["choices"][0]["message"]["content"]
     generated_text.strip
-  end
-
-  def self.cache_from_provider(response_body, inbox)
-    case inbox.provider
-    when "google_oauth2"
-      cache_from_gmail(response_body, response_body.messages.last.snippet, inbox)
-    when "microsoft_office365"
-      cache_from_outlook(response_body, inbox)
-    else
-      raise "Unknown provider: #{inbox.provider}"
-    end
-  end
-
-  # Update the cache_from_outlook method in the Topic model
-
-  def self.cache_from_outlook(conversation, inbox)
-    thread_id = conversation["id"]
-
-    # Make sure we have messages to work with
-    return nil if conversation["messages"].blank?
-
-    # Use the first message for thread metadata and last for date ordering
-    first_message = conversation["messages"].first
-    last_message = conversation["messages"].last
-
-    date = DateTime.parse(last_message["receivedDateTime"])
-    subject = first_message["subject"]
-
-    # Get sender information
-    from = if last_message["from"].present? && last_message["from"]["emailAddress"].present?
-      last_message["from"]["emailAddress"]["address"]
-    else
-      "unknown@example.com"
-    end
-
-    # Get recipient information
-    to = if last_message["toRecipients"].present? && last_message["toRecipients"].first.present?
-      last_message["toRecipients"].first["emailAddress"]["address"]
-    else
-      "unknown@example.com"
-    end
-
-    snippet = last_message["bodyPreview"] || ""
-
-    # Determine if email is old (more than 3 weeks)
-    is_old_email = date < 3.weeks.ago
-
-    # Determine message status based on sender and date
-    # Check if the sender email matches any of the account's emails
-    status = if inbox.account.owns_email?(from)
-      :has_reply
-    elsif is_old_email
-      :has_reply
-    else
-      :needs_reply
-    end
-
-    # Determine if we're awaiting a customer response
-    awaiting_customer = inbox.account.owns_email?(from)
-
-    # Message count is simply the number of messages in the conversation
-    message_count = conversation["messages"].count
-
-    # Try to find an existing topic or create a new one
-    topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
-
-    topic.assign_attributes(
-      snippet: snippet,
-      last_message: date,
-      last_updated: date,
-      subject: subject,
-      from: from,
-      to: to,
-      status: status,
-      awaiting_customer: awaiting_customer,
-      message_count: message_count
-    )
-
-    topic.save!
-    Rails.logger.info "Saved topic: #{topic.id} '#{topic.subject}' (#{topic.message_count} messages)"
-
-    # Process all messages in the conversation
-    conversation["messages"].each do |message_data|
-      Message.cache_from_outlook(topic, message_data)
-    rescue => e
-      Rails.logger.error "Error processing message for topic #{topic.id}: #{e.message}"
-    end
-
-    # Generate reply if needed
-    unless topic.has_reply? || is_old_email
-      topic.find_best_templates
-      topic.generate_reply
-    end
-
-    topic.save!
-    topic
-  end
-
-  def self.cache_from_gmail(response_body, snippet, inbox)
-    thread_id = response_body.id
-    first_message = response_body.messages.first
-    first_message_headers = first_message.payload.headers
-    last_message = response_body.messages.last
-    last_message_headers = last_message.payload.headers
-    messages = response_body.messages
-  
-    # Safely get date
-    date_header = last_message_headers.find { |h| h.name.downcase == "date" }
-    date = date_header ? DateTime.parse(date_header.value) : DateTime.now
-    
-    # Safely get subject
-    subject_header = first_message_headers.find { |h| h.name.downcase == "subject" }
-    subject = subject_header ? subject_header.value : "(No Subject)"
-    
-    # Safely get from
-    from_header_obj = last_message_headers.find { |h| h.name.downcase == "from" }
-    from_header = from_header_obj ? from_header_obj.value : "unknown@example.com"
-    from = from_header.include?("<") ? from_header[/<([^>]+)>/, 1] : from_header
-    
-    # Safely get to - this is where the error occurs
-    to_header_obj = last_message_headers.find { |h| h.name.downcase == "to" }
-    to_header = to_header_obj ? to_header_obj.value : "unknown@example.com"
-    to = to_header.include?("<") ? to_header[/<([^>]+)>/, 1] : to_header
-  
-    is_old_email = date < 3.weeks.ago
-  
-    # Use the account.owns_email? method to check if the sender matches any of the account's emails
-    status = if inbox.account.owns_email?(from)
-      :has_reply
-    elsif is_old_email
-      :has_reply
-    else
-      :needs_reply
-    end
-  
-    awaiting_customer = inbox.account.owns_email?(from)
-    message_count = response_body.messages.count
-  
-    topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
-    topic.assign_attributes(
-      snippet: snippet,
-      last_message: date,
-      last_updated: date,
-      subject: subject,
-      from: from,
-      to: to,
-      status: status,
-      awaiting_customer: awaiting_customer,
-      message_count: message_count
-    )
-  
-    topic.save!
-  
-    messages.each { |message| Message.cache_from_provider(topic, message) }
-  
-    unless topic.has_reply? || is_old_email
-      topic.find_best_templates
-      topic.generate_reply
-    end
-  
-    topic.save!
-    topic
   end
 end
