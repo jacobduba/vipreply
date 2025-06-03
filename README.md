@@ -136,6 +136,20 @@ gem install ruby-lsp htmlbeautifier
 }
 ```
 
+### Webhooks
+
+#### Google Cloud Pub/Sub
+
+I think we set up ngrok for this
+
+#### Stripe Webhook
+
+You can use Stripe CLI to test webhooks locally:
+
+```sh
+stripe listen --forward-to http://localhost:3000/webhooks/stripe
+```
+
 ### Debugging Tips
 
 If you need to delete and readd all messages for a Topic, in rails console run:
