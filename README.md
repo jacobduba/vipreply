@@ -107,12 +107,11 @@ gem install ruby-lsp htmlbeautifier
 {
   "languages": {
     "ERB": {
-      "format_on_save": "on",
       "tab_size": 2,
       "formatter": {
         "external": {
-          "command": "htmlbeautifier",
-          "arguments": []
+          "command": "ruby",
+          "arguments": ["-S", "htmlbeautifier"]
         }
       }
     },

@@ -84,6 +84,10 @@ class Account < ApplicationRecord
     end
   end
 
+  def subscribed?
+    stripe_status == "active" || stripe_status == "trialing"
+  end
+
   def to_honeybadger_context
     {
       id: id,
