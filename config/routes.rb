@@ -45,6 +45,11 @@ Rails.application.routes.draw do
   # Attachments
   get "attachments/:id", to: "attachments#show", as: :attachment
 
+  # Billing
+  post "billing/subscribe"
+  get "billing/success"
+  get "billing/cancel"
+
   # Webhooks
   post "/pubsub/notifications", to: "pubsub#notifications"
 

@@ -4,9 +4,7 @@
   <% unless @account.subscribed? %>
     <div class="flex flex-col items-center py-12 bg-blue-100/30 border border-blue-300/30 rounded-lg mt-3">
       <h2 class="text-2xl font-semibold text-stone-800/90 mb-5">Make every customer feel like a VIP.</h2>
-      <a href="#" class="text-white bg-blue-700 focus:outline-none hover:bg-blue-800 font-medium text-lg rounded-lg px-4 py-2 inline-flex items-center gap-2 mb-2">
-        Subscribe to VIPReply
-      </a>
+      <%= button_to "Subscribe to VIPReply", billing_subscribe_path, class: "text-white bg-blue-700 focus:outline-none hover:bg-blue-800 font-medium text-lg rounded-lg px-4 py-2 inline-flex items-center gap-2 mb-2 cursor-pointer", data: { turbo: false } %>
       <p class="text-sm text-stone-500">$19/month. 1 month free trial.</p>
     </div>
   <% else %>
