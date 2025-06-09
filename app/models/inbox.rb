@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Inbox < ApplicationRecord
   belongs_to :account
   has_many :topics, dependent: :destroy

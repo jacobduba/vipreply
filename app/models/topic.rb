@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Topic < ApplicationRecord
   belongs_to :inbox
   has_and_belongs_to_many :templates

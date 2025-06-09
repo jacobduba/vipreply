@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MarketingController < ApplicationController
   REDCARPET = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(with_toc_data: true))
   PRIVACY_HTML = REDCARPET.render(File.read(Rails.root.join("app", "views", "marketing", "privacy.md")))

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SetupInboxJob < ApplicationJob
   queue_as :default
 

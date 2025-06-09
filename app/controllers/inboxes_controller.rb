@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InboxesController < ApplicationController
   before_action :authorize_account
   before_action :require_subscription, only: [:update]
