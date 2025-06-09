@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  before_action :authorize_account
-
   def authorize_account
     account_id = session[:account_id]
     unless account_id
@@ -54,5 +52,11 @@ class ApplicationController < ActionController::Base
     # If intersection is the same as REQUIRED_SCOPES,
     # then the user has sufficient permissions
     (scopes & REQUIRED_SCOPES) == REQUIRED_SCOPES
+  end
+
+  def require_subscription
+    unless @account.subscribed?
+      redirect_to inbox_path
+    end
   end
 end

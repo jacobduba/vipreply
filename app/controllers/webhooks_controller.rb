@@ -1,9 +1,5 @@
 class WebhooksController < ApplicationController
-  skip_before_action :verify_authenticity_token
-  skip_before_action :authorize_account
-
-  # Disable CSRF protection for webhook
-  skip_forgery_protection
+  skip_forgery_protection # Disable CSRF protection for webhook
 
   def stripe
     payload = request.body.read

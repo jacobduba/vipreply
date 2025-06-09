@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class AttachmentsController < ApplicationController
-  before_action :initialize_gmail_service
+  before_action :authorize_account
+  before_action :require_subscription
 
   def show
     # Find the attachment by ID or return a 404 error page
@@ -16,7 +17,10 @@ class AttachmentsController < ApplicationController
     message_id = attachment.message.message_id
     attachment_id = attachment.attachment_id
 
-    response = @gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
+    gmail_service = Google::Apis::GmailV1::GmailService.new
+    gmail_service.authorization = @account.google_credentials
+
+    response = gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
 
     attachment_data = response.data
     # Want to render in browser always, at least for now
@@ -28,12 +32,5 @@ class AttachmentsController < ApplicationController
       filename: attachment.filename,
       type: attachment.mime_type,
       disposition: disposition_type
-  end
-
-  private
-
-  def initialize_gmail_service
-    @gmail_service = Google::Apis::GmailV1::GmailService.new
-    @gmail_service.authorization = @account.google_credentials
   end
 end

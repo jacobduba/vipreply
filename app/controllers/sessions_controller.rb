@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class SessionsController < ApplicationController
-  skip_before_action :authorize_account
-
   def new
     redirect_to root_path if session[:account_id]
 

@@ -1,4 +1,7 @@
 class InboxesController < ApplicationController
+  before_action :authorize_account
+  before_action :require_subscription, only: [:update]
+
   def index
     @inbox = @account.inbox
 
