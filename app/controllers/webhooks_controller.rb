@@ -7,13 +7,13 @@ class WebhooksController < ApplicationController
 
   def stripe
     payload = request.body.read
-    
+
     event = if Rails.env.development?
       JSON.parse(payload)
     else
       sig_header = request.env["HTTP_STRIPE_SIGNATURE"]
       endpoint_secret = Rails.application.credentials.stripe_webhook_secret
-      
+
       begin
         Stripe::Webhook.construct_event(payload, sig_header, endpoint_secret)
       rescue JSON::ParserError, Stripe::SignatureVerificationError => e
@@ -55,6 +55,9 @@ class WebhooksController < ApplicationController
       stripe_subscription_id: subscription_id,
       subscription_period_end: Time.at(period_end)
     )
+
+    # Start inbox setup for new subscribers
+    SetupInboxJob.perform_later(account.id)
   end
 
   def handle_payment_succeeded(invoice)
