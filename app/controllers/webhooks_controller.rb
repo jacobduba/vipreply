@@ -27,6 +27,8 @@ class WebhooksController < ApplicationController
       handle_payment_succeeded(event["data"]["object"])
     when "invoice.payment_failed"
       handle_payment_failed(event["data"]["object"])
+    when "customer.subscription.updated"
+      handle_subscription_updated(event["data"]["object"])
     when "customer.subscription.deleted"
       handle_subscription_deleted(event["data"]["object"])
     else
@@ -81,6 +83,20 @@ class WebhooksController < ApplicationController
     return unless account
 
     account.update!(stripe_status: "past_due")
+  end
+
+  def handle_subscription_updated(subscription)
+    customer_id = subscription["customer"]
+    account = Account.find_by(stripe_customer_id: customer_id)
+    return unless account
+
+    # Get period end from first subscription item
+    period_end = subscription["items"]["data"].first["current_period_end"]
+
+    account.update!(
+      stripe_status: subscription["status"],
+      subscription_period_end: Time.at(period_end)
+    )
   end
 
   def handle_subscription_deleted(subscription)
