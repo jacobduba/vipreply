@@ -85,7 +85,7 @@ class Account < ApplicationRecord
   end
 
   def subscribed?
-    stripe_status == "active" || stripe_status == "trialing"
+    subscription_period_end.present? && subscription_period_end >= Time.current
   end
 
   def to_honeybadger_context

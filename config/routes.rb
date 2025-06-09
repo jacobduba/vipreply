@@ -52,6 +52,7 @@ Rails.application.routes.draw do
 
   # Webhooks
   post "/pubsub/notifications", to: "pubsub#notifications"
+  post "/webhooks/stripe", to: "webhooks#stripe"
 
   # Dashboard for Solid Queue
   mount MissionControl::Jobs::Engine, at: "/jobs"
