@@ -17,7 +17,7 @@
         <% end %>
       </div>
       <% if @account.cancel_at_period_end %>
-        <%= button_to "Resubscribe", billing_subscribe_path,
+        <%= button_to "Resubscribe", checkout_subscribe_path,
             class: "text-white bg-green-600 hover:bg-green-700 font-medium text-sm rounded-lg px-4 py-2",
             data: { turbo: false } %>
       <% else %>
@@ -30,7 +30,7 @@
       <div class="mb-4">
         <p class="text-sm text-stone-600">Status: <span class="font-medium text-red-600">No active subscription</span></p>
       </div>
-      <%= button_to "Subscribe to VIPReply", billing_subscribe_path,
+      <%= button_to "Subscribe to VIPReply", checkout_subscribe_path,
           class: "text-white bg-blue-700 hover:bg-blue-800 font-medium text-sm rounded-lg px-4 py-2",
           data: { turbo: false } %>
     <% end %>

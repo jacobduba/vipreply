@@ -57,8 +57,14 @@ class WebhooksController < ApplicationController
       cancel_at_period_end: false
     )
 
-    # Start inbox setup for new subscribers
-    SetupInboxJob.perform_later(account.id)
+    # Setup inbox for first-time subscribers, import for returning users
+    if account.inbox.history_id.present?
+      # Returning user - import emails since last history_id
+      UpdateFromHistoryJob.perform_later(account.inbox.id)
+    else
+      # First-time user - setup Gmail watch and get initial history_id
+      SetupInboxJob.perform_later(account.id)
+    end
   end
 
   def handle_payment_succeeded(invoice)

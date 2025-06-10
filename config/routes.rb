@@ -45,10 +45,10 @@ Rails.application.routes.draw do
   # Attachments
   get "attachments/:id", to: "attachments#show", as: :attachment
 
-  # Billing
-  post "billing/subscribe"
-  get "billing/success"
-  get "billing/cancel"
+  # Checkout
+  post "checkout/subscribe", to: "checkout#subscribe"
+  get "checkout/success", to: "checkout#success"
+  get "checkout/cancel", to: "checkout#cancel"
 
   # Settings
   get "settings", to: "settings#index"

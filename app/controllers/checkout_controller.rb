@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class BillingController < ApplicationController
+class CheckoutController < ApplicationController
   before_action :authorize_account
   def subscribe
     # Get or create Stripe customer
@@ -29,8 +29,8 @@ class BillingController < ApplicationController
       subscription_data: {
         trial_period_days: 30
       },
-      success_url: billing_success_url,
-      cancel_url: billing_cancel_url
+      success_url: checkout_success_url,
+      cancel_url: checkout_cancel_url
     })
 
     # Set status to track checkout attempt
