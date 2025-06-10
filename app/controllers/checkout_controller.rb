@@ -6,6 +6,11 @@ class CheckoutController < ApplicationController
     # Get or create Stripe customer
     if @account.stripe_customer_id.present?
       customer_id = @account.stripe_customer_id
+      Honeybadger.event("checkout.existing_customer", {
+        customer_id: customer_id,
+        account_id: @account.id,
+        email: @account.email
+      })
     else
       customer = Stripe::Customer.create({
         email: @account.email,
@@ -13,6 +18,11 @@ class CheckoutController < ApplicationController
       })
       @account.update!(stripe_customer_id: customer.id)
       customer_id = customer.id
+      Honeybadger.event("checkout.new_customer", {
+        customer_id: customer_id,
+        account_id: @account.id,
+        email: @account.email
+      })
     end
 
     price_id = Rails.application.credentials.stripe_price_id

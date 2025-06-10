@@ -43,8 +43,7 @@ class WebhooksController < ApplicationController
   def handle_checkout_completed(session)
     customer_id = session["customer"]
     subscription_id = session["subscription"]
-    account = Account.find_by(stripe_customer_id: customer_id)
-    return unless account
+    account = Account.find_by!(stripe_customer_id: customer_id)
 
     # Fetch subscription to get period end
     subscription = Stripe::Subscription.retrieve(subscription_id)
@@ -70,8 +69,7 @@ class WebhooksController < ApplicationController
   def handle_payment_succeeded(invoice)
     customer_id = invoice["customer"]
     subscription_id = invoice["subscription"]
-    account = Account.find_by(stripe_customer_id: customer_id)
-    return unless account
+    account = Account.find_by!(stripe_customer_id: customer_id)
 
     # Fetch subscription to get updated period end
     subscription = Stripe::Subscription.retrieve(subscription_id)
@@ -86,16 +84,14 @@ class WebhooksController < ApplicationController
 
   def handle_payment_failed(invoice)
     customer_id = invoice["customer"]
-    account = Account.find_by(stripe_customer_id: customer_id)
-    return unless account
+    account = Account.find_by!(stripe_customer_id: customer_id)
 
     account.update!(stripe_status: "past_due")
   end
 
   def handle_subscription_updated(subscription)
     customer_id = subscription["customer"]
-    account = Account.find_by(stripe_customer_id: customer_id)
-    return unless account
+    account = Account.find_by!(stripe_customer_id: customer_id)
 
     # Get period end from first subscription item
     period_end = subscription["items"]["data"].first["current_period_end"]
@@ -109,8 +105,7 @@ class WebhooksController < ApplicationController
 
   def handle_subscription_deleted(subscription)
     customer_id = subscription["customer"]
-    account = Account.find_by(stripe_customer_id: customer_id)
-    return unless account
+    account = Account.find_by!(stripe_customer_id: customer_id)
 
     account.update!(stripe_status: "cancelled")
   end
