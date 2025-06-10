@@ -8,7 +8,7 @@
         <%= flash[:alert] %>
       </p>
     <% end %>
-    <%= form_tag(@oauth_url, method: 'post', data: {turbo: false}) do %>
+    <%= form_tag(google_oauth_url(prompt_consent: flash[:prompt_consent]), method: 'post', data: {turbo: false}) do %>
       <button type='submit' class="text-[#1F1F1F] border border-[#747775] bg-white hover:cursor-pointer font-medium rounded-lg text-sm px-5 py-2 inline-flex items-center">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" xmlns:xlink="http://www.w3.org/1999/xlink" class="size-4 me-2">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>

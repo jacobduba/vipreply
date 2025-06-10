@@ -3,13 +3,6 @@
 class SessionsController < ApplicationController
   def new
     redirect_to root_path if session[:account_id]
-
-    # we set refresh_token_expired when refresh token fails to get new refresh token
-    @oauth_url = if flash[:prompt_consent]
-      "/auth/google_oauth2?prompt=consent"
-    else
-      "/auth/google_oauth2"
-    end
   end
 
   def destroy
