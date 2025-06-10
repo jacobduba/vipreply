@@ -50,6 +50,10 @@ Rails.application.routes.draw do
   get "billing/success"
   get "billing/cancel"
 
+  # Settings
+  get "settings", to: "settings#index"
+  delete "settings/cancel_subscription", to: "settings#cancel_subscription"
+
   # Webhooks
   post "/pubsub/notifications", to: "pubsub#notifications"
   post "/webhooks/stripe", to: "webhooks#stripe"

@@ -53,7 +53,8 @@ class WebhooksController < ApplicationController
     account.update!(
       stripe_status: subscription.status,
       stripe_subscription_id: subscription_id,
-      subscription_period_end: Time.at(period_end)
+      subscription_period_end: Time.at(period_end),
+      cancel_at_period_end: false
     )
 
     # Start inbox setup for new subscribers
@@ -95,7 +96,8 @@ class WebhooksController < ApplicationController
 
     account.update!(
       stripe_status: subscription["status"],
-      subscription_period_end: Time.at(period_end)
+      subscription_period_end: Time.at(period_end),
+      cancel_at_period_end: subscription["cancel_at_period_end"]
     )
   end
 
