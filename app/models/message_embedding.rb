@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/models/message_embedding.rb
 class MessageEmbedding < ApplicationRecord
   belongs_to :message

@@ -1,0 +1,41 @@
+<% content_for :title, "Settings | VIPReply" %>
+<%= render 'shared/tabs', selected_page: "settings" %>
+<div class="container mx-auto px-3 py-6">
+  <h1 class="text-2xl font-semibold text-stone-800 mb-6">Settings</h1>
+  <div class="bg-white border rounded-lg p-6">
+    <h2 class="text-lg font-medium text-stone-800 mb-4">Subscription</h2>
+    <% if @account.subscribed? %>
+      <div class="mb-4">
+        <% if @account.cancel_at_period_end %>
+          <p class="text-sm text-stone-600">Status: <span class="font-medium text-orange-600">Cancelled</span></p>
+          <p class="text-sm text-stone-600">Access until: <%= @account.subscription_period_end.strftime('%B %d, %Y') %></p>
+        <% else %>
+          <p class="text-sm text-stone-600">Status: <span class="font-medium text-green-600">Active</span></p>
+          <% if @account.subscription_period_end %>
+            <p class="text-sm text-stone-600">Renews: <%= @account.subscription_period_end.strftime('%B %d, %Y') %></p>
+          <% end %>
+        <% end %>
+      </div>
+      <% if !@account.subscribed? %>
+        <%= button_to "Subscribe", checkout_subscribe_path,
+            class: "text-white bg-green-600 hover:bg-green-700 font-medium text-sm rounded-lg px-4 py-2",
+            data: { turbo: false } %>
+      <% elsif @account.cancel_at_period_end %>
+        <%= button_to "Reactivate Subscription", settings_reactivate_subscription_path,
+            class: "text-white bg-green-600 hover:bg-green-700 font-medium text-sm rounded-lg px-4 py-2" %>
+      <% else %>
+        <%= button_to "Cancel Subscription", settings_cancel_subscription_path,
+            method: :delete,
+            class: "text-white bg-red-600 hover:bg-red-700 font-medium text-sm rounded-lg px-4 py-2",
+            confirm: "Are you sure? You'll maintain access until your current billing period ends." %>
+      <% end %>
+    <% else %>
+      <div class="mb-4">
+        <p class="text-sm text-stone-600">Status: <span class="font-medium text-red-600">No active subscription</span></p>
+      </div>
+      <%= button_to "Subscribe to VIPReply", checkout_subscribe_path,
+          class: "text-white bg-blue-700 hover:bg-blue-800 font-medium text-sm rounded-lg px-4 py-2",
+          data: { turbo: false } %>
+    <% end %>
+  </div>
+</div>

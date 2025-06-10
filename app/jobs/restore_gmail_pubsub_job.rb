@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RestoreGmailPubsubJob < ApplicationJob
   queue_as :default
 

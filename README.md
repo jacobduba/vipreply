@@ -107,12 +107,11 @@ gem install ruby-lsp htmlbeautifier
 {
   "languages": {
     "ERB": {
-      "format_on_save": "on",
       "tab_size": 2,
       "formatter": {
         "external": {
-          "command": "htmlbeautifier",
-          "arguments": []
+          "command": "ruby",
+          "arguments": ["-S", "htmlbeautifier"]
         }
       }
     },
@@ -134,6 +133,20 @@ gem install ruby-lsp htmlbeautifier
     }
   }
 }
+```
+
+### Webhooks
+
+#### Google Cloud Pub/Sub
+
+I think we set up ngrok for this
+
+#### Stripe Webhook
+
+You can use Stripe CLI to test webhooks locally:
+
+```sh
+stripe listen --forward-to http://localhost:3000/webhooks/stripe
 ```
 
 ### Debugging Tips

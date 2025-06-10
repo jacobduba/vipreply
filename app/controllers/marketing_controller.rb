@@ -1,6 +1,6 @@
-class MarketingController < ApplicationController
-  skip_before_action :authorize_account
+# frozen_string_literal: true
 
+class MarketingController < ApplicationController
   REDCARPET = Redcarpet::Markdown.new(Redcarpet::Render::HTML.new(with_toc_data: true))
   PRIVACY_HTML = REDCARPET.render(File.read(Rails.root.join("app", "views", "marketing", "privacy.md")))
   TERMS_HTML = REDCARPET.render(File.read(Rails.root.join("app", "views", "marketing", "terms.md")))

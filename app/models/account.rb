@@ -84,6 +84,10 @@ class Account < ApplicationRecord
     end
   end
 
+  def subscribed?
+    subscription_period_end.present? && subscription_period_end >= Time.current
+  end
+
   def to_honeybadger_context
     {
       id: id,

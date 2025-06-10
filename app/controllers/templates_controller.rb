@@ -4,7 +4,9 @@
 class TemplatesController < ApplicationController
   include GeneratorConcern
 
+  before_action :authorize_account
   before_action :set_template, only: [:edit, :update, :destroy]
+  before_action :require_subscription
 
   def index
     @templates = @account.inbox.templates.order(id: :asc)

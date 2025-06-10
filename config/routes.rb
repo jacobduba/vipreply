@@ -45,8 +45,19 @@ Rails.application.routes.draw do
   # Attachments
   get "attachments/:id", to: "attachments#show", as: :attachment
 
+  # Checkout
+  post "checkout/subscribe", to: "checkout#subscribe"
+  get "checkout/success", to: "checkout#success"
+  get "checkout/cancel", to: "checkout#cancel"
+
+  # Settings
+  get "settings", to: "settings#index"
+  delete "settings/cancel_subscription", to: "settings#cancel_subscription"
+  post "settings/reactivate_subscription", to: "settings#reactivate_subscription"
+
   # Webhooks
   post "/pubsub/notifications", to: "pubsub#notifications"
+  post "/webhooks/stripe", to: "webhooks#stripe"
 
   # Dashboard for Solid Queue
   mount MissionControl::Jobs::Engine, at: "/jobs"
