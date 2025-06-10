@@ -16,10 +16,13 @@
           <% end %>
         <% end %>
       </div>
-      <% if @account.cancel_at_period_end %>
-        <%= button_to "Resubscribe", checkout_subscribe_path,
+      <% if !@account.subscribed? %>
+        <%= button_to "Subscribe", checkout_subscribe_path,
             class: "text-white bg-green-600 hover:bg-green-700 font-medium text-sm rounded-lg px-4 py-2",
             data: { turbo: false } %>
+      <% elsif @account.cancel_at_period_end %>
+        <%= button_to "Reactivate Subscription", settings_reactivate_subscription_path,
+            class: "text-white bg-green-600 hover:bg-green-700 font-medium text-sm rounded-lg px-4 py-2" %>
       <% else %>
         <%= button_to "Cancel Subscription", settings_cancel_subscription_path,
             method: :delete,

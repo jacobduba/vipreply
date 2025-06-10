@@ -53,6 +53,7 @@ Rails.application.routes.draw do
   # Settings
   get "settings", to: "settings#index"
   delete "settings/cancel_subscription", to: "settings#cancel_subscription"
+  post "settings/reactivate_subscription", to: "settings#reactivate_subscription"
 
   # Webhooks
   post "/pubsub/notifications", to: "pubsub#notifications"

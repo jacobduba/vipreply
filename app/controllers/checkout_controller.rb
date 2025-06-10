@@ -43,5 +43,6 @@ class CheckoutController < ApplicationController
   end
 
   def cancel
+    redirect_to inbox_path
   end
 end
