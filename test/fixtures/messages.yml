@@ -1,15 +1,7 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  date: 2024-12-27 16:31:37
-  subject: MyString
-  from: MyString
-  to: MyString
-  body: MyText
-
-two:
-  date: 2024-12-27 16:31:37
-  subject: MyString
-  from: MyString
-  to: MyString
-  body: MyText
+test_message:
+  topic: test_topic
+  message_id: "msg123@example.com"
+  subject: "Test Message"
+  from_email: "sender@example.com"
+  to_email: "test@example.com"
+  plaintext: "An emdash is — a utf8 character"

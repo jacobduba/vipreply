@@ -1,19 +1,6 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
-one:
-  thread_id: MyString
-  snippet: MyString
-  messages: MyText
-  date: 2024-12-27 16:11:45
-  subject: MyString
-  from: MyString
-  to: MyString
-
-two:
-  thread_id: MyString
-  snippet: MyString
-  messages: MyText
-  date: 2024-12-27 16:11:45
-  subject: MyString
-  from: MyString
-  to: MyString
+test_topic:
+  inbox: test_inbox
+  thread_id: "thread123"
+  subject: "Test Topic"
+  from_email: "sender@example.com"
+  to_email: "test@example.com"

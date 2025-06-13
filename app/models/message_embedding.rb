@@ -10,16 +10,19 @@ class MessageEmbedding < ApplicationRecord
 
   validates :message_id, uniqueness: true
 
-  # This method will be used when generating a new embedding
+  def self.build_embedding_text(message)
+    # This is its own function so I could test to make sure a bug does not reappear without mocking
+    <<~TEXT
+      Subject: #{message.subject}
+      Body: #{message.plaintext}
+    TEXT
+  end
+
   def self.create_for_message(message)
     # Skip if message already has an embedding
     return if message.message_embedding.present?
 
-    embedding_text = <<~TEXT
-      Subject: #{message.subject}
-      Body: #{message.plaintext}
-    TEXT
-
+    embedding_text = build_embedding_text(message)
     embedding_text = message.truncate_embedding_text(embedding_text)
     vector = message.fetch_embedding(embedding_text)
 
