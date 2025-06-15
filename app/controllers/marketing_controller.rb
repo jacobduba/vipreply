@@ -5,7 +5,7 @@ class MarketingController < ApplicationController
   PRIVACY_HTML = REDCARPET.render(File.read(Rails.root.join("app", "views", "marketing", "privacy.md")))
   TERMS_HTML = REDCARPET.render(File.read(Rails.root.join("app", "views", "marketing", "terms.md")))
 
-  def landing
+  def home
     if session[:account_id]
       redirect_to inbox_path
     end

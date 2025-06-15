@@ -9,7 +9,7 @@ Rails.application.routes.draw do
 
   constraints(format: /html|turbo_stream/) do
     # Marketing
-    root "marketing#landing"
+    root "marketing#home"
     get "privacy", to: "marketing#privacy"
     get "terms", to: "marketing#terms"
 
