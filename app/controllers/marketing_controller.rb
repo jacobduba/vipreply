@@ -11,6 +11,9 @@ class MarketingController < ApplicationController
     end
   end
 
+  def landing1
+  end
+
   def privacy
     @html_content = PRIVACY_HTML
     render :markdown_page
