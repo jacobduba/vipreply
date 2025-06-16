@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class WebhooksController < ApplicationController
-  skip_forgery_protection # Disable CSRF protection for webhook
+  skip_forgery_protection
 
   def stripe
     payload = request.body.read
