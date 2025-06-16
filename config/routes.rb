@@ -11,40 +11,38 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#google_auth"
   get "auth/failure", to: redirect("/")
 
-  defaults format: :html do
-    constraints(format: /html|turbo_stream/) do
-      # Marketing
-      root "marketing#home"
-      get "landing1", to: "marketing#landing1"
-      get "privacy", to: "marketing#privacy"
-      get "terms", to: "marketing#terms"
+  constraints(format: /html|turbo_stream/) do
+    # Marketing
+    root "marketing#home"
+    get "landing1", to: "marketing#landing1"
+    get "privacy", to: "marketing#privacy"
+    get "terms", to: "marketing#terms"
 
-      # Session management
-      get "login", to: "sessions#new", as: :login
-      delete "logout", to: "sessions#destroy"
+    # Session management
+    get "login", to: "sessions#new", as: :login
+    delete "logout", to: "sessions#destroy"
 
-      # Inbox
-      scope :inbox do
-        get "", to: "inboxes#index", as: :inbox
-        get "update", to: "inboxes#update"
+    # Inbox
+    scope :inbox do
+      get "", to: "inboxes#index", as: :inbox
+      get "update", to: "inboxes#update"
 
-        resources :templates
+      resources :templates
 
-        resources :topics do
-          member do
-            get "template_selector_dropdown"
-            get "new_template_dropdown"
-            post "create_template_dropdown"
-            get "find_template"
-            post "generate_reply"
-            post "change_status"
-            post "send_email"
-            patch "change_templates_regenerate_response"
-            post "update_templates_regenerate_reply"
-            delete "remove_template/:template_id",
-              action: :remove_template,
-              as: :remove_template
-          end
+      resources :topics do
+        member do
+          get "template_selector_dropdown"
+          get "new_template_dropdown"
+          post "create_template_dropdown"
+          get "find_template"
+          post "generate_reply"
+          post "change_status"
+          post "send_email"
+          patch "change_templates_regenerate_response"
+          post "update_templates_regenerate_reply"
+          delete "remove_template/:template_id",
+            action: :remove_template,
+            as: :remove_template
         end
       end
 
