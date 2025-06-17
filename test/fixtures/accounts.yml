@@ -1,5 +1,11 @@
-test_account:
-  email: "test@example.com"
-  name: "Test User"
-  provider: "google"
-  uid: "123456"
+account_one:
+  email: "account1@example.com"
+  name: "Test Account 1"
+  provider: "google_oauth2"
+  uid: "123456789"
+
+account_two:
+  email: "account2@example.com"
+  name: "Test Account 2"
+  provider: "google_oauth2"
+  uid: "987654321"

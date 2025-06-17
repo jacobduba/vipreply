@@ -1,5 +1,12 @@
-test_topic:
-  inbox: test_inbox
+one_topic_1:
+  inbox: one_inbox
+  thread_id: "thread123"
+  subject: "Test Topic"
+  from_email: "sender@example.com"
+  to_email: "test@example.com"
+
+two_topic_1:
+  inbox: two_inbox
   thread_id: "thread123"
   subject: "Test Topic"
   from_email: "sender@example.com"

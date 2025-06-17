@@ -48,10 +48,12 @@ class ApplicationController < ActionController::Base
     "openid"]
 
   def contains_all_oauth_scopes?(scopes)
-    # & is intersection returns elements in both
-    # If intersection is the same as REQUIRED_SCOPES,
-    # then the user has sufficient permissions
-    (scopes & REQUIRED_SCOPES) == REQUIRED_SCOPES
+    # & is intersection
+    # to find what subset of scopes is in REQUIRED_SCOPES
+    intersection = scopes & REQUIRED_SCOPES
+    # order matters in array equality
+    # that's why i convert to sets to remove order
+    intersection.to_set == REQUIRED_SCOPES.to_set
   end
 
   def require_subscription

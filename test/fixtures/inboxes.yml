@@ -1,2 +1,5 @@
-test_inbox:
-  account: test_account
+one_inbox:
+  account: account_one
+
+two_inbox:
+  account: account_two

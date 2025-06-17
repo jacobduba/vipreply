@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", :as => :rails_health_check
 
   # OAuth
-  get "auth/:provider/callback", to: "sessions#google_auth"
+  get "auth/:provider/callback", to: "sessions#google_auth", as: :auth_callback
   get "auth/failure", to: redirect("/")
 
   constraints(format: /html|turbo_stream/) do
