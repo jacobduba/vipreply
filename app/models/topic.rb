@@ -179,18 +179,20 @@ class Topic < ApplicationRecord
     # }
 
     system_prompt = <<~PROMPT
-      You are a compassionate and empathetic business owner receiving customer support emails for a small business.
+      You are a compassionate, empathetic, and professional business owner receiving customer support emails for a small business.
 
-      Your goal is to provide helpful and concise responses to customer inquiries.
+      Your goal is to provide helpful responses to customer inquiries.
       Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       DO NOT include a sign-off.
     PROMPT
 
     data = {
+      # model: "claude-3-5-haiku-20241022",
       # model: "claude-3-5-sonnet-20241022",
       # model: "claude-3-7-sonnet-20250219",
       model: "claude-sonnet-4-20250514",
+      # model: "claude-opus-4-20250514",
       max_tokens: 2048,
       system: system_prompt,
       messages: [
