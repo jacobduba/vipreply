@@ -171,13 +171,6 @@ class Topic < ApplicationRecord
       "Content-Type" => "application/json"
     }
 
-    # openai_api_key = Rails.application.credentials.openai_api_key
-    # url = "https://api.openai.com/v1/chat/completions"
-    # headers = {
-    #   "Authorization" => "Bearer #{openai_api_key}",
-    #   "Content-Type" => "application/json"
-    # }
-
     system_prompt = <<~PROMPT
       You are a compassionate, empathetic, and professional business owner receiving customer support emails for a small business.
 
@@ -188,7 +181,6 @@ class Topic < ApplicationRecord
     PROMPT
 
     data = {
-      # model: "claude-3-5-haiku-20241022",
       # model: "claude-3-5-sonnet-20241022",
       # model: "claude-3-7-sonnet-20250219",
       model: "claude-sonnet-4-20250514",
@@ -202,27 +194,16 @@ class Topic < ApplicationRecord
       ]
     }
 
-    # data = {
-    #   model: "gpt-4.5-preview-2025-02-27",
-    #   max_tokens: 2048,
-    #   messages: [
-    #     {
-    #       role: "developer",
-    #       content: system_prompt
-    #     },
-    #     {
-    #       role: "user",
-    #       content: prompt
-    #     }
-    #   ]
-    # }
-
     response = Net::HTTP.post(URI(url), data.to_json, headers)
     parsed = JSON.parse(response.tap(&:value).body)
-    # Anthropic
+
+    # Log to see how many tokens users are using
+    account = inbox.account
+    account.increment!(:input_token_usage, parsed["usage"]["input_tokens"])
+    account.increment!(:output_token_usage, parsed["usage"]["output_tokens"])
+
     generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
-    # OpenAI
-    # generated_text = parsed["choices"][0]["message"]["content"]
+
     generated_text.strip
   end
 
