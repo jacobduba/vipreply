@@ -5,8 +5,9 @@ class TemplatesController < ApplicationController
   include GeneratorConcern
 
   before_action :authorize_account
-  before_action :set_template, only: [:edit, :update, :destroy]
   before_action :require_subscription
+  before_action :set_template, only: [:edit, :update, :destroy]
+  before_action :authorize_account_owns_template, only: [:edit, :update, :destroy]
 
   def index
     @templates = @account.inbox.templates.order(id: :asc)
@@ -16,13 +17,11 @@ class TemplatesController < ApplicationController
     @template = Template.new
     @input_errors = []
     @output_errors = []
-    @regenerate_reply = params[:regenerate_reply] == "true"
     @topic_id = params[:topic_id]
   end
 
   def create
     @template = @account.inbox.templates.new(template_params)
-    regenerate = params[:template][:regenerate_reply] == "true"
     topic_id = params[:template][:topic_id]
 
     unless @template.save
@@ -31,11 +30,7 @@ class TemplatesController < ApplicationController
       render :new
     end
 
-    if regenerate
-      handle_regeneration topic_id
-    else
-      render turbo_stream: turbo_stream.append("templates_collection", partial: "template", locals: {template: @template})
-    end
+    render turbo_stream: turbo_stream.append("templates_collection", partial: "template", locals: {template: @template})
   end
 
   def edit
@@ -77,14 +72,13 @@ class TemplatesController < ApplicationController
     @template = Template.find(params[:id])
   end
 
-  def template_params
-    params.require(:template).permit(:input, :output)
+  def authorize_account_owns_template
+    unless @template.inbox.account == @account
+      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+    end
   end
 
-  def handle_regeneration(topic_id)
-    return unless (topic = Topic.find_by(id: topic_id))
-
-    topic.generate_reply
-    topic.save
+  def template_params
+    params.require(:template).permit(:input, :output)
   end
 end

@@ -4,6 +4,8 @@ class AttachmentsController < ApplicationController
   before_action :authorize_account
   before_action :require_subscription
 
+  # TODO FUCKKKKKK
+
   def show
     # Find the attachment by ID or return a 404 error page
     attachment = Attachment.find_by(id: params[:id])

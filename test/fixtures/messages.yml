@@ -1,15 +1,17 @@
-one_message_1:
-  topic: one_topic_1
+acc1_message1:
+  topic: acc1_topic1
   message_id: "one_topic_1@example.com"
   subject: "Test Message 1 for Account One"
   from_email: "sender@example.com"
   to_email: "test@example.com"
   plaintext: "An emdash is — a utf8 character"
+  date: "2023-01-01"
 
-two_message_1:
-  topic: two_topic_1
+acc2_message1:
+  topic: acc2_topic1
   message_id: "two_topic_2@example.com"
   subject: "Test Message 1 for Account Two"
   from_email: "sender@example.com"
   to_email: "test@example.com"
   plaintext: "An emdash is — a utf8 character"
+  date: "2023-01-02"

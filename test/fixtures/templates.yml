@@ -1,0 +1,7 @@
+acc1_template1:
+  inbox: acc1_inbox
+  output: "this is a template"
+
+acc2_template1:
+  inbox: acc2_inbox
+  output: "this is a template"

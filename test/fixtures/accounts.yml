@@ -1,11 +1,13 @@
-account_one:
+acc1:
   email: "account1@example.com"
   name: "Test Account 1"
   provider: "google_oauth2"
   uid: "123456789"
+  subscription_period_end: <%= 1.week.from_now %>
 
-account_two:
+acc2:
   email: "account2@example.com"
   name: "Test Account 2"
   provider: "google_oauth2"
   uid: "987654321"
+  subscription_period_end: <%= 1.week.from_now %>

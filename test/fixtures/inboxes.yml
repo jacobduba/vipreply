@@ -1,5 +1,5 @@
-one_inbox:
-  account: account_one
+acc1_inbox:
+  account: acc1
 
-two_inbox:
-  account: account_two
+acc2_inbox:
+  account: acc2

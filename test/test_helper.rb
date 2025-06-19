@@ -13,5 +13,29 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+    def login_as_account1
+      OmniAuth.config.test_mode = true
+      OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
+        provider: "google_oauth2",
+        uid: "123456789",
+        credentials: {
+          token: "123456789",
+          refresh_token: "123456789",
+          expires_at: Time.now + 1.hour,
+          expires: true,
+          scope: "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly"
+        },
+        email: "account1@example.com",
+        first_name: "User",
+        last_name: "Example",
+        image_url: "https://example.com/image.jpg",
+        info: {
+          email: "user@example.com",
+          name: "User Example"
+        }
+      )
+
+      get auth_callback_path(provider: "google_oauth2")
+    end
   end
 end

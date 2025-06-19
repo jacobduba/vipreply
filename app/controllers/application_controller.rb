@@ -26,7 +26,9 @@ class ApplicationController < ActionController::Base
       return redirect_to login_path
     end
 
-    return unless @account.expires_at < Time.current + 10.seconds
+    # If access token is valid, continue
+    return unless @account.expires_at < Time.current
+    # else lets refresh
 
     Rails.logger.debug "Access token expired for #{@account.email}, attempting refresh."
 
