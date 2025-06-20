@@ -13,12 +13,6 @@ class PubsubController < ApplicationController
     #
 
     # Track webhook in Honeybadger Insights for debugging
-    Honeybadger.event(
-      event_type: "gmail_webhook_received",
-      raw_payload: params.to_unsafe_h,
-      authorization_header: request.headers["Authorization"],
-      all_headers: request.headers.to_h.select { |k, v| k.match(/^HTTP_/) }
-    )
 
     # Authenticate on prod
     if Rails.env.production?
@@ -26,6 +20,15 @@ class PubsubController < ApplicationController
       bearer = request.headers["Authorization"]
       token = /Bearer (.*)/.match(bearer)[1]
       claim = Google::Auth::IDTokens.verify_oidc token, aud: "https://vipreply.ai/pubsub/notifications"
+
+      Honeybadger.event(
+        event_type: "gmail_webhook_received",
+        raw_payload: params.to_unsafe_h,
+        authorization_header: request.headers["Authorization"],
+        all_headers: request.headers.to_h.select { |k, v| k.match(/^HTTP_/) },
+        claim_email: claim["email"],
+        claim_verified: claim["email_verified"]
+      )
 
       unless claim["email"] == Rails.application.credentials.pubsub_service_account && claim["email_verified"] == true
         raise "Webhook authentication failed - unexpected service account #{claim["email"]}"
