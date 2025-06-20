@@ -104,7 +104,7 @@
               </div>
               <iframe
                 srcdoc="<%= message.prepare_email_for_rendering request.base_url, index %>"
-                sandbox="allow-same-origin allow-popups"
+                sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                 class="w-full hidden rounded bg-white border border-slate-100"
                 data-iframe-resize-target="iframe">
               </iframe>

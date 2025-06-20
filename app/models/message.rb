@@ -201,10 +201,10 @@ class Message < ApplicationRecord
       end
     elsif part.mime_type == "text/plain"
       # Gmail data comes as ASCII-8BIT bytes, normalize to UTF-8 to prevent encoding conflicts
-      result[:plain] = part.body.data.force_encoding('UTF-8').scrub
+      result[:plain] = part.body.data.force_encoding("UTF-8").scrub
     elsif part.mime_type == "text/html"
       # Gmail data comes as ASCII-8BIT bytes, normalize to UTF-8 to prevent encoding conflicts
-      result[:html] = part.body.data.force_encoding('UTF-8').scrub
+      result[:html] = part.body.data.force_encoding("UTF-8").scrub
     else
       content_disposition_header = part.headers.find { |h| h.name == "Content-Disposition" }&.value
       if content_disposition_header&.start_with?("attachment") || part.filename
