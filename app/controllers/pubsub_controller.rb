@@ -26,7 +26,9 @@ class PubsubController < ApplicationController
       event_type: "gmail_webhook_received",
       email: email,
       history_id: history_id,
-      raw_payload: params.to_unsafe_h
+      raw_payload: params.to_unsafe_h,
+      authorization_header: request.headers['Authorization'],
+      all_headers: request.headers.to_h.select { |k, v| k.match(/^HTTP_/) }
     )
 
     # Find the account by email and use the associated inbox
