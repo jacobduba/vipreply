@@ -11,8 +11,19 @@ class PubsubController < ApplicationController
     #      (Name it "gmail-webhook-verifier", no roles needed)
     #    - Then follow the authentication guide using that service account
     #
-    # TODO: Add webhook authentication verification here
-    #
+
+    # Authenticate on prod
+    if Rails.env.production?
+      # Not handling errors to alert me when authorization fails
+      bearer = request.headers["Authorization"]
+      token = /Bearer (.*)/.match(bearer)[1]
+      claim = Google::Auth::IDTokens.verify_oidc token, aud: "https://vipreply.ai/pubsub/notifications"
+
+      unless claim["email"] == Rails.application.credentials.pubsub_service_account && claim["email_verified"] == true
+        raise "Webhook authentication failed - unexpected service account #{claim["email"]}"
+      end
+    end
+
     # Decode the Pub/Sub message
     message = params[:message][:data]
     message = JSON.parse(Base64.decode64(message))
@@ -27,7 +38,7 @@ class PubsubController < ApplicationController
       email: email,
       history_id: history_id,
       raw_payload: params.to_unsafe_h,
-      authorization_header: request.headers['Authorization'],
+      authorization_header: request.headers["Authorization"],
       all_headers: request.headers.to_h.select { |k, v| k.match(/^HTTP_/) }
     )
 
