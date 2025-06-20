@@ -4,10 +4,9 @@ require_relative "boot"
 
 require "rails/all"
 
-# Default ruby library but not required by Rails
+# Following gems not inside gemfile, so aren't autoloaded
 require "uri"
 require "date" # TODO: test if i dont need
-# Not inside gemfile so not autoloaded BUT need to be required
 require "google/apis/gmail_v1"
 require "googleauth"
 
