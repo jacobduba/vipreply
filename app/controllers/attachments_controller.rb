@@ -4,13 +4,16 @@ class AttachmentsController < ApplicationController
   before_action :authorize_account
   before_action :require_subscription
 
-  # TODO FUCKKKKKK
-
   def show
-    # Find the attachment by ID or return a 404 error page
     attachment = Attachment.find_by(id: params[:id])
 
     unless attachment
+      render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
+      return
+    end
+
+    # Defense in depth - verify ownership even though Google API will too
+    unless attachment.message.topic.inbox.account == @account
       render file: "#{Rails.root}/public/404.html", status: :not_found, layout: false
       return
     end
