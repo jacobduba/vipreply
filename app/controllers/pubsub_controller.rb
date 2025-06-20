@@ -12,6 +12,14 @@ class PubsubController < ApplicationController
     #    - Then follow the authentication guide using that service account
     #
 
+    # Track webhook in Honeybadger Insights for debugging
+    Honeybadger.event(
+      event_type: "gmail_webhook_received",
+      raw_payload: params.to_unsafe_h,
+      authorization_header: request.headers["Authorization"],
+      all_headers: request.headers.to_h.select { |k, v| k.match(/^HTTP_/) }
+    )
+
     # Authenticate on prod
     if Rails.env.production?
       # Not handling errors to alert me when authorization fails
@@ -31,16 +39,6 @@ class PubsubController < ApplicationController
     # Extract email and history ID
     email = message["emailAddress"]
     history_id = message["historyId"]
-
-    # Track webhook in Honeybadger Insights for debugging
-    Honeybadger.event(
-      event_type: "gmail_webhook_received",
-      email: email,
-      history_id: history_id,
-      raw_payload: params.to_unsafe_h,
-      authorization_header: request.headers["Authorization"],
-      all_headers: request.headers.to_h.select { |k, v| k.match(/^HTTP_/) }
-    )
 
     # Find the account by email and use the associated inbox
     account = Account.find_by(email: email)
