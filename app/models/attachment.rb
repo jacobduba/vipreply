@@ -19,16 +19,5 @@ class Attachment < ApplicationRecord
       size: attachment_data[:size],
       content_disposition: attachment_data[:content_disposition]
     )
-
-    # I added this logging for honeybadger to debug phantom missing attachments
-    Rails.logger.info(
-      event_type: "attachment_created",
-      attachment: attachment_data
-    )
-  end
-
-  # Get url
-  def url(host)
-    "#{host}/attachments/#{id}"
   end
 end

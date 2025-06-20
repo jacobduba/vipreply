@@ -56,8 +56,7 @@ class Message < ApplicationRecord
     attachments.each do |attachment|
       next unless attachment.content_id
 
-      attachment_url = attachment.url host
-
+      attachment_url = Rails.application.routes.url_helpers.attachment_url(attachment, host: host)
       updated_html.gsub!(attachment.content_id, attachment_url)
     end
 
