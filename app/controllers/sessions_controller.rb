@@ -61,6 +61,7 @@ class SessionsController < ApplicationController
       UpdateFromHistoryJob.perform_later account.inbox.id
     end
 
+    reset_session
     session[:account_id] = account.id
     redirect_to inbox_path
   end
