@@ -39,12 +39,17 @@ class Message < ApplicationRecord
     end
 
     <<~HTML
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-      <div style="font-family: 'Inter', sans-serif; font-size: 16px;">
-        #{doc.to_html}
-      </div>
+      <head>
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+      </head>
+      <body>
+        <div style="font-family: 'Inter', sans-serif; font-size: 16px;">
+          #{doc.to_html}
+        </div>
+      </body>
     HTML
   end
 
