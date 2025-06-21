@@ -32,7 +32,6 @@ class PubsubController < ApplicationController
 
     # Extract email and history ID
     email = message["emailAddress"]
-    history_id = message["historyId"]
 
     # Find the account by email and use the associated inbox
     account = Account.find_by(email: email)

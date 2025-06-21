@@ -22,7 +22,6 @@ class TemplatesController < ApplicationController
 
   def create
     @template = @account.inbox.templates.new(template_params)
-    topic_id = params[:template][:topic_id]
 
     unless @template.save
       @input_errors = @template.errors.full_messages_for(:input)

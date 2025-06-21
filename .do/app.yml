@@ -1,0 +1,70 @@
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+  - rule: DEPLOYMENT_STARTED
+  - rule: DEPLOYMENT_LIVE
+  - rule: DEPLOYMENT_CANCELED
+  - rule: DOMAIN_LIVE
+databases:
+  - cluster_name: vipreply-ai-db-prod
+    db_name: defaultdb
+    db_user: doadmin
+    engine: PG
+    name: vipreply-ai-db-prod
+    production: true
+    version: "16"
+domains:
+  - domain: vipreply.ai
+    type: PRIMARY
+  - domain: app.vipreply.ai
+    type: ALIAS
+features:
+  - buildpack-stack=ubuntu-22
+ingress:
+  rules:
+    - component:
+        name: vipreply-ai
+      match:
+        path:
+          prefix: /
+name: vipreply-prod-app
+region: nyc
+services:
+  - alerts:
+      - operator: GREATER_THAN
+        rule: MEM_UTILIZATION
+        value: 80
+        window: FIVE_MINUTES
+    dockerfile_path: Dockerfile
+    envs:
+      - key: POSTGRES_HOST
+        scope: RUN_TIME
+        value: ${vipreply-ai-db-prod.HOSTNAME}
+      - key: POSTGRES_PORT
+        scope: RUN_AND_BUILD_TIME
+        value: ${vipreply-ai-db-prod.PORT}
+      - key: POSTGRES_USER
+        scope: RUN_AND_BUILD_TIME
+        value: ${vipreply-ai-db-prod.USERNAME}
+      - key: POSTGRES_PASSWORD
+        scope: RUN_AND_BUILD_TIME
+        value: ${vipreply-ai-db-prod.PASSWORD}
+      - key: RAILS_MASTER_KEY
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+        value: EV[1:qqqJVd99/exVV5PN8mJKV9MgKL12Jkkm:7oYvYAypIMwm9CM0yw5UgQ+sn18frs/Vwirxqwg8J5U/RXGIAzlb3MaCk/w9zqFl]
+      - key: WEB_CONCURRENCY
+        scope: RUN_AND_BUILD_TIME
+        value: "0"
+      - key: SOLID_QUEUE_IN_PUMA
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: jacobduba/vipreply
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-2gb
+    name: vipreply-ai
+    source_dir: /

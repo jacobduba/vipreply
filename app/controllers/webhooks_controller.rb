@@ -14,7 +14,7 @@ class WebhooksController < ApplicationController
 
       begin
         Stripe::Webhook.construct_event(payload, sig_header, endpoint_secret)
-      rescue JSON::ParserError, Stripe::SignatureVerificationError => e
+      rescue JSON::ParserError, Stripe::SignatureVerificationError
         render json: {error: "Invalid webhook"}, status: 400
         return
       end

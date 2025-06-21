@@ -1,0 +1,28 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "c5f98537d54ae4d84ab935c922732e126accd0671ab94fdbf0119b28c8a68fba",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/topics_controller.rb",
+      "line": 82,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "from(\"#{Account.find(session[:account_id]).name} <#{Account.find(session[:account_id]).email}>\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "TopicsController",
+        "method": "send_email"
+      },
+      "user_input": "Account.find(session[:account_id]).name",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "Brakeman is confusing from (as in email header) with from (sql operator)"
+    }
+  ],
+  "brakeman_version": "7.0.2"
+}

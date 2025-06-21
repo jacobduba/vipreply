@@ -12,12 +12,12 @@ class SettingsController < ApplicationController
     # Cancel at period end to maintain access until paid period expires
     Stripe::Subscription.update(
       @account.stripe_subscription_id,
-      { cancel_at_period_end: true }
+      {cancel_at_period_end: true}
     )
 
     @account.update!(cancel_at_period_end: true)
 
-    redirect_to settings_path, notice: "Subscription cancelled. Access continues until #{@account.subscription_period_end.strftime('%B %d, %Y')}."
+    redirect_to settings_path, notice: "Subscription cancelled. Access continues until #{@account.subscription_period_end.strftime("%B %d, %Y")}."
   end
 
   def reactivate_subscription
@@ -26,7 +26,7 @@ class SettingsController < ApplicationController
     # Reactivate cancelled subscription
     Stripe::Subscription.update(
       @account.stripe_subscription_id,
-      { cancel_at_period_end: false }
+      {cancel_at_period_end: false}
     )
 
     @account.update!(cancel_at_period_end: false)
