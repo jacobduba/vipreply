@@ -19,18 +19,66 @@ class Message < ApplicationRecord
 
     doc = Nokogiri::HTML5(html)
 
+    # TODO go through and actually understand this stuff
+
     # Don't hide history if it's the first message
     unless index == 0
-      doc.xpath("//text()").each do |text_node|
-        if text_node.text.match?(/On\s+.+\swrote:/)
-          parent_node = text_node.parent
-          next_node = parent_node.next_element
-          if next_node && next_node.name == "blockquote"
-            next_node.remove
-            text_node.remove
-          end
+      # VIPReply
+      doc.css(".vip_quote").remove
+
+      # Gmail
+      doc.css(".gmail_quote").each do |quote|
+        prev = quote.previous_element
+        if prev && prev.name == "br"
+          prev.remove
         end
+        quote.remove
       end
+
+      # Fastmail
+      doc.css("blockquote#qt").each do |blockquote|
+        prev = blockquote.previous_element
+
+        # Check if previous element contains "On ... wrote:"
+        if prev && prev.text.match?(/On\s+.+\swrote:/)
+          # Check if there's an empty div before the "On ... wrote:" element
+          prev_prev = prev.previous_element
+          if prev_prev && prev_prev.name == "div" && prev_prev.text.strip.empty?
+            prev_prev.remove
+          end
+          prev.remove
+        end
+
+        blockquote.remove
+      end
+
+      # Outlook
+      doc.css("#divRplyFwdMsg").each do |div|
+        # Check for previous hr element
+        prev = div.previous_element
+        if prev && prev.name == "hr"
+          prev.remove
+        end
+
+        # Remove next element if it exists
+        next_element = div.next_element
+        if next_element
+          next_element.remove
+        end
+
+        # Remove the div itself
+        div.remove
+      end
+    end
+
+    # Remove trailing empty elements or elements with only br
+    body = doc.at("body") || doc
+    last_element = body.children.last
+    while last_element && last_element.element? &&
+        (last_element.children.empty? ||
+         (last_element.children.size == 1 && last_element.children.first.name == "br"))
+      last_element.remove
+      last_element = body.children.last
     end
 
     doc.css("a").each do |link|

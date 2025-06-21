@@ -62,10 +62,12 @@ class TopicsController < ApplicationController
     email_body_html = <<~HTML
       #{simple_format(email_body)}
 
-      <p>On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
-      <blockquote>
-        #{most_recent_message.html}
-      </blockquote>
+      <div class="vip_quote">
+        <p>On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
+        <blockquote>
+          #{most_recent_message.html}
+        </blockquote>
+      </div>
     HTML
 
     in_reply_to = most_recent_message.message_id
