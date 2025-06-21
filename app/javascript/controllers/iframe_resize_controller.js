@@ -27,18 +27,18 @@ export default class extends Controller {
     });
   }
 
-  setAllIframeHeight = async () => {
+  setAllIframeHeight = () => {
     this.iframeTargets.forEach((iframe) => {
       this.setIframeHeight(iframe);
     });
   };
 
-  hideLoaderShowIframe = async (index) => {
+  hideLoaderShowIframe = (index) => {
     this.loaderTargets[index].style.display = "none";
     this.iframeTargets[index].style.display = "block";
   };
 
-  scrollToLastMessage = async () => {
+  scrollToLastMessage = () => {
     // I want to show a little of the previous message so the user knows there is more above
     const distFromTop = 80;
     const elementPosition =
@@ -48,7 +48,7 @@ export default class extends Controller {
     });
   };
 
-  setIframeHeight = async (iframe) => {
+  setIframeHeight = (iframe) => {
     const document = iframe.contentWindow.document;
     const html = document.documentElement;
     const height = html.scrollHeight + 2; // Add 2 pixels to account for border 1px padding
