@@ -49,10 +49,10 @@ services:
       - key: POSTGRES_PASSWORD
         scope: RUN_AND_BUILD_TIME
         value: ${vipreply-ai-db-prod.PASSWORD}
-      - key: RAILS_MASTER_KEY
-        scope: RUN_AND_BUILD_TIME
-        type: SECRET
-        value: EV[1:qqqJVd99/exVV5PN8mJKV9MgKL12Jkkm:7oYvYAypIMwm9CM0yw5UgQ+sn18frs/Vwirxqwg8J5U/RXGIAzlb3MaCk/w9zqFl]
+      # - key: RAILS_MASTER_KEY
+      #   scope: RUN_AND_BUILD_TIME
+      #   type: SECRET
+      #   value: CREATE_IN_DASHBOARD
       - key: WEB_CONCURRENCY
         scope: RUN_AND_BUILD_TIME
         value: "0"
