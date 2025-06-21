@@ -4,14 +4,15 @@ export default class extends Controller {
   static targets = ["iframe", "loader", "lastMessage"];
 
   connect() {
-    this.setAllIframeHeight();
     window.addEventListener("resize", this.setAllIframeHeight);
     this.iframeTargets.forEach((iframe, index) => {
+      // Add loading event
       iframe.addEventListener("load", () => {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
         this.scrollToLastMessage();
       });
+      // If its ALREADY LOADED, do it anyway
       if (iframe.contentWindow?.document.readyState === "complete") {
         this.hideLoaderShowIframe(index);
         this.setIframeHeight(iframe);
@@ -51,6 +52,7 @@ export default class extends Controller {
   setIframeHeight = (iframe) => {
     const document = iframe.contentWindow.document;
     const html = document.documentElement;
+
     const height = html.scrollHeight + 2; // Add 2 pixels to account for border 1px padding
     iframe.style.height = `${height}px`;
   };
