@@ -4,6 +4,8 @@ export default class extends Controller {
   static targets = ["iframe", "loader", "lastMessage"];
 
   connect() {
+    // I dont know why we need this. But simple iframes won't resize without it.
+    this.setAllIframeHeight();
     window.addEventListener("resize", this.setAllIframeHeight);
     this.iframeTargets.forEach((iframe, index) => {
       // Add loading event
@@ -52,6 +54,8 @@ export default class extends Controller {
   setIframeHeight = (iframe) => {
     const document = iframe.contentWindow.document;
     const html = document.documentElement;
+
+    if (!html) return;
 
     const height = html.scrollHeight + 2; // Add 2 pixels to account for border 1px padding
     iframe.style.height = `${height}px`;
