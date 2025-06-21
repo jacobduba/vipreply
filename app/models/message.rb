@@ -40,7 +40,7 @@ class Message < ApplicationRecord
         prev = blockquote.previous_element
 
         # Check if previous element contains "On ... wrote:"
-        if prev && prev.text.match?(/On\s+.+\swrote:/)
+        if prev&.text&.match?(/On\s+.+\swrote:/)
           # Check if there's an empty div before the "On ... wrote:" element
           prev_prev = prev.previous_element
           if prev_prev && prev_prev.name == "div" && prev_prev.text.strip.empty?
@@ -62,9 +62,7 @@ class Message < ApplicationRecord
 
         # Remove next element if it exists
         next_element = div.next_element
-        if next_element
-          next_element.remove
-        end
+        next_element&.remove
 
         # Remove the div itself
         div.remove
@@ -74,7 +72,7 @@ class Message < ApplicationRecord
     # Remove trailing empty elements or elements with only br
     body = doc.at("body") || doc
     last_element = body.children.last
-    while last_element && last_element.element? &&
+    while last_element&.element? &&
         (last_element.children.empty? ||
          (last_element.children.size == 1 && last_element.children.first.name == "br"))
       last_element.remove

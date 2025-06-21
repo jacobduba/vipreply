@@ -30,8 +30,8 @@ class SessionsController < ApplicationController
     account.provider = auth_hash.provider # google_oauth2
     account.uid = auth_hash.uid
     account.access_token = auth_hash.credentials.token
-    if new_refresh_token = auth_hash.credentials.refresh_token
-      account.refresh_token = new_refresh_token
+    if auth_hash.credentials.refresh_token.present?
+      account.refresh_token = auth_hash.credentials.refresh_token
     end
     account.expires_at = Time.at(auth_hash.credentials.expires_at)
     account.email = auth_hash.info.email
