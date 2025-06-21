@@ -156,3 +156,22 @@ If you need to delete and readd all messages for a Topic, in rails console run:
 ```ruby
 Topic.find(42).debug_refresh # Replace 42 witht the ID of the topic
 ```
+
+## Deployment
+
+### GitHub Secrets Required
+- `DIGITALOCEAN_ACCESS_TOKEN` - DO API token
+- `RAILS_TEST_MASTER_KEY` - Test master key
+
+### DigitalOcean Setup
+1. Create app from GitHub repo (main branch)
+2. After creation, add in DO dashboard:
+   - `RAILS_MASTER_KEY` - Production master key
+3. In Cloudflare, point DNS to DO app:
+   - `vipreply.ai` → CNAME to DO app URL
+   - `app.vipreply.ai` → CNAME to DO app URL
+
+### Deploy Process
+- Push to `main` → GitHub Actions runs tests → Auto-deploys to DO
+- Database migrations run automatically
+- App spec: `.do/app.yaml`

@@ -23,11 +23,11 @@ features:
 ingress:
   rules:
     - component:
-        name: vipreply-ai
+        name: vipreply-ai-service-prod
       match:
         path:
           prefix: /
-name: vipreply-prod-app
+name: vipreply-ai-prod
 region: nyc
 services:
   - alerts:
@@ -66,5 +66,5 @@ services:
     http_port: 3000
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-2gb
-    name: vipreply-ai
+    name: vipreply-ai-service-prod
     source_dir: /
