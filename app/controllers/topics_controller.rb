@@ -35,8 +35,8 @@ class TopicsController < ApplicationController
     end
 
     # Determine the 'from' and 'to' fields using the most recent message
-    from = "#{@account.name} <#{@account.email}>"
-    to = if most_recent_message.from_email == @account.email
+    from_address = "#{@account.name} <#{@account.email}>"
+    to_address = if most_recent_message.from_email == @account.email
       most_recent_message.to
     else
       most_recent_message.from
@@ -59,6 +59,7 @@ class TopicsController < ApplicationController
       #{quoted_plaintext}
     PLAINTEXT
 
+    # TODO remove this stupid div around and just give blockquote id like gmail
     email_body_html = <<~HTML
       #{simple_format(email_body)}
 
@@ -78,12 +79,12 @@ class TopicsController < ApplicationController
 
     # Build the email message
     email = Mail.new do
-      from from
-      to to
+      from from_address
+      to to_address
       subject subject
 
       text_part do
-        body quoted_plaintext # Plain text version
+        body email_body_plaintext
       end
 
       html_part do
