@@ -138,28 +138,35 @@ Topic.find(42).debug_refresh # Replace 42 witht the ID of the topic
 
 ## Deployment
 
-### GitHub Secrets Required
-- `DIGITALOCEAN_ACCESS_TOKEN` - DO API token
-- `RAILS_TEST_MASTER_KEY` - Test master key (Jacob knows the key)
-
 ### Deploy Process
 
+1. Add required Github secrets
+   - `DIGITALOCEAN_ACCESS_TOKEN` - DO API token
+   - `RAILS_TEST_MASTER_KEY` - Test master key
 1. Prepare app.yaml: Comment out RAILS_MASTER_KEY in .do/app.yaml (DigitalOcean doesn't accept encrypted values on first deploy, apparently)
 2. Deploy: Push to main → GitHub Actions runs tests → Auto-deploys to DO
 3. First deployment will fail (expected - missing master key)
 4. Add secret in DO Dashboard:
-  - Go to app settings → Environment Variables
-  - Add RAILS_MASTER_KEY with the production key value (get from Jacob)
-  - Save and let app restart
+   - Go to app settings → Environment Variables
+   - Add RAILS_MASTER_KEY with the production key value
+   - Save and let app restart
 5. Get encrypted value:
-  - Go to Settings → App Spec in DO dashboard
-  - Find the RAILS_MASTER_KEY - it now shows as EV[...] (encrypted format)
-  - Copy this entire encrypted value
+   - Go to Settings → App Spec in DO dashboard
+   - Find the RAILS_MASTER_KEY - it now shows as EV[...] (encrypted format)
+   - Copy this entire encrypted value
 6. Update app.yaml:
-  - Uncomment RAILS_MASTER_KEY in .do/app.yaml
-  - Replace with the encrypted value from step 5
-  - Commit and push to redeploy with the encrypted secret
+   - Uncomment RAILS_MASTER_KEY in .do/app.yaml
+   - Replace with the encrypted value from step 5
+   - Commit and push to redeploy with the encrypted secret
 7. Configure DNS (after app is running):
-  - In Cloudflare, create CNAMEs:
-    - vipreply.ai → DO app URL
-    - app.vipreply.ai → DO app URL
+   - In Cloudflare, create CNAMEs:
+     - vipreply.ai → DO app URL
+     - app.vipreply.ai → DO app URL
+
+### Security Configuration Audit Points
+To verify integrity of security-relevant configurations:
+- **DigitalOcean**: Account → Security → Audit Logs
+- **GitHub**: Settings → Security log
+- **Cloudflare**: Account → Audit Log
+- **Google Cloud**: Console → Activity logs
+- **Stripe**: Dashboard → Logs
