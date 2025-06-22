@@ -1,27 +1,4 @@
-# README
-
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+# VIPReply
 
 ## Development Setup
 
@@ -48,8 +25,10 @@ Things you may want to cover:
     ```sh
     touch config/credentials/development.key
     chmod 600 config/credentials/development.key
+    touch config/credentials/test.key
+    chmod 600 config/credentials/test.key
     ```
-   Then paste the master key into `config/credentials/development.key` (never commit this file)
+   Then paste the master key for development into `config/credentials/development.key` and the master key for testing into `config/credentials/test.key`.
 
 4. Start Postgres:
     ```sh
@@ -161,17 +140,12 @@ Topic.find(42).debug_refresh # Replace 42 witht the ID of the topic
 
 ### GitHub Secrets Required
 - `DIGITALOCEAN_ACCESS_TOKEN` - DO API token
-- `RAILS_TEST_MASTER_KEY` - Test master key
-
-### DigitalOcean Setup
-1. Create app from GitHub repo (main branch)
-2. After creation, add in DO dashboard:
-   - `RAILS_MASTER_KEY` - Production master key
-3. In Cloudflare, point DNS to DO app:
-   - `vipreply.ai` → CNAME to DO app URL
-   - `app.vipreply.ai` → CNAME to DO app URL
+- `RAILS_TEST_MASTER_KEY` - Test master key (Jacob knows the key)
 
 ### Deploy Process
 - Push to `main` → GitHub Actions runs tests → Auto-deploys to DO
-- Database migrations run automatically
-- App spec: `.do/app.yaml`
+- Deployment will fail (no master key). After creation, add in DO dashboard:
+   - `RAILS_MASTER_KEY` - Production master key (Jacob knows the key)
+- In Cloudflare, point DNS to DO app:
+   - `vipreply.ai` → CNAME to DO app URL
+   - `app.vipreply.ai` → CNAME to DO app URL
