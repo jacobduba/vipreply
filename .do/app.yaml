@@ -59,10 +59,6 @@ services:
       - key: SOLID_QUEUE_IN_PUMA
         scope: RUN_AND_BUILD_TIME
         value: "true"
-    github:
-      branch: main
-      deploy_on_push: true
-      repo: jacobduba/vipreply
     http_port: 3000
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-2gb
