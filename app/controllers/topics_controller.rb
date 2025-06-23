@@ -4,9 +4,9 @@ class TopicsController < ApplicationController
   include ActionView::Helpers::TextHelper
 
   before_action :authorize_account
+  before_action :require_subscription
   before_action :set_topic
   before_action :authorize_account_owns_topic
-  before_action :require_subscription
 
   include GeneratorConcern
 
@@ -233,11 +233,7 @@ class TopicsController < ApplicationController
   private
 
   def set_topic
-    @topic = if ["show", "remove_template"].include?(action_name)
-      Topic.includes(:templates).find(params[:id])
-    else
-      Topic.find(params[:id])
-    end
+    @topic = Topic.find(params[:id])
   end
 
   def authorize_account_owns_topic
