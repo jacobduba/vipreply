@@ -15,31 +15,27 @@ class TemplatesController < ApplicationController
 
   def new
     @template = Template.new
-    @input_errors = []
     @output_errors = []
-    @topic_id = params[:topic_id]
   end
 
   def create
     @template = @account.inbox.templates.new(template_params)
 
     unless @template.save
-      @input_errors = @template.errors.full_messages_for(:input)
       @output_errors = @template.errors.full_messages_for(:output)
       render :new
+      return
     end
 
     render turbo_stream: turbo_stream.append("templates_collection", partial: "template", locals: {template: @template})
   end
 
   def edit
-    @input_errors = []
     @output_errors = []
   end
 
   def update
     unless @template.update(template_params)
-      @input_errors = @template.errors.full_messages_for(:input)
       @output_errors = @template.errors.full_messages_for(:output)
       render :edit
       return
