@@ -118,7 +118,13 @@ gem install ruby-lsp htmlbeautifier
 
 #### Google Cloud Pub/Sub
 
-I think we set up ngrok for this
+The dashboard is (here)
+
+Mock http request to test locally:
+
+```
+
+```
 
 #### Stripe Webhook
 
