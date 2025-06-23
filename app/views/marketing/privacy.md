@@ -79,9 +79,7 @@ We also store information you may volunteer, for example, written responses to s
 - **DigitalOcean**: for hosting our infrastructure.
 - **Cloudflare**: for DNS management and CDN services.
 - **VoyageAI**: for generating text embeddings.
-<!-- - **OpenRouter**: for routing AI requests to improve reliability. -->
 - **Anthropic**: primary AI provider for generating personalized email replies.
-  <!-- - **OpenAI**: backup AI provider when Anthropic is unavailable. -->
 - **Google**: for OAuth authentication, fetching Gmail messages and attachments when you connect your inbox, and delivering web fonts to your browser.
 - **Honeybadger**: for application error monitoring and reporting.
 - **PostHog**: for product analytics and usage tracking.
