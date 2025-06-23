@@ -230,24 +230,6 @@ class TopicsController < ApplicationController
     ]
   end
 
-  # Debug Find Template method
-  # TODO Remove???? Idk what this is used for
-  def find_template
-    # This will calculate and assign the best templates based on the latest message.
-    @topic.find_best_templates
-
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "template-selector-body",
-          partial: "topics/template_selector_body",
-          locals: {templates: @topic.templates}
-        )
-      end
-      format.html { redirect_to topic_path(@topic) }
-    end
-  end
-
   private
 
   def set_topic

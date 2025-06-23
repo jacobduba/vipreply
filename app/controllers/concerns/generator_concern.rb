@@ -16,18 +16,4 @@ module GeneratorConcern
         locals: {input_errors: [], output_errors: [], topic: topic})
     ]
   end
-
-  # Find Templates button handler
-  # TODO remove?
-  def handle_find_templates(topic)
-    topic.find_best_templates
-    render turbo_stream: [
-      turbo_stream.replace("template_form",
-        partial: "topics/template_form",
-        locals: {input_errors: [], output_errors: [], topic: topic}),
-      turbo_stream.replace("template-selector-body",
-        partial: "topics/template_selector_body",
-        locals: {templates: topic.templates})
-    ]
-  end
 end
