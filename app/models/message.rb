@@ -19,8 +19,6 @@ class Message < ApplicationRecord
 
     doc = Nokogiri::HTML5(html)
 
-    # TODO go through and actually understand this stuff
-
     # Don't hide history if it's the first message
     unless index == 0
       # VIPReply
@@ -43,29 +41,35 @@ class Message < ApplicationRecord
         if prev&.text&.match?(/On\s+.+\swrote:/)
           # Check if there's an empty div before the "On ... wrote:" element
           prev_prev = prev.previous_element
-          if prev_prev && prev_prev.name == "div" && prev_prev.text.strip.empty?
-            prev_prev.remove
-          end
-          prev.remove
-        end
+          prev_prev.remove if prev_prev && prev_prev.name == "div" && prev_prev.text.strip.empty?
 
-        blockquote.remove
+          prev.remove
+          blockquote.remove
+        end
       end
 
       # Outlook
       doc.css("#divRplyFwdMsg").each do |div|
         # Check for previous hr element
-        prev = div.previous_element
-        if prev && prev.name == "hr"
-          prev.remove
-        end
-
-        # Remove next element if it exists
-        next_element = div.next_element
-        next_element&.remove
-
-        # Remove the div itself
+        p = div.previous_element
+        n = div.next_element
+        p.remove if p && p.name == "hr"
+        n.remove if n && n.name == "div"
         div.remove
+      end
+
+      # Apple Mail
+      doc.css("div[dir='ltr']").each do |div|
+        # Check if this div contains a blockquote with type='cite'
+        blockquote = div.css("blockquote[type='cite']").first
+        if blockquote && blockquote.text.match?(/On\s+.+\s+at\s+.+,\s+.+\s+wrote:/)
+          # Check if there's a following blockquote[type='cite']
+          next_element = div.next_element
+          if next_element && next_element.name == "blockquote" && next_element["type"] == "cite"
+            div.remove
+            next_element.remove
+          end
+        end
       end
     end
 
