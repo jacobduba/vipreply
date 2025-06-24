@@ -62,7 +62,7 @@ class Message < ApplicationRecord
       doc.css("div[dir='ltr']").each do |div|
         # Check if this div contains a blockquote with type='cite'
         blockquote = div.css("blockquote[type='cite']").first
-        if blockquote && blockquote.text.match?(/On\s+.+\s+at\s+.+,\s+.+\s+wrote:/)
+        if blockquote&.text&.match?(/On\s+.+\s+at\s+.+,\s+.+\s+wrote:/)
           # Check if there's a following blockquote[type='cite']
           next_element = div.next_element
           if next_element && next_element.name == "blockquote" && next_element["type"] == "cite"
