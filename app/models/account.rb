@@ -87,7 +87,7 @@ class Account < ApplicationRecord
       # WHY? right now we have the provider: "google_oauth2".
       # cool if we could also do provider: "google_oauth2", subscribed: true
       # Instead of loading all accounts rn
-      return unless account.subscribed?
+      next unless account.subscribed?
       account.refresh_gmail_watch
     rescue => e
       Rails.logger.error "Failed to refresh Gmail watch for #{account.email}: #{e.message}"
