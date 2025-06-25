@@ -83,6 +83,11 @@ class Account < ApplicationRecord
     where(provider: "google_oauth2")
       .select(:id, :email, :access_token, :refresh_token, :expires_at, :provider)
       .find_each do |account|
+      # TODO add db attr to account
+      # WHY? right now we have the provider: "google_oauth2".
+      # cool if we could also do provider: "google_oauth2", subscribed: true
+      # Instead of loading all accounts rn
+      return unless account.subscribed?
       account.refresh_gmail_watch
     rescue => e
       Rails.logger.error "Failed to refresh Gmail watch for #{account.email}: #{e.message}"
