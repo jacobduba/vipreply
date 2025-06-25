@@ -1,7 +1,6 @@
-<nav class="container mx-auto px-4 py-6 flex justify-between w-full">
-  <ul class="flex space-x-10 items-center">
-    <%= render partial: "marketing/logo" %>
-  </ul>
-  <%= link_to "Log in &rarr;".html_safe, login_path,
-         class: "bg-white text-stone-600 border border-stone-200 px-4 py-2 text-sm rounded-lg font-medium hover:bg-stone-100" %>
-</nav>
+<div  class="fixed top-0 left-0 w-full bg-stone-100/90 backdrop-blur-md border-b border-stone-200 z-50 transition-all duration-300 ease-in-out">
+  <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+    <%= render 'marketing/logo' %>
+    <%= render 'marketing/google_signin_button' %>
+  </div>
+</div>
