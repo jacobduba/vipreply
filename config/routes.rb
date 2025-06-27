@@ -21,6 +21,7 @@ Rails.application.routes.draw do
     # Session management
     get "login", to: "sessions#new", as: :login
     delete "logout", to: "sessions#destroy"
+    get "upgrade_permissions", to: "sessions#upgrade_permissions", as: :upgrade_permissions
 
     # Inbox
     scope :inbox do

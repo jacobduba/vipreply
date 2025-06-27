@@ -3,7 +3,6 @@
 class Account < ApplicationRecord
   class NoGmailPermissionsError < StandardError; end
   
-  has_and_belongs_to_many :models
   has_one :inbox, dependent: :destroy
 
   validates :provider, presence: true

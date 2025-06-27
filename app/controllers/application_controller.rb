@@ -10,8 +10,7 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Account::NoGmailPermissionsError do |e|
-    # TODO: redirect to kind oauth screen once created
-    redirect_to login_path, alert: "Please grant email permissions to continue."
+    redirect_to upgrade_permissions_path
   end
 
   def authorize_account
@@ -31,22 +30,6 @@ class ApplicationController < ActionController::Base
     Honeybadger.context({
       account: @account
     })
-  end
-
-  REQUIRED_SCOPES = ["https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile",
-    "openid"]
-
-  def contains_all_oauth_scopes?(scopes)
-    scopes = scopes.split(" ")
-    # & is intersection
-    # to find what subset of scopes is in REQUIRED_SCOPES
-    intersection = scopes & REQUIRED_SCOPES
-    # order matters in array equality
-    # that's why i convert to sets to remove order
-    intersection.to_set == REQUIRED_SCOPES.to_set
   end
 
   def require_subscription

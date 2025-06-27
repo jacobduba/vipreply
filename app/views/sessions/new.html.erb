@@ -8,5 +8,5 @@
       <%= flash[:alert] %>
     </p>
   <% end %>
-  <%= render partial: "shared/google_signin_button" %>
+  <%= render partial: "shared/google_signin_button", locals: { prompt_consent: @prompt_consent, request_gmail_scopes: false } %>
 </div>
