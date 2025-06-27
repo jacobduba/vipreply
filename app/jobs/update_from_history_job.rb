@@ -6,6 +6,9 @@ class UpdateFromHistoryJob < ApplicationJob
   def perform(inbox_id)
     inbox = Inbox.find(inbox_id)
     account = inbox.account
+
+    return unless account.has_oauth_permissions
+
     gmail_service = Google::Apis::GmailV1::GmailService.new
     begin
       gmail_service.authorization = account.google_credentials

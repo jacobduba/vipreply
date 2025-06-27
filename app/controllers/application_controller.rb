@@ -19,7 +19,6 @@ class ApplicationController < ActionController::Base
     })
 
     if @account.refresh_token.nil?
-      Rails.logger.debug "No refresh token found for #{@account.email}"
       reset_session
       flash[:prompt_consent] = true
       flash[:alert] = "Your Google connection expired. Try logging in again."
@@ -35,7 +34,6 @@ class ApplicationController < ActionController::Base
     begin
       @account.refresh_google_token!
     rescue Signet::AuthorizationError => e
-      Rails.logger.debug "Refresh token is invalid for #{@account.email} with error: #{e.message}"
       reset_session
       flash[:alert] = "Your Google connection expired. Try logging in again."
       flash[:prompt_consent] = true

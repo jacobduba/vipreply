@@ -7,6 +7,8 @@ class SetupInboxJob < ApplicationJob
     inbox = Inbox.find(inbox_id)
 
     account = inbox.account
+    
+    return unless account.has_oauth_permissions
 
     gmail_service = Google::Apis::GmailV1::GmailService.new
     gmail_service.authorization = account.google_credentials

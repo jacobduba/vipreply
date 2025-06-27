@@ -15,13 +15,22 @@ class Account < ApplicationRecord
   attribute :output_token_usage, :integer, default: 0
   attribute :has_oauth_permissions, :boolean, default: false
 
+  # Note on permissions
+  # - If account is disconencted we we sign the person out and show error message
+  # - If account doesnt have enough scopes we should the kinda oauth screen to prompt to grant permissions
+
   # Throws Signet::AuthorizationError
   def refresh_google_token!
+    scopes = ["email", "profile"]
+    if has_oauth_permissions
+      scopes += ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+    end
+
     credentials = Google::Auth::UserRefreshCredentials.new(
       client_id: Rails.application.credentials.google_client_id,
       client_secret: Rails.application.credentials.google_client_secret,
       refresh_token: refresh_token,
-      scope: ["email", "profile", "https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+      scope: scopes
     )
 
     credentials.refresh!
@@ -32,14 +41,20 @@ class Account < ApplicationRecord
     )
   end
 
+  # Throws Google::Auth::AuthorizationError
   def google_credentials
+    scopes = ["email", "profile"]
+    if has_oauth_permissions
+      scopes += ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+    end
+
     Google::Auth::UserRefreshCredentials.new(
       client_id: Rails.application.credentials.google_client_id,
       client_secret: Rails.application.credentials.google_client_secret,
       refresh_token: refresh_token,
       access_token: access_token,
       expires_at: expires_at,
-      scope: ["email", "profile", "https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+      scope: scopes
     )
   end
 
@@ -81,9 +96,14 @@ class Account < ApplicationRecord
   end
 
   def self.refresh_all_gmail_watches
-    where(provider: "google_oauth2")
+    where(provider: "google_oauth2", has_oauth_permissions: true)
       .select(:id, :email, :access_token, :refresh_token, :expires_at, :provider)
       .find_each do |account|
+      # TODO add db attr to account
+      # WHY? right now we have the provider: "google_oauth2".
+      # cool if we could also do provider: "google_oauth2", subscribed: true
+      # Instead of loading all accounts rn
+      next unless account.subscribed?
       account.refresh_gmail_watch
     rescue => e
       Rails.logger.error "Failed to refresh Gmail watch for #{account.email}: #{e.message}"
