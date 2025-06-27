@@ -20,7 +20,7 @@ class TopicsController < ApplicationController
 
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
-    @from_inbox = request.referrer == root_url
+    @from_inbox = request.referrer == inbox_url
   end
 
   def send_email
