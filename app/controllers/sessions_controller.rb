@@ -14,15 +14,6 @@ class SessionsController < ApplicationController
     # https://github.com/zquestz/omniauth-google-oauth2?tab=readme-ov-file#auth-hash
     auth_hash = request.env["omniauth.auth"]
 
-    scopes = auth_hash.credentials.scope.split(" ")
-
-    unless contains_all_oauth_scopes?(scopes)
-      flash[:prompt_consent] = true
-      flash[:alert] = "Not all required permissions were granted. Try granting VIPReply access to read and send emails from your inbox."
-      redirect_to login_path
-      return
-    end
-
     account = Account.find_by(provider: auth_hash.provider, uid: auth_hash.uid)
 
     account ||= Account.new
@@ -31,9 +22,7 @@ class SessionsController < ApplicationController
     account.uid = auth_hash.uid
     account.access_token = auth_hash.credentials.token
     new_refresh_token = auth_hash.credentials.refresh_token
-    if new_refresh_token.present?
-      account.refresh_token = new_refresh_token
-    end
+    account.refresh_token = new_refresh_token if new_refresh_token.present?
     account.expires_at = Time.at(auth_hash.credentials.expires_at)
     account.email = auth_hash.info.email
     account.name = auth_hash.info.name

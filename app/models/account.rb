@@ -13,6 +13,7 @@ class Account < ApplicationRecord
 
   attribute :input_token_usage, :integer, default: 0
   attribute :output_token_usage, :integer, default: 0
+  attribute :has_oauth_permissions, :boolean, default: false
 
   # Throws Signet::AuthorizationError
   def refresh_google_token!

@@ -7,7 +7,12 @@ class UpdateFromHistoryJob < ApplicationJob
     inbox = Inbox.find(inbox_id)
     account = inbox.account
     gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = account.google_credentials
+    begin
+      gmail_service.authorization = account.google_credentials
+    rescue Google::Apis::AuthorizationError => e
+      debugger
+      return
+    end
 
     user_id = "me"
     history_id = inbox.history_id
@@ -25,8 +30,6 @@ class UpdateFromHistoryJob < ApplicationJob
       Rails.logger.error "Failed to update inbox from history: #{e.message}"
       return
     end
-
-    Rails.logger.info "History response: #{history_response.pretty_inspect}"
 
     unless history_response.history
       Rails.logger.info "No new history changes for inbox #{inbox.id}."

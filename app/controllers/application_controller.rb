@@ -50,6 +50,7 @@ class ApplicationController < ActionController::Base
     "openid"]
 
   def contains_all_oauth_scopes?(scopes)
+    scopes = scopes.split(" ")
     # & is intersection
     # to find what subset of scopes is in REQUIRED_SCOPES
     intersection = scopes & REQUIRED_SCOPES
