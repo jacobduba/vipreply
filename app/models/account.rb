@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Account < ApplicationRecord
+  class NoGmailPermissionsError < StandardError; end
+  
   has_and_belongs_to_many :models
   has_one :inbox, dependent: :destroy
 
@@ -13,16 +15,18 @@ class Account < ApplicationRecord
 
   attribute :input_token_usage, :integer, default: 0
   attribute :output_token_usage, :integer, default: 0
-  attribute :has_oauth_permissions, :boolean, default: false
+  attribute :has_gmail_permissions, :boolean, default: false
 
   # Note on permissions
   # - If account is disconencted we we sign the person out and show error message
   # - If account doesnt have enough scopes we should the kinda oauth screen to prompt to grant permissions
 
-  # Throws Signet::AuthorizationError
-  def refresh_google_token!
+  # Returns Google credentials for Gmail API operations
+  # This method should only be called when has_gmail_permissions is true
+  # Throws Google::Apis::AuthorizationError if tokens are invalid/revoked
+  def google_credentials
     scopes = ["email", "profile"]
-    if has_oauth_permissions
+    if has_gmail_permissions
       scopes += ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
     end
 
@@ -30,32 +34,36 @@ class Account < ApplicationRecord
       client_id: Rails.application.credentials.google_client_id,
       client_secret: Rails.application.credentials.google_client_secret,
       refresh_token: refresh_token,
-      scope: scopes
-    )
-
-    credentials.refresh!
-
-    update!(
-      access_token: credentials.access_token,
-      expires_at: credentials.expires_at
-    )
-  end
-
-  # Throws Google::Auth::AuthorizationError
-  def google_credentials
-    scopes = ["email", "profile"]
-    if has_oauth_permissions
-      scopes += ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
-    end
-
-    Google::Auth::UserRefreshCredentials.new(
-      client_id: Rails.application.credentials.google_client_id,
-      client_secret: Rails.application.credentials.google_client_secret,
-      refresh_token: refresh_token,
       access_token: access_token,
       expires_at: expires_at,
       scope: scopes
     )
+
+    # Refresh 10 minutes before expiration to avoid race conditions
+    if expires_at < Time.current + 10.seconds
+      credentials.refresh!
+      update!(
+        access_token: credentials.access_token,
+        expires_at: credentials.expires_at
+      )
+    end
+
+    credentials
+  end
+
+  def gmail_service
+    raise NoGmailPermissionsError, "Account #{email} lacks Gmail permissions" unless has_gmail_permissions
+    
+    service = Google::Apis::GmailV1::GmailService.new
+    service.authorization = google_credentials
+    service
+  rescue Signet::AuthorizationError => e
+    Rails.logger.error "Refresh token revoked/invalid for #{email}: #{e.message}"
+    raise  # Let ApplicationController handle logout
+  rescue Google::Apis::AuthorizationError => e
+    Rails.logger.error "Missing Gmail scopes for #{email}: #{e.message}"
+    update!(has_gmail_permissions: false)
+    raise NoGmailPermissionsError, "Account #{email} lost Gmail permissions"
   end
 
   def refresh_gmail_watch
@@ -76,8 +84,7 @@ class Account < ApplicationRecord
       return
     end
 
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = google_credentials
+    gmail_service = gmail_service()
 
     watch_request = Google::Apis::GmailV1::WatchRequest.new(
       label_ids: ["INBOX"],
@@ -96,7 +103,7 @@ class Account < ApplicationRecord
   end
 
   def self.refresh_all_gmail_watches
-    where(provider: "google_oauth2", has_oauth_permissions: true)
+    where(provider: "google_oauth2", has_gmail_permissions: true)
       .select(:id, :email, :access_token, :refresh_token, :expires_at, :provider)
       .find_each do |account|
       # TODO add db attr to account

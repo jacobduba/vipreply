@@ -134,8 +134,7 @@ class Topic < ApplicationRecord
   # Delete all messages, and readd them back.
   def debug_refresh
     account = inbox.account
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = account.google_credentials
+    gmail_service = account.gmail_service
     user_id = "me"
 
     thread_response = gmail_service.get_user_thread(user_id, thread_id)

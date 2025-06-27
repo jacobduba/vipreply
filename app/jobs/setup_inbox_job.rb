@@ -8,10 +8,7 @@ class SetupInboxJob < ApplicationJob
 
     account = inbox.account
     
-    return unless account.has_oauth_permissions
-
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = account.google_credentials
+    gmail_service = account.gmail_service
     user_id = "me"
 
     # Fetch the user's profile to get the latest history_id

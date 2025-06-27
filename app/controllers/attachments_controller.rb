@@ -22,8 +22,7 @@ class AttachmentsController < ApplicationController
     message_id = attachment.message.message_id
     attachment_id = attachment.attachment_id
 
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = @account.google_credentials
+    gmail_service = @account.gmail_service
 
     response = gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
 

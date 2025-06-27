@@ -1,8 +1,22 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  rescue_from Signet::AuthorizationError do |e|
+    # Invalid/revoked refresh token - need full re-auth
+    reset_session
+    flash[:alert] = "Your Google connection expired. Try logging in again."
+    flash[:prompt_consent] = true
+    redirect_to login_path
+  end
+
+  rescue_from Account::NoGmailPermissionsError do |e|
+    # TODO: redirect to kind oauth screen once created
+    redirect_to login_path, alert: "Please grant email permissions to continue."
+  end
+
   def authorize_account
     account_id = session[:account_id]
+
     unless account_id
       return redirect_to root_path
     end
@@ -17,28 +31,6 @@ class ApplicationController < ActionController::Base
     Honeybadger.context({
       account: @account
     })
-
-    if @account.refresh_token.nil?
-      reset_session
-      flash[:prompt_consent] = true
-      flash[:alert] = "Your Google connection expired. Try logging in again."
-      return redirect_to login_path
-    end
-
-    # If access token is valid, continue
-    return unless @account.expires_at < Time.current
-    # else lets refresh
-
-    Rails.logger.debug "Access token expired for #{@account.email}, attempting refresh."
-
-    begin
-      @account.refresh_google_token!
-    rescue Signet::AuthorizationError => e
-      reset_session
-      flash[:alert] = "Your Google connection expired. Try logging in again."
-      flash[:prompt_consent] = true
-      redirect_to login_path
-    end
   end
 
   REQUIRED_SCOPES = ["https://www.googleapis.com/auth/gmail.readonly",

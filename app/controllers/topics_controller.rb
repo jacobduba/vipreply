@@ -74,8 +74,7 @@ class TopicsController < ApplicationController
     in_reply_to = most_recent_message.message_id
     references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
 
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = @account.google_credentials
+    gmail_service = @account.gmail_service
 
     # Build the email message
     email = Mail.new do

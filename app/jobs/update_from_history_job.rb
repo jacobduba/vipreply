@@ -7,13 +7,11 @@ class UpdateFromHistoryJob < ApplicationJob
     inbox = Inbox.find(inbox_id)
     account = inbox.account
 
-    return unless account.has_oauth_permissions
-
-    gmail_service = Google::Apis::GmailV1::GmailService.new
     begin
-      gmail_service.authorization = account.google_credentials
-    rescue Google::Apis::AuthorizationError => e
-      debugger
+      gmail_service = account.gmail_service
+    rescue Signet::AuthorizationError => e
+      return # Refresh token revoked
+    rescue Account::NoGmailPermissionsError => e
       return
     end
 
