@@ -37,4 +37,8 @@ class ApplicationController < ActionController::Base
       redirect_to inbox_path
     end
   end
+  
+  def require_gmail_permissions
+    redirect_to upgrade_permissions_path unless @account.has_gmail_permissions
+  end
 end

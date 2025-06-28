@@ -5,6 +5,7 @@ class TemplatesController < ApplicationController
   include GeneratorConcern
 
   before_action :authorize_account
+  before_action :require_gmail_permissions
   before_action :require_subscription
   before_action :set_template, only: [:edit, :update, :destroy]
   before_action :authorize_account_owns_template, only: [:edit, :update, :destroy]

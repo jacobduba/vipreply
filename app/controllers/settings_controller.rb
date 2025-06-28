@@ -2,6 +2,7 @@
 
 class SettingsController < ApplicationController
   before_action :authorize_account
+  before_action :require_gmail_permissions
 
   def index
   end

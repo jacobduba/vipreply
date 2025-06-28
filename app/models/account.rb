@@ -58,6 +58,7 @@ class Account < ApplicationRecord
     service
   rescue Signet::AuthorizationError => e
     Rails.logger.error "Refresh token revoked/invalid for #{email}: #{e.message}"
+    update!(has_gmail_permissions: false)
     raise  # Let ApplicationController handle logout
   rescue Google::Apis::AuthorizationError => e
     Rails.logger.error "Missing Gmail scopes for #{email}: #{e.message}"

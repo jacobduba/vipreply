@@ -40,8 +40,8 @@ class SessionsController < ApplicationController
     # That's why I decided not to logout and force prompt consent if refresh token is invalid or doesn't exist
     # Simply just show the users the kind oauth upgrade screen
 
-    debugger
-    if auth_hash.credentials.refresh_token.present?
+    new_refresh_token = auth_hash.credentials.refresh_token.present?
+    if new_refresh_token
       account.refresh_token = auth_hash.credentials.refresh_token
       account.has_gmail_permissions = has_gmail_scopes?(auth_hash.credentials.scope)
     end
@@ -59,7 +59,7 @@ class SessionsController < ApplicationController
     if account.inbox.nil?
       account.create_inbox
       # SetupInboxJob.perform_later account.inbox.id
-    elsif account.has_gmail_permissions && account.subscribed?
+    elsif new_refresh_token && account.has_gmail_permissions && account.subscribed?
       # We lost refresh token and just got it back
       # gmail watch can't refresh without refresh token
       # so refresh now that we have it

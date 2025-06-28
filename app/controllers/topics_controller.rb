@@ -4,6 +4,7 @@ class TopicsController < ApplicationController
   include ActionView::Helpers::TextHelper
 
   before_action :authorize_account
+  before_action :require_gmail_permissions
   before_action :require_subscription
   before_action :set_topic
   before_action :authorize_account_owns_topic

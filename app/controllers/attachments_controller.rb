@@ -2,6 +2,7 @@
 
 class AttachmentsController < ApplicationController
   before_action :authorize_account
+  before_action :require_gmail_permissions
   before_action :require_subscription
 
   def show
