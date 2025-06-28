@@ -7,7 +7,7 @@ class SetupInboxJob < ApplicationJob
     inbox = Inbox.find(inbox_id)
 
     account = inbox.account
-    
+
     gmail_service = account.gmail_service
     user_id = "me"
 

@@ -20,7 +20,7 @@ class FetchGmailThreadJob < ApplicationJob
     Rails.logger.info "FetchGmailThreadJob: Starting fetch for thread #{thread_id} in inbox #{inbox_id}"
 
     account = inbox.account
-    
+
     begin
       gmail_service = account.gmail_service
       thread_response = gmail_service.get_user_thread("me", thread_id)

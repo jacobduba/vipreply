@@ -57,6 +57,14 @@ In three seperate terminals:
 Visit `http://localhost:3000` in your browser to see the application running.
 Note that only localhost:3000 will work due to OAuth.
 
+### Linting
+
+Run StandardRB to lint and auto-fix Ruby code:
+
+```sh
+bin/lint
+```
+
 ### VSCode Setup
 
 Install **Ruby LSP:** [https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp)
@@ -128,11 +136,15 @@ Mock http request to test locally:
 
 #### Stripe Webhook
 
-You can use Stripe CLI to test webhooks locally:
+Install the Stripe CLI: https://docs.stripe.com/stripe-cli
+
+To test webhooks locally, run in a separate terminal:
 
 ```sh
-stripe listen --forward-to http://localhost:3000/webhooks/stripe
+bin/stripe
 ```
+
+This will forward Stripe events to http://localhost:3000/webhooks/stripe
 
 ### Debugging Tips
 

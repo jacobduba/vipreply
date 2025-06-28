@@ -2,7 +2,7 @@
 
 class Account < ApplicationRecord
   class NoGmailPermissionsError < StandardError; end
-  
+
   has_one :inbox, dependent: :destroy
 
   validates :provider, presence: true
@@ -52,7 +52,7 @@ class Account < ApplicationRecord
 
   def gmail_service
     raise NoGmailPermissionsError, "Account #{email} lacks Gmail permissions" unless has_gmail_permissions
-    
+
     service = Google::Apis::GmailV1::GmailService.new
     service.authorization = google_credentials
     service
