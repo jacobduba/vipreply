@@ -23,19 +23,20 @@ class AttachmentsController < ApplicationController
     message_id = attachment.message.message_id
     attachment_id = attachment.attachment_id
 
-    gmail_service = @account.gmail_service
+    @account.with_gmail_service do |service|
+      response = service.get_user_message_attachment(user_id, message_id, attachment_id)
 
-    response = gmail_service.get_user_message_attachment(user_id, message_id, attachment_id)
+      attachment_data = response.data
 
-    attachment_data = response.data
-    # Want to render in browser always, at least for now
-    disposition_type = "inline"
-    # disposition_type = attachment.content_id ? "inline" : "attachment"
+      # Want to render in browser always, at least for now
+      disposition_type = "inline"
+      # disposition_type = attachment.content_id ? "inline" : "attachment"
 
-    # Send the file to the browser
-    send_data attachment_data,
-      filename: attachment.filename,
-      type: attachment.mime_type,
-      disposition: disposition_type
+      # Send the file to the browser
+      send_data attachment_data,
+        filename: attachment.filename,
+        type: attachment.mime_type,
+        disposition: disposition_type
+    end
   end
 end

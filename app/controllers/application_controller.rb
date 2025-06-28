@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  rescue_from Signet::AuthorizationError do |e|
-    # Invalid/revoked refresh token - need full re-auth
-    reset_session
-    flash[:alert] = "Your Google connection expired. Try logging in again."
-    flash[:prompt_consent] = true
-    redirect_to login_path
-  end
-
   rescue_from Account::NoGmailPermissionsError do |e|
+    flash[:alert] = "Please connect your Gmail account to continue."
     redirect_to upgrade_permissions_path
   end
 
@@ -37,7 +30,7 @@ class ApplicationController < ActionController::Base
       redirect_to inbox_path
     end
   end
-  
+
   def require_gmail_permissions
     redirect_to upgrade_permissions_path unless @account.has_gmail_permissions
   end

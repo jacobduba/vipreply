@@ -27,8 +27,6 @@ class SessionsController < ApplicationController
 
     account.provider = auth_hash.provider # google_oauth2
     account.uid = auth_hash.uid
-    account.access_token = auth_hash.credentials.token
-    account.expires_at = Time.at(auth_hash.credentials.expires_at)
     account.email = auth_hash.info.email
     account.name = auth_hash.info.name
     account.first_name = auth_hash.info.first_name
@@ -42,6 +40,13 @@ class SessionsController < ApplicationController
 
     new_refresh_token = auth_hash.credentials.refresh_token.present?
     if new_refresh_token
+      # Only update tokens when we get a new refresh token (new auth flow)
+
+      # Only override access token when there's a new refresh token
+      # Cuz no refresh token given when signing in without gmail scopes
+      # And those scopes might be granted already
+      account.access_token = auth_hash.credentials.token
+      account.expires_at = Time.at(auth_hash.credentials.expires_at)
       account.refresh_token = auth_hash.credentials.refresh_token
       account.has_gmail_permissions = has_gmail_scopes?(auth_hash.credentials.scope)
     end

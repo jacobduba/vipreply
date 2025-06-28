@@ -50,18 +50,21 @@ class Account < ApplicationRecord
     credentials
   end
 
-  def gmail_service
+  def with_gmail_service
     raise NoGmailPermissionsError, "Account #{email} lacks Gmail permissions" unless has_gmail_permissions
 
     service = Google::Apis::GmailV1::GmailService.new
     service.authorization = google_credentials
-    service
+
+    yield service
   rescue Signet::AuthorizationError => e
+    # Raised when refresh token is invalid/revoked (user disconnected app completely)
     Rails.logger.error "Refresh token revoked/invalid for #{email}: #{e.message}"
     update!(has_gmail_permissions: false)
-    raise  # Let ApplicationController handle logout
+    raise NoGmailPermissionsError, "Account #{email} lost Gmail permissions"
   rescue Google::Apis::AuthorizationError => e
-    Rails.logger.error "Missing Gmail scopes for #{email}: #{e.message}"
+    # Raised for 401 errors - may occur when user disconnects app
+    Rails.logger.error "Authorization failed for #{email}: #{e.message}"
     update!(has_gmail_permissions: false)
     raise NoGmailPermissionsError, "Account #{email} lost Gmail permissions"
   end
@@ -84,22 +87,17 @@ class Account < ApplicationRecord
       return
     end
 
-    gmail_service = gmail_service()
+    with_gmail_service do |service|
+      watch_request = Google::Apis::GmailV1::WatchRequest.new(
+        label_ids: ["INBOX"],
+        topic_name: Rails.application.credentials.gmail_topic_name
+      )
 
-    watch_request = Google::Apis::GmailV1::WatchRequest.new(
-      label_ids: ["INBOX"],
-      topic_name: Rails.application.credentials.gmail_topic_name
-    )
-
-    begin
-      response = gmail_service.watch_user("me", watch_request)
-    rescue Google::Apis::ClientError => e
-      Rails.logger.error "Failed to start Gmail watch for #{email}: #{e.message}"
-      nil
+      response = service.watch_user("me", watch_request)
+      Rails.logger.info "Gmail watch started for #{email}, history_id: #{response.history_id}"
     end
 
-    Rails.logger.info "Gmail watch started for #{email}, history_id: #{response.history_id}"
-    response
+    nil
   end
 
   def self.refresh_all_gmail_watches
@@ -111,9 +109,10 @@ class Account < ApplicationRecord
       # cool if we could also do provider: "google_oauth2", subscribed: true
       # Instead of loading all accounts rn
       next unless account.subscribed?
-      account.refresh_gmail_watch
-    rescue => e
-      Rails.logger.error "Failed to refresh Gmail watch for #{account.email}: #{e.message}"
+
+      Rails.error.handle do # just learned about this, lets u report error but doesnt stop the process
+        account.refresh_gmail_watch
+      end
     end
   end
 
