@@ -1,6 +1,6 @@
 <% content_for :title, "Connect Gmail | VIPReply" %>
 <div class="min-h-screen">
-  <div class="container mx-auto px-4 pt-16">
+  <div class="mx-auto md:px-4 pt-16">
     <div class="flex justify-center mb-8">
       <%= render partial: "marketing/logo" %>
     </div>
@@ -10,9 +10,9 @@
           <%= flash[:alert] %>
         </div>
       <% end %>
-      <div class="bg-white rounded-lg shadow-md p-8">
+      <div class="bg-white rounded-lg shadow-md px-4 md:px-8 py-8">
         <h1 class="text-3xl font-bold mb-4 text-stone-900">Welcome, <%= @display_name %>.</h1>
-        <p class="text-lg text-stone-600 mb-6">Grant VIPReply access to Gmail to automatically draft personalized customer responses. Just review and send with two clicks.</p>
+        <p class="text-lg text-stone-600 mb-6">Grant access to your Gmail account, and VIPReply will draft personalized replies for your customers. Just review and send in a few clicks.</p>
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
           <h3 class="font-semibold text-blue-900 mb-3">VIPReply will be able to:</h3>
           <ul class="space-y-2 text-blue-800">
@@ -35,11 +35,11 @@
           <%= render partial: "shared/google_signin_button", locals: { prompt_consent: true, request_gmail_scopes: true, login_hint: @account&.email, continue_with_google_copy: true } %>
         </div>
         <p class="text-sm text-stone-500 text-center">
-          Your privacy is our priority. Your data is encrypted and no human will read your emails.<br />
+          Your privacy is our priority. Your data is encrypted, and no human will read your emails.
           <%= link_to "View our Privacy Policy", privacy_path, target: "_blank", class: "text-blue-500 hover:text-blue-600 underline" %>
         </p>
       </div>
-      <p class="text-sm text-stone-500 text-center mt-4">
+      <p class="text-sm text-stone-500 text-center my-4">
         Not <%= @display_name %>? <%= link_to "Sign out", logout_path, data: { turbo_method: "delete" }, class: "text-blue-500 hover:text-blue-600 underline" %>
       </p>
     </div>
