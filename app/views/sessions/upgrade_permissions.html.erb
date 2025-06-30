@@ -1,0 +1,47 @@
+<% content_for :title, "Connect Gmail | VIPReply" %>
+<div class="min-h-screen">
+  <div class="container mx-auto px-4 pt-16">
+    <div class="flex justify-center mb-8">
+      <%= render partial: "marketing/logo" %>
+    </div>
+    <div class="max-w-2xl mx-auto">
+      <% if flash[:alert] %>
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
+          <%= flash[:alert] %>
+        </div>
+      <% end %>
+      <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold mb-4 text-stone-900">Welcome, <%= @display_name %>.</h1>
+        <p class="text-lg text-stone-600 mb-6">Grant VIPReply access to Gmail to automatically draft personalized customer responses. Just review and send with two clicks.</p>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <h3 class="font-semibold text-blue-900 mb-3">VIPReply will be able to:</h3>
+          <ul class="space-y-2 text-blue-800">
+            <li class="flex gap-1.5 items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-3.5">
+                <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
+                <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
+              </svg>
+              <span>View your emails to generate reply drafts.</span>
+            </li>
+            <li class="flex gap-1.5 items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-3.5">
+                <path d="M2.87 2.298a.75.75 0 0 0-.812 1.021L3.39 6.624a1 1 0 0 0 .928.626H8.25a.75.75 0 0 1 0 1.5H4.318a1 1 0 0 0-.927.626l-1.333 3.305a.75.75 0 0 0 .811 1.022 24.89 24.89 0 0 0 11.668-5.115.75.75 0 0 0 0-1.175A24.89 24.89 0 0 0 2.869 2.298Z" />
+              </svg>
+              <span>Send replies (only with your explicit approval).</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mb-4">
+          <%= render partial: "shared/google_signin_button", locals: { prompt_consent: true, request_gmail_scopes: true, login_hint: @account&.email, continue_with_google_copy: true } %>
+        </div>
+        <p class="text-sm text-stone-500 text-center">
+          Your privacy is our priority. Your data is encrypted and no human will read your emails.<br />
+          <%= link_to "View our Privacy Policy", privacy_path, target: "_blank", class: "text-blue-500 hover:text-blue-600 underline" %>
+        </p>
+      </div>
+      <p class="text-sm text-stone-500 text-center mt-4">
+        Not <%= @display_name %>? <%= link_to "Sign out", logout_path, data: { turbo_method: "delete" }, class: "text-blue-500 hover:text-blue-600 underline" %>
+      </p>
+    </div>
+  </div>
+</div>

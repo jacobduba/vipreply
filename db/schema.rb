@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_18_215405) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_28_191829) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -35,6 +35,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_18_215405) do
     t.boolean "cancel_at_period_end", default: false
     t.integer "input_token_usage", default: 0
     t.integer "output_token_usage", default: 0
+    t.boolean "has_gmail_permissions", default: false
     t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 

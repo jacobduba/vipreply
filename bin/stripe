@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+puts "Starting Stripe webhook listener..."
+puts "Make sure you have the Stripe CLI installed: https://docs.stripe.com/stripe-cli"
+
+exec 'stripe', 'listen', '--forward-to', 'localhost:3000/webhooks/stripe', *ARGV

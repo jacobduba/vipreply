@@ -8,22 +8,24 @@ class SetupInboxJob < ApplicationJob
 
     account = inbox.account
 
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = account.google_credentials
     user_id = "me"
 
-    # Fetch the user's profile to get the latest history_id
-    profile = gmail_service.get_user_profile(user_id)
-    inbox.update!(history_id: profile.history_id.to_i)
+    account.with_gmail_service do |service|
+      # Fetch the user's profile to get the latest history_id
+      profile = service.get_user_profile(user_id)
+      inbox.update!(history_id: profile.history_id.to_i)
 
-    # Fetch thread IDs with a single request
-    query = "newer_than:60d"
-    threads_response = gmail_service.list_user_threads(user_id, q: query)
+      # Fetch thread IDs with a single request
+      query = "newer_than:60d"
+      threads_response = service.list_user_threads(user_id, q: query)
 
-    account.refresh_gmail_watch
+      account.refresh_gmail_watch
 
-    # Ensure threads_response and threads_response.threads are not nil before proceeding
-    if threads_response&.threads
+      unless threads_response&.threads
+        Rails.logger.info "No threads found for inbox #{inbox.id} matching query '#{query}'."
+        return
+      end
+
       # If import jobs remaining > 0, then we show a banner
       inbox.update!(initial_import_jobs_remaining: threads_response.threads.count)
 
@@ -37,9 +39,6 @@ class SetupInboxJob < ApplicationJob
         FetchGmailThreadJob.perform_later(inbox.id, thread[:id], thread[:snippet])
       end
       Rails.logger.info "Finished enqueuing fetch jobs for inbox #{inbox.id}."
-    else
-      Rails.logger.info "No threads found for inbox #{inbox.id} matching query '#{query}'."
-      account.refresh_gmail_watch
     end
   end
 end

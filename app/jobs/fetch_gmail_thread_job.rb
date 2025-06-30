@@ -20,17 +20,17 @@ class FetchGmailThreadJob < ApplicationJob
     Rails.logger.info "FetchGmailThreadJob: Starting fetch for thread #{thread_id} in inbox #{inbox_id}"
 
     account = inbox.account
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = account.google_credentials
 
     begin
-      thread_response = gmail_service.get_user_thread("me", thread_id)
+      account.with_gmail_service do |service|
+        thread_response = service.get_user_thread("me", thread_id)
 
-      # Process the fetched thread
-      # Using the same caching logic as the original batch callback
-      Topic.cache_from_gmail(thread_response, snippet, inbox)
+        # Process the fetched thread
+        # Using the same caching logic as the original batch callback
+        Topic.cache_from_gmail(thread_response, snippet, inbox)
 
-      Rails.logger.info "FetchGmailThreadJob: Successfully processed thread #{thread_id} for inbox #{inbox.id}"
+        Rails.logger.info "FetchGmailThreadJob: Successfully processed thread #{thread_id} for inbox #{inbox.id}"
+      end
     ensure
       inbox.decrement!(:initial_import_jobs_remaining)
     end

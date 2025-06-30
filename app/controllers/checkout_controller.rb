@@ -2,6 +2,7 @@
 
 class CheckoutController < ApplicationController
   before_action :authorize_account
+
   def subscribe
     # Get or create Stripe customer
     if @account.stripe_customer_id.present?

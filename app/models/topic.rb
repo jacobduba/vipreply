@@ -134,16 +134,16 @@ class Topic < ApplicationRecord
   # Delete all messages, and readd them back.
   def debug_refresh
     account = inbox.account
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = account.google_credentials
     user_id = "me"
 
-    thread_response = gmail_service.get_user_thread(user_id, thread_id)
+    account.with_gmail_service do |service|
+      thread_response = service.get_user_thread(user_id, thread_id)
 
-    ActiveRecord::Base.transaction do
-      messages.destroy_all
+      ActiveRecord::Base.transaction do
+        messages.destroy_all
 
-      Topic.cache_from_gmail(thread_response, snippet, inbox)
+        Topic.cache_from_gmail(thread_response, snippet, inbox)
+      end
     end
   end
 

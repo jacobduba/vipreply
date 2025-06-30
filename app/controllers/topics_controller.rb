@@ -4,6 +4,7 @@ class TopicsController < ApplicationController
   include ActionView::Helpers::TextHelper
 
   before_action :authorize_account
+  before_action :require_gmail_permissions
   before_action :require_subscription
   before_action :set_topic
   before_action :authorize_account_owns_topic
@@ -74,9 +75,6 @@ class TopicsController < ApplicationController
     in_reply_to = most_recent_message.message_id
     references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
 
-    gmail_service = Google::Apis::GmailV1::GmailService.new
-    gmail_service.authorization = @account.google_credentials
-
     # Build the email message
     email = Mail.new do
       from from_address
@@ -102,16 +100,13 @@ class TopicsController < ApplicationController
     # Encode the email message
     raw_message = email.encoded
 
-    # Attach the email to the thread by setting `threadId`
-    begin
+    # Send the email using Gmail API
+    @account.with_gmail_service do |service|
       message_object = Google::Apis::GmailV1::Message.new(
         raw: raw_message,
         thread_id: @topic.thread_id
       )
-      gmail_service.send_user_message("me", message_object)
-    rescue Google::Apis::ClientError => e
-      Rails.logger.error "Failed to send email: #{e.message}"
-      return
+      service.send_user_message("me", message_object)
     end
 
     inbox = @account.inbox
