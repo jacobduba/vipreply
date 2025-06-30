@@ -10,6 +10,7 @@ class SessionsController < ApplicationController
 
   def upgrade_permissions
     # Show the kind OAuth upgrade screen
+    @display_name = @account.name || @account.email
   end
 
   def destroy
