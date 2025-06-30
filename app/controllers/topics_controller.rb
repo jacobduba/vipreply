@@ -218,7 +218,6 @@ class TopicsController < ApplicationController
     @topic.save
     render turbo_stream: [
       turbo_stream.replace("template_form", partial: "topics/template_form", locals: {
-        input_errors: [],
         output_errors: [],
         topic: @topic
       })

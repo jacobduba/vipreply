@@ -38,7 +38,7 @@ class Account < ApplicationRecord
       scope: scopes
     )
 
-    # Refresh 10 minutes before expiration to avoid race conditions
+    # Refresh 10 seconds before expiration to avoid race conditions
     if expires_at < Time.current + 10.seconds
       credentials.refresh!
       update!(

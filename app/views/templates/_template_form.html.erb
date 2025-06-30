@@ -1,5 +1,5 @@
 <%= form_with model: template do |form| %>
-  <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
+  <div class="grid gap-4 mb-4 grid-cols-2">
     <div class="col-span-2">
       <%= form.label :output, "Template response email", class: ["block text-sm font-medium text-stone-900", (output_errors.empty? ? "mb-2" : "text-red-800")] %>
       <ul class="list-disc list-inside text-red-800 text-sm mb-2">

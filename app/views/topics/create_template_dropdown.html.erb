@@ -34,7 +34,7 @@
                       action: "turbo:submit-end->template-selector-dropdown#toggle
                               turbo:submit-start->template-selector-dropdown#showLoadingOverlay",
                     } do |form| %>
-        <div class="grid gap-4 mb-4 grid-cols-2" id="template_form_inputs">
+        <div class="grid gap-4 mb-4 grid-cols-2">
           <div class="col-span-2">
             <%= form.label :output, "Template", class: ["block text-sm font-medium text-stone-900", (@output_errors.empty? ? "mb-2" : "text-red-800")] %>
             <ul class="list-disc list-inside text-red-800 text-sm mb-2">

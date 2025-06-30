@@ -13,7 +13,7 @@ module GeneratorConcern
         locals: {topic: topic, generated_reply: topic.generated_reply}),
       turbo_stream.replace("template_form",
         partial: "topics/template_form",
-        locals: {input_errors: [], output_errors: [], topic: topic})
+        locals: {output_errors: [], topic: topic})
     ]
   end
 end

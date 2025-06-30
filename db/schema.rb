@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_28_191829) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_30_203752) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -104,9 +104,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_28_191829) do
   end
 
   create_table "templates", force: :cascade do |t|
-    t.text "input"
     t.text "output"
-    t.vector "input_embedding", limit: 3072
     t.bigint "inbox_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

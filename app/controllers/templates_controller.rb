@@ -75,6 +75,6 @@ class TemplatesController < ApplicationController
   end
 
   def template_params
-    params.require(:template).permit(:input, :output)
+    params.require(:template).permit(:output)
   end
 end
