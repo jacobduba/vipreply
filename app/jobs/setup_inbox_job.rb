@@ -23,7 +23,7 @@ class SetupInboxJob < ApplicationJob
 
       unless threads_response&.threads
         Rails.logger.info "No threads found for inbox #{inbox.id} matching query '#{query}'."
-        return
+        next
       end
 
       # If import jobs remaining > 0, then we show a banner

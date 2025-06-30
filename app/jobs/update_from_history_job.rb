@@ -22,7 +22,7 @@ class UpdateFromHistoryJob < ApplicationJob
 
       unless history_response.history
         Rails.logger.info "No new history changes for inbox #{inbox.id}."
-        return
+        next
       end
 
       history_response.history.each do |history|
@@ -49,10 +49,10 @@ class UpdateFromHistoryJob < ApplicationJob
       end
     rescue Google::Apis::ClientError => e
       Rails.logger.error "Failed to update inbox from history: #{e.message}"
-      return
+      nil
     end
   rescue Account::NoGmailPermissionsError => e
     Rails.logger.error "No Gmail permissions for account #{account.email}: #{e.message}"
-    return
+    nil
   end
 end
