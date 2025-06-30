@@ -13,8 +13,15 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
-    def login_as_account1
+    def login_as_account1(include_gmail_scopes: true)
       OmniAuth.config.test_mode = true
+      
+      scopes = ["openid", "https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"]
+      
+      if include_gmail_scopes
+        scopes += ["https://www.googleapis.com/auth/gmail.send", "https://www.googleapis.com/auth/gmail.readonly"]
+      end
+      
       OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(
         provider: "google_oauth2",
         uid: "123456789",
@@ -23,7 +30,7 @@ module ActiveSupport
           refresh_token: "123456789",
           expires_at: Time.now + 1.hour,
           expires: true,
-          scope: "openid https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.readonly"
+          scope: scopes.join(" ")
         },
         email: "account1@example.com",
         first_name: "User",

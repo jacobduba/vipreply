@@ -74,9 +74,21 @@ class SessionsController < ApplicationController
       UpdateFromHistoryJob.perform_later account.inbox.id
     end
 
+    was_upgrading = session[:account_id].present? && session[:account_id] == account.id
+    if was_upgrading && !account.has_gmail_permissions
+      flash[:alert] = "Please approve both Gmail permissions to continue"
+      redirect_to upgrade_permissions_path
+      return
+    end
+
     reset_session
     session[:account_id] = account.id
-    redirect_to inbox_path
+
+    if account.has_gmail_permissions
+      redirect_to inbox_path
+    else
+      redirect_to upgrade_permissions_path
+    end
   end
 
   private

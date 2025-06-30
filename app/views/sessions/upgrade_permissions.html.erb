@@ -5,6 +5,11 @@
       <%= render partial: "marketing/logo" %>
     </div>
     <div class="max-w-2xl mx-auto">
+      <% if flash[:alert] %>
+        <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4">
+          <%= flash[:alert] %>
+        </div>
+      <% end %>
       <div class="bg-white rounded-lg shadow-md p-8">
         <h1 class="text-3xl font-bold mb-4 text-stone-900">Welcome, <%= @display_name %>.</h1>
         <p class="text-lg text-stone-600 mb-6">Grant VIPReply access to Gmail to automatically draft personalized customer responses. Just review and send with two clicks.</p>
