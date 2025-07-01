@@ -90,6 +90,9 @@ group :development, :test do
 
   # Linter for code standard
   gem "standard", "1.49"
+
+  # Hotreloading
+  gem "hotwire-spark"
 end
 
 group :development do
