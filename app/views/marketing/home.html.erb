@@ -114,16 +114,16 @@
   </figure>
 </section>
 <section>
-  <div class="mx-auto container pt-24 sm:px-6 sm:py-24 lg:px-8">
+  <div class="mx-auto container pt-24 sm:px-6 sm:pt-20 lg:px-8">
     <div class="relative isolate overflow-hidden bg-stone-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
       <h2 class="text-balance text-2xl font-semibold tracking-tight text-white sm:text-5xl">Fly through your replies for just $19/month.</h2>
       <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-stone-300">30 day free trial. No credit card required. Cancel anytime.</p>
       <div class="mt-10 flex items-center justify-center gap-x-6">
-        <a href="#" class="rounded-md text-lg bg-white px-3.5 py-2.5 text font-semibold text-stone-900 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"> Try for free </a>
-        <a href="#" class="font-semibold text-lg text-white">
+        <%= link_to "Try for free", login_path, class: "rounded-md text-lg bg-white px-3.5 py-2.5 text font-semibold text-stone-900 shadow-sm hover:bg-stone-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white" %>
+        <%= link_to "https://cal.com/jacob.duba/vipreply-onboarding?overlayCalendar=true", target: "_blank", class: "font-semibold text-lg text-white" do %>
           Book a demo
           <span aria-hidden="true">→</span>
-        </a>
+        <% end %>
       </div>
       <svg viewBox="0 0 1024 1024" class="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]" aria-hidden="true">
         <circle cx="512" cy="512" r="512" fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)" fill-opacity="0.7" />
@@ -136,6 +136,5 @@
       </svg>
     </div>
   </div>
-</div>
 </section>
 <%= render partial: 'marketing/marketing_footer' %>
