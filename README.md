@@ -92,9 +92,11 @@ gem install ruby-lsp htmlbeautifier
 
 ```json
 {
+
   "languages": {
-    "ERB": {
+    "HTML/ERB": {
       "tab_size": 2,
+      "language_servers": ["tailwindcss-language-server", "..."],
       "formatter": {
         "external": {
           "command": "ruby",
@@ -103,7 +105,12 @@ gem install ruby-lsp htmlbeautifier
       }
     },
     "Ruby": {
-      "language_servers": ["ruby-lsp", "!solargraph", "!rubocop"],
+      "language_servers": [
+        "ruby-lsp",
+        "tailwindcss-language-server",
+        "!solargraph",
+        "!rubocop"
+      ],
       "formatter": "language_server",
       "format_on_save": "on"
     }
@@ -116,6 +123,17 @@ gem install ruby-lsp htmlbeautifier
           "formatting": true
         },
         "formatter": "standard"
+      }
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "includeLanguages": {
+          "html/erb": "html",
+          "ruby": "html"
+        },
+        "experimental": {
+          "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
+        }
       }
     }
   }
