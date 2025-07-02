@@ -6,8 +6,18 @@ export default class extends Controller {
     this.handleScroll();
 
     this.throttledScroll = this.throttle(() => this.handleScroll(), 100);
+    this.debouncedScroll = this.debounce(() => this.handleScroll(), 150);
 
     window.addEventListener("scroll", this.throttledScroll);
+    window.addEventListener("scroll", this.debouncedScroll);
+  }
+
+  debounce(fn, delay) {
+    let timeoutId;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(fn, delay);
+    };
   }
 
   throttle(fn, delay) {
@@ -23,6 +33,7 @@ export default class extends Controller {
 
   disconnect() {
     window.removeEventListener("scroll", this.throttledScroll);
+    window.removeEventListener("scroll", this.debouncedScroll);
   }
 
   handleScroll() {
