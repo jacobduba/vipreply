@@ -75,7 +75,7 @@
     </div>
   </div>
 </section>
-<section class="mb-20">
+<section class="py-12">
   <div class="mx-auto container px-4">
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center" data-controller="video-steps">
       <div class="lg:col-span-2">
@@ -128,12 +128,12 @@
     </div>
   </div>
 </section>
-<section>
-  <div class="mx-auto container pt-24 sm:px-4 sm:pt-20 my-12">
+<section class="py-12">
+  <div class="mx-auto container sm:px-4">
     <div class="relative isolate overflow-hidden bg-stone-900 px-6 py-16 shadow-2xl sm:rounded-3xl sm:px-16">
       <figure class="mx-auto max-w-2xl">
         <p class="sr-only">5 out of 5 stars</p>
-        <div class="flex gap-x-1 text-yellow-400/90 ">
+        <div class="flex gap-x-1 text-yellow-400/90">
           <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
             <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
           </svg>
@@ -173,23 +173,49 @@
     </div>
   </div>
 </section>
-<section>
-  <div class="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-    <h2 class="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Frequently asked questions</h2>
-    <p class="mt-6 max-w-2xl text-base/7 text-gray-600">Have a different question and can’t find the answer you’re looking for? Reach out by <a href="#" class="font-semibold text-blue-600 hover:text-blue-500">sending us an email</a> and we’ll get back to you as soon as we can.</p>
-    <div class="mt-20">
-      <dl class="space-y-16 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:space-y-0 lg:gap-x-10">
-        <div>
-          <dt class="text-base/7 font-semibold text-gray-900">What&#039;s the best thing about Switzerland?</dt>
-          <dd class="mt-2 text-base/7 text-gray-600">I don&#039;t know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.</dd>
-        </div>
-        <!-- More questions... -->
+<section class="py-12">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+      <h2 class="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Frequently asked questions</h2>
+      <dl class="mt-16 divide-y divide-gray-900/10">
+        <% faqs = [
+          ["Is my email data secure?", "Your data is encrypted and no human will look at your emails security. We only access email data if you explicity request support or in rare cases to prevent abuse."],
+          ["What if the AI gets something wrong?", "You review every reply before sending. The AI suggests, you decide. You always have the final say."],
+          ["How do I connect my mail?", "Click 'Connect Gmail' and you'll be taken to Google's secure login page. Grant VIPReply permission to read and send emails on your behalf. No passwords are shared - it's the same secure process used by apps like Calendly and Notion."],
+          ["Do you support other email providers besides Gmail?", "Currently Gmail only, but Outlook support is coming soon. There are no plans for other email providers beyond Outlook."]
+        ] %>
+        <% faqs.each_with_index do |(question, answer), index| %>
+          <div class="py-6 first:pt-0 last:pb-0" data-controller="faq">
+            <dt>
+              <button type="button" class="flex w-full items-start justify-between text-left text-gray-900 hover:cursor-pointer"
+                      data-action="click->faq#toggle"
+                data-faq-target="button"
+                aria-controls="faq-<%= index %>"
+                aria-expanded="false">
+                <span class="text-base/7 font-semibold"><%= question %></span>
+                <span class="ml-6 flex h-7 items-center">
+                  <!-- Plus icon (collapsed state) -->
+                  <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-faq-target="expandIcon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                  </svg>
+                  <!-- Minus icon (expanded state) -->
+                  <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-faq-target="collapseIcon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                  </svg>
+                </span>
+              </button>
+            </dt>
+            <dd class="mt-2 pr-12 hidden" id="faq-<%= index %>" data-faq-target="answer">
+              <p class="text-base/7 text-gray-600"><%= answer %></p>
+            </dd>
+          </div>
+        <% end %>
       </dl>
     </div>
   </div>
 </section>
-<section>
-  <div class="mx-auto container py-24 pb-5 sm:px-4 sm:py-12">
+<section class="py-12">
+  <div class="mx-auto container pb-5 sm:px-4">
     <div class="relative isolate overflow-hidden bg-slate-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
       <h2 class="text-balance text-2xl font-semibold tracking-tight text-white sm:text-5xl">Fly through your replies for just $19/month.</h2>
       <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-slate-300">Start your 30-day free trial. Cancel anytime.</p>
