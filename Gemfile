@@ -49,7 +49,7 @@ gem "bootsnap", require: false
 gem "neighbor", "~> 0.5.2"
 
 # TailwindCSS
-gem "tailwindcss-rails", "~> 4.1"
+gem "tailwindcss-rails", "~> 4.3"
 
 # Omniauth for connecting inboxes
 gem "omniauth", "~> 2.1"
