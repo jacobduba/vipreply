@@ -102,7 +102,6 @@ class Account < ApplicationRecord
 
   def self.refresh_all_gmail_watches
     where(provider: "google_oauth2", has_gmail_permissions: true)
-      .select(:id, :email, :access_token, :refresh_token, :expires_at, :provider)
       .find_each do |account|
       # TODO add db attr to account
       # WHY? right now we have the provider: "google_oauth2".
