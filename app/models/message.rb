@@ -74,6 +74,13 @@ class Message < ApplicationRecord
 
       # Yahoo
       doc.css("p.yahoo-quoted-begin").each do |p|
+        # for some reason yahoo has been putting part of the message in a DIV
+        # LOL so the remove trailing elements doesnt *quite* work
+        prev_element = p.previous_element
+        if prev_element && prev_element.name == "br"
+          prev_element.remove
+        end
+
         # Check if next element is a blockquote and remove it first
         next_element = p.next_element
         if next_element && next_element.name == "blockquote"
@@ -81,7 +88,6 @@ class Message < ApplicationRecord
         end
         p.remove
       end
-
     end
 
     # Remove trailing empty elements or elements with only br
