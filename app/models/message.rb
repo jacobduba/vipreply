@@ -233,6 +233,7 @@ class Message < ApplicationRecord
     # My "solution" is to destory all the attachments and recreate them
     msg.attachments.destroy_all
     attachments.each do |attachment|
+      pp attachment
       Attachment.cache_from_gmail(msg, attachment)
     end
 
