@@ -71,6 +71,17 @@ class Message < ApplicationRecord
           end
         end
       end
+
+      # Yahoo
+      doc.css("p.yahoo-quoted-begin").each do |p|
+        # Check if next element is a blockquote and remove it first
+        next_element = p.next_element
+        if next_element && next_element.name == "blockquote"
+          next_element.remove
+        end
+        p.remove
+      end
+
     end
 
     # Remove trailing empty elements or elements with only br
