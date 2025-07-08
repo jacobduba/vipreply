@@ -233,7 +233,6 @@ class Message < ApplicationRecord
     # My "solution" is to destory all the attachments and recreate them
     msg.attachments.destroy_all
     attachments.each do |attachment|
-      pp attachment
       Attachment.cache_from_gmail(msg, attachment)
     end
 
@@ -261,14 +260,15 @@ class Message < ApplicationRecord
       # Gmail data comes as ASCII-8BIT bytes, normalize to UTF-8 to prevent encoding conflicts
       result[:html] = part.body.data.force_encoding("UTF-8").scrub
     else
-      content_disposition_header = part.headers.find { |h| h.name == "Content-Disposition" }&.value
+      # header.name.downcase BECAUSE Content-ID sometimes was Content-Id ? Phantom bug just solved
+      content_disposition_header = part.headers.find { |h| h.name.downcase == "content-disposition" }&.value
       if content_disposition_header&.start_with?("attachment") || part.filename
-        cid_header = part.headers.find { |h| h.name == "Content-ID" }&.value
-        x_attachment_id = part.headers.find { |h| h.name == "X-Attachment-Id" }&.value
+        cid_header = part.headers.find { |h| h.name.downcase == "content-id" }&.value
+        x_attachment_id = part.headers.find { |h| h.name.downcase == "x-attachment-id" }&.value
         cid = if x_attachment_id
-          "cid:#{x_attachment_id}"
+          "cid:#{x_attachment_id}" # if attachment id provided use it directly
         elsif cid_header
-          "cid:#{cid_header[1..-2]}"
+          "cid:#{cid_header[1..-2]}" # cid headers are in brackets <cid:...> so strip brackets
         end
         # Sometimes content-disposition is not present in the header
         # Thus make it inline else will violate content-disposition being non-null
