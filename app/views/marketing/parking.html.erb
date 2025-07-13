@@ -25,62 +25,10 @@
           class: "text-stone-700 border shadow-lg border-stone-300 bg-white hover:bg-stone-100 font-medium rounded-full text-base px-8 py-3 text-center justify-center inline-flex items-center gap-2 hover:cursor-pointer" %>
     </div>
   </section>
-  <section class="pb-12 pt-32">
-    <div class="max-w-5xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="p-6 border border-stone-200 bg-stone-100/50 rounded-lg">
-          <h3 class="text-xl font-medium mb-4 text-stone-600">Before <span class="tracking-tight">VIPReply</span></h3>
-          <ol class="list-none space-y-4">
-            <li class="text-stone-700 flex gap-2 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <p>Type the same replies over and over</p>
-            </li>
-            <li class="text-stone-700 flex gap-2 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <p>Slow replies frustrate customers</p>
-            </li>
-            <li class="text-stone-700 flex gap-2 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <p>Maintain documentation for your AI</p>
-            </li>
-          </ol>
-        </div>
-        <div class="p-6 border border-stone-200 bg-stone-100/50 rounded-lg">
-          <h3 class="text-xl font-medium mb-4 text-stone-600">After <span class="tracking-tight">VIPReply</span></h3>
-          <ol class="list-none space-y-4">
-            <li class="text-stone-700 flex gap-2 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <p>Answer the same emails with one click</p>
-            </li>
-            <li class="text-stone-700 flex gap-2 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <p>Fast replies delight customers</p>
-            </li>
-            <li class="text-stone-700 flex gap-2 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              <p>AI learns from every reply you send</p>
-            </li>
-          </ol>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="py-8">
+  <section class="pb-8 pt-32">
     <div class="mx-auto max-w-7xl px-4">
       <h3 class="text-lg sm:text-xl/7 font-semibold text-blue-700">How it works</h3>
-      <h2 class="text-3xl sm:text-5xl font-bold mb-6 text-stone-800">Reply in three clicks</h2>
+      <h2 class="text-3xl sm:text-5xl font-bold mb-6 text-stone-700">Reply in three clicks</h2>
       <video
           class="w-full rounded-lg border border-stone-200 shadow-lg"
           autoplay
@@ -93,6 +41,36 @@
         <source src="https://assets.vipreply.ai/three-click-reply-optimized.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
+    </div>
+  </section>
+  <section class="py-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden">
+          <h3 class="text-xl font-semibold mb-3 text-stone-800">Stay calm under pressure</h3>
+          <p class="text-stone-600">Sound professional even when customers are angry about missed flights or lost reservations. Feel confident in every response.</p>
+          <%= image_tag "social-serenity.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "Stay calm under pressure" %>
+          <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+        </div>
+        <div class="text-center p-8 bg-white rounded-lg shadow-sm border border-stone-200">
+          <div class="bg-green-100 rounded-full p-6 mb-4 w-24 h-24 mx-auto flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-green-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3 text-stone-800">Never lose track of emails</h3>
+          <p class="text-stone-600">VIPReply organizes emails by priority. Always know which emails need attention and which are caught up. No more forgotten customers.</p>
+        </div>
+        <div class="text-center p-8 bg-white rounded-lg shadow-sm border border-stone-200">
+          <div class="bg-purple-100 rounded-full p-6 mb-4 w-24 h-24 mx-auto flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-purple-600">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558-.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5.904 9.5H6.5v1.542" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-3 text-stone-800">Get started effortlessly</h3>
+          <p class="text-stone-600">Sign up with Google in one click. No complicated setup, no training required. Start replying faster in under 60 seconds.</p>
+        </div>
+      </div>
     </div>
   </section>
   <section class="py-8">
