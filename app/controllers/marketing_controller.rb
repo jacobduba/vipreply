@@ -11,7 +11,7 @@ class MarketingController < ApplicationController
     end
   end
 
-  def landing1
+  def parking
   end
 
   def privacy
