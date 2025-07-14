@@ -61,7 +61,7 @@ gem "google-api-client", "~> 0.53"
 
 # Solid Queue for background jobs like generating replies
 gem "solid_queue", "~> 1.1"
-gem "mission_control-jobs", "~> 1.0"
+gem "mission_control-jobs", "~> 1.1"
 
 # Mail for formatting text
 gem "mail", "~> 2.8"
