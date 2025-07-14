@@ -60,7 +60,7 @@ gem "omniauth-google-oauth2", "~> 1.2"
 gem "google-api-client", "~> 0.53"
 
 # Solid Queue for background jobs like generating replies
-gem "solid_queue", "~> 1.1"
+gem "solid_queue", "~> 1.2"
 gem "mission_control-jobs", "~> 1.0"
 
 # Mail for formatting text
