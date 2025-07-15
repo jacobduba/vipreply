@@ -1,34 +1,47 @@
 <% content_for :title, "VIPReply | Reply to customer emails, in a few clicks." %>
 <%= render 'marketing/marketing_header' %>
-<section class="pt-46 px-4 flex justify-center mx-auto">
+<section class="pt-30 px-4 max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
   <div>
-    <div class="flex justify-center mb-4">
-      <span class="bg-white text-stone-500 border border-stone-200 text-sm font-medium px-4 py-2 rounded-full">
-        Built for small business
+    <div class="mb-6">
+      <span class="bg-white text-stone-500 border border-stone-200 text-sm font-medium px-4 py-2 rounded-full mb-4">
+        <%= local_assigns[:hero_pill] || "Built for small business" %>
       </span>
     </div>
-    <h1 class="text-3xl md:text-5xl text-center font-extrabold mb-6 text-stone-800 max-w-2.5xl">
-      Reply to customer emails, in a few clicks.
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-stone-800 max-w-2.5xl">
+      Reply to customer emails in a few clicks.
     </h1>
-    <div class="flex justify-center">
-      <div>
-        <p class="text-2xl text-center text-stone-700 mb-7">
-          Handle customer emails with 10x less effort.
-        </p>
+    <p class="text-lg md:text-2xl text-stone-700 mb-7">
+      <%= local_assigns[:hero_subtext] || "Handle customer emails with 10x less effort." %>
+    </p>
+    <div class="flex gap-4">
+      <%= link_to "Try for free", login_path,
+          class: "text-white bg-blue-600 hover:bg-blue-700 shadow-lg font-medium rounded-xl text-base px-12 py-3 text-center justify-center inline-flex items-center hover:cursor-pointer" %>
+      <%= link_to "Watch demo", "https://assets.vipreply.ai/demo_smaller.mp4", target: "_blank",
+          class: "text-stone-700 border  border-stone-300 bg-white hover:bg-stone-100 font-medium rounded-xl text-base px-8 py-3 text-center justify-center inline-flex items-center gap-2 hover:cursor-pointer" %>
+    </div>
+  </div>
+  <div class="relative ">
+    <%= image_tag "cathy_mps_cropped.jpg", alt: "Cathy in front of Midway Parking Saver parkiung lot", class: "w-full rounded-xl shadow-lg border border-stone-200" %>
+    <div class="absolute bottom-4 right-4 bg-white p-4 rounded-lg shadow-lg border border-stone-200 max-w-xs">
+      <div class="text-base font-semibold text-stone-800 mb-2">Cathy at Midway Park Saver</div>
+      <div class="space-y-1 text-sm text-stone-600">
+        <div class="flex items-center justify-between">
+          <span>Time on emails:</span>
+          <span class="font-medium text-green-600">~50% less</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Daily stress:</span>
+          <span class="font-medium text-green-600">Much lower</span>
+        </div>
       </div>
     </div>
-    <div class="flex gap-4 justify-center">
-      <%= link_to "Try for free", login_path,
-          class: "text-white bg-blue-600 hover:bg-blue-700 shadow-lg font-medium rounded-full text-base px-12 py-3 text-center justify-center inline-flex items-center hover:cursor-pointer" %>
-      <%= link_to "Watch demo", "https://assets.vipreply.ai/demo_smaller.mp4", target: "_blank",
-          class: "text-stone-700 border shadow-lg border-stone-300 bg-white hover:bg-stone-100 font-medium rounded-full text-base px-8 py-3 text-center justify-center inline-flex items-center gap-2 hover:cursor-pointer" %>
-    </div>
-  </section>
-  <section class="pb-8 pt-32">
-    <div class="mx-auto max-w-7xl px-4">
-      <h3 class="text-lg sm:text-xl/7 font-semibold text-blue-700">How it works</h3>
-      <h2 class="text-3xl sm:text-5xl font-bold mb-6 text-stone-700">Reply in three clicks</h2>
-      <video
+  </div>
+</section>
+<section class="py-8">
+  <div class="mx-auto max-w-7xl px-4">
+    <h3 class="text-lg sm:text-xl/7 font-semibold text-blue-700">How it works</h3>
+    <h2 class="text-3xl sm:text-5xl font-bold mb-6 text-stone-700">Reply in three clicks</h2>
+    <video
           class="w-full rounded-lg border border-stone-200 shadow-lg"
           autoplay
           loop
@@ -37,215 +50,215 @@
           controls
           preload="metadata"
           poster="">
-        <source src="https://assets.vipreply.ai/three-click-reply-optimized.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  </section>
-  <section class="py-8">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden flex flex-col justify-between">
-          <div>
-            <h3 class="text-xl font-semibold mb-3 text-stone-800">Stop repeating yourself</h3>
-            <p class="text-stone-600">VIPReply remembers your policies, rates, and common responses.</p>
-          </div>
-          <%= image_tag "social_serenity.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "Stay calm under pressure" %>
-          <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+      <source src="https://assets.vipreply.ai/three-click-reply-optimized.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</section>
+<section class="py-8">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden flex flex-col justify-between">
+        <div>
+          <h3 class="text-xl font-semibold mb-3 text-stone-800"><%= local_assigns[:pathos_1_title] || "Stop re-explaining policies" %></h3>
+          <p class="text-stone-600"><%= local_assigns[:pathos_1_desc] || "VIPReply remembers your policies, rates, and common responses." %></p>
         </div>
-        <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden flex flex-col justify-between">
-          <div>
-            <h3 class="text-xl font-semibold mb-3 text-stone-800">Have AI handle complaints</h3>
-            <p class="text-stone-600">Generate patient and professional replies for frustrated customers.</p>
-          </div>
-          <%= image_tag "handles_complaints.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "You still send messages." %>
-          <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+        <%= image_tag "social_serenity.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "Stay calm under pressure" %>
+        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+      </div>
+      <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden flex flex-col justify-between">
+        <div>
+          <h3 class="text-xl font-semibold mb-3 text-stone-800">Have AI handle complaints</h3>
+          <p class="text-stone-600"><%= local_assigns[:pathos_2_desc] || "Generate patient and professional replies for frustrated customers." %></p>
         </div>
-        <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden flex flex-col justify-between">
-          <div>
-            <h3 class="text-xl font-semibold mb-3 text-stone-800">Get emails done fast</h3>
-            <p class="text-stone-600">Knock out customer emails in half the time and get back to your real work.</p>
-          </div>
-          <%= image_tag "emails_done_fast.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "You still send messages." %>
-          <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+        <%= image_tag "handles_complaints.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "You still send messages." %>
+        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+      </div>
+      <div class="p-8 pb-0 bg-white/80 rounded-lg shadow-sm relative overflow-hidden flex flex-col justify-between">
+        <div>
+          <h3 class="text-xl font-semibold mb-3 text-stone-800">Get emails done fast</h3>
+          <p class="text-stone-600">Knock out customer emails in half the time and get back to your real work.</p>
         </div>
+        <%= image_tag "emails_done_fast.svg", class: "w-full max-w-xs mx-auto mt-6", alt: "You still send messages." %>
+        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
       </div>
     </div>
-  </section>
-  <section class="py-8">
-    <div class="mx-auto max-w-7xl px-4">
-      <h2 class="text-3xl font-bold mb-4 text-stone-800">Our advantage</h2>
-      <p class="text-2xl text-stone-700 leading-relaxed text-left">
-        <strong>VIPReply's goal is to make your customer support effortless.</strong>
-        Having worked in customer support for over three years, I understand it's not a task that can be automated.
-        Every business is different.
-        That's why instead of replacing you with a frustrating AI chatbot, VIPReply helps you write better emails effortlessly.
-      </p>
-      <div class="mt-6 flex items-center gap-x-6">
-        <%= image_tag "jacob_founder.jpg", class: "size-16 rounded-full bg-stone-200", alt: "Jacob Duba" %>
-        <div class="text-base">
-          <div class="font-semibold text-stone-900">Jacob Duba</div>
-          <div class="text-stone-600">Founder, VIPReply</div>
-        </div>
+  </div>
+</section>
+<section class="py-8">
+  <div class="mx-auto max-w-7xl px-4">
+    <h2 class="text-3xl font-bold mb-4 text-stone-800">Our advantage</h2>
+    <p class="text-2xl text-stone-700 leading-relaxed text-left">
+      <strong>VIPReply's goal is to make your customer support effortless.</strong>
+      Having worked in customer support for over three years, I understand it's not a task that can be automated.
+      Every business is different.
+      That's why instead of replacing you with a frustrating AI chatbot, VIPReply helps you write better emails effortlessly.
+    </p>
+    <div class="mt-6 flex items-center gap-x-6">
+      <%= image_tag "jacob_founder.jpg", class: "size-16 rounded-full bg-stone-200", alt: "Jacob Duba" %>
+      <div class="text-base">
+        <div class="font-semibold text-stone-900">Jacob Duba</div>
+        <div class="text-stone-600">Founder, VIPReply</div>
       </div>
     </div>
-  </section>
-  <section class="py-8">
-    <div class="mx-auto max-w-7xl px-4">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        <div class="lg:col-span-1 relative">
-          <%= image_tag "risk_free.svg", class: "w-full rounded-lg px-16", alt: "VIPReply product demo" %>
-          <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-stone-50 to-transparent pointer-events-none"></div>
-        </div>
-        <div class="lg:col-span-1">
-          <h3 class="text-base/7 font-semibold text-blue-700">Risk Free</h3>
-          <h2 class="text-4xl font-bold mb-8 text-stone-800">Trying is risk free</h2>
-          <dl class="max-w-xl space-y-5 text-xl/7 text-gray-600 lg:max-w-none">
-            <div class="relative pl-9" >
-              <dt class="inline font-semibold text-gray-900">
-                <svg class="absolute left-1 top-1 size-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                  <path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
-                  <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
-                </svg>
-                Your emails stay in Gmail.
-              </dt>
-              <dd class="inline text-gray-600">No data lock-in. Cancel anytime without losing anything.</dd>
-            </div>
-            <div class="relative pl-9" >
-              <dt class="inline font-semibold text-gray-900">
-                <svg class="absolute left-1 top-1 size-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                  <path fill-rule="evenodd" d="M9.661 2.237a.531.531 0 0 1 .678 0 11.947 11.947 0 0 0 7.078 2.749.5.5 0 0 1 .479.425c.069.52.104 1.05.104 1.59 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 0 1-.332 0C5.26 16.564 2 12.163 2 7c0-.538.035-1.069.104-1.589a.5.5 0 0 1 .48-.425 11.947 11.947 0 0 0 7.077-2.75Zm4.196 5.954a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
-                </svg>
-                No emails sent without you.
-              </dt>
-              <dd class="inline text-gray-600">AI suggests responses, but you review and send every email yourself.</dd>
-            </div>
-            <div class="relative pl-9" >
-              <dt class="inline font-semibold text-gray-900">
-                <svg class="absolute left-1 top-1 size-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-                  <path d="M10.75 10.818v2.614A3.13 3.13 0 0 0 11.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 0 0-1.138-.432ZM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 0 0-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.202.592.037.051.08.102.128.152Z" />
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-6a.75.75 0 0 1 .75.75v.316a3.78 3.78 0 0 1 1.653.713c.426.33.744.74.925 1.2a.75.75 0 0 1-1.395.55 1.35 1.35 0 0 0-.447-.563 2.187 2.187 0 0 0-.736-.363V9.3c.698.093 1.383.32 1.959.696.787.514 1.29 1.27 1.29 2.13 0 .86-.504 1.616-1.29 2.13-.576.377-1.261.603-1.96.696v.299a.75.75 0 1 1-1.5 0v-.3c-.697-.092-1.382-.318-1.958-.695-.482-.315-.857-.717-1.078-1.188a.75.75 0 1 1 1.359-.636c.08.173.245.376.54.569.313.205.706.353 1.138.432v-2.748a3.782 3.782 0 0 1-1.653-.713C6.9 9.433 6.5 8.681 6.5 7.875c0-.805.4-1.558 1.097-2.096a3.78 3.78 0 0 1 1.653-.713V4.75A.75.75 0 0 1 10 4Z" clip-rule="evenodd" />
-                  <path stroke="#fafaf9" stroke-width="4" stroke-linecap="round" d="M4 4 L16 16" />
-                  <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 4 L16 16" />
-                </svg>
-                Nothing to lose.
-              </dt>
-              <dd class="inline text-gray-600">If VIPReply doesn't save you time, cancel your free trial and pay nothing.</dd>
-            </div>
-          </dl>
-        </div>
+  </div>
+</section>
+<section class="py-8">
+  <div class="mx-auto max-w-7xl px-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <div class="lg:col-span-1 relative">
+        <%= image_tag "risk_free.svg", class: "w-full rounded-lg px-16", alt: "VIPReply product demo" %>
+        <div class="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-stone-50 to-transparent pointer-events-none"></div>
       </div>
-    </div>
-  </section>
-  <section class="py-8">
-    <div class="mx-auto max-w-7xl sm:px-4">
-      <div class="relative isolate overflow-hidden bg-stone-900 px-6 py-16 shadow-2xl sm:rounded-3xl sm:px-16">
-        <figure class="mx-auto max-w-2xl">
-          <p class="sr-only">5 out of 5 stars</p>
-          <div class="flex gap-x-1 text-yellow-400/90">
-            <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-              <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
-            </svg>
-            <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-              <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
-            </svg>
-            <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-              <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
-            </svg>
-            <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-              <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
-            </svg>
-            <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
-              <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
-            </svg>
+      <div class="lg:col-span-1">
+        <h3 class="text-base/7 font-semibold text-blue-700">Risk free</h3>
+        <h2 class="text-4xl font-bold mb-8 text-stone-800">Trying is risk free</h2>
+        <dl class="max-w-xl space-y-5 text-xl/7 text-gray-600 lg:max-w-none">
+          <div class="relative pl-9" >
+            <dt class="inline font-semibold text-gray-900">
+              <svg class="absolute left-1 top-1 size-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                <path d="M3 4a2 2 0 0 0-2 2v1.161l8.441 4.221a1.25 1.25 0 0 0 1.118 0L19 7.162V6a2 2 0 0 0-2-2H3Z" />
+                <path d="m19 8.839-7.77 3.885a2.75 2.75 0 0 1-2.46 0L1 8.839V14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.839Z" />
+              </svg>
+              Your emails stay in Gmail.
+            </dt>
+            <dd class="inline text-gray-600">No data lock-in. Cancel anytime without losing anything.</dd>
           </div>
-          <blockquote class="mt-10 text-xl/8 font-semibold tracking-tight text-stone-100 sm:text-2xl/9">
-            <p>"I have been using VIPReply for the last 6 months for an airport parking lot. I used to struggle to be consistent answering customer questions. VIPReply has made the process 10 times easier and more enjoyable."</p>
-          </blockquote>
-          <figcaption class="mt-10 flex items-center gap-x-6">
-            <%= image_tag "cathy_testimonial.jpg", class: "size-12 rounded-full bg-stone-200", alt: "Cathy Testimonial" %>
-            <div class="text-sm/6">
-              <div class="font-semibold text-stone-100">Cathy</div>
-              <div class="mt-0.5 text-stone-300">Midway Park Saver</div>
-            </div>
-          </figcaption>
-        </figure>
-        <svg viewBox="0 0 1024 1024" class="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]" aria-hidden="true">
-          <circle cx="512" cy="512" r="512" fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)" fill-opacity="0.7" />
-          <defs>
-            <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
-              <stop stop-color="#7775D6" />
-              <stop offset="1" stop-color="#713f12" />
-            </radialGradient>
-          </defs>
-        </svg>
+          <div class="relative pl-9" >
+            <dt class="inline font-semibold text-gray-900">
+              <svg class="absolute left-1 top-1 size-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                <path fill-rule="evenodd" d="M9.661 2.237a.531.531 0 0 1 .678 0 11.947 11.947 0 0 0 7.078 2.749.5.5 0 0 1 .479.425c.069.52.104 1.05.104 1.59 0 5.162-3.26 9.563-7.834 11.256a.48.48 0 0 1-.332 0C5.26 16.564 2 12.163 2 7c0-.538.035-1.069.104-1.589a.5.5 0 0 1 .48-.425 11.947 11.947 0 0 0 7.077-2.75Zm4.196 5.954a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+              </svg>
+              No emails sent without you.
+            </dt>
+            <dd class="inline text-gray-600">AI suggests responses, but you review and send every email yourself.</dd>
+          </div>
+          <div class="relative pl-9" >
+            <dt class="inline font-semibold text-gray-900">
+              <svg class="absolute left-1 top-1 size-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                <path d="M10.75 10.818v2.614A3.13 3.13 0 0 0 11.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 0 0-1.138-.432ZM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 0 0-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.202.592.037.051.08.102.128.152Z" />
+                <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-6a.75.75 0 0 1 .75.75v.316a3.78 3.78 0 0 1 1.653.713c.426.33.744.74.925 1.2a.75.75 0 0 1-1.395.55 1.35 1.35 0 0 0-.447-.563 2.187 2.187 0 0 0-.736-.363V9.3c.698.093 1.383.32 1.959.696.787.514 1.29 1.27 1.29 2.13 0 .86-.504 1.616-1.29 2.13-.576.377-1.261.603-1.96.696v.299a.75.75 0 1 1-1.5 0v-.3c-.697-.092-1.382-.318-1.958-.695-.482-.315-.857-.717-1.078-1.188a.75.75 0 1 1 1.359-.636c.08.173.245.376.54.569.313.205.706.353 1.138.432v-2.748a3.782 3.782 0 0 1-1.653-.713C6.9 9.433 6.5 8.681 6.5 7.875c0-.805.4-1.558 1.097-2.096a3.78 3.78 0 0 1 1.653-.713V4.75A.75.75 0 0 1 10 4Z" clip-rule="evenodd" />
+                <path stroke="#fafaf9" stroke-width="4" stroke-linecap="round" d="M4 4 L16 16" />
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 4 L16 16" />
+              </svg>
+              Nothing to lose.
+            </dt>
+            <dd class="inline text-gray-600">If VIPReply doesn't save you time, cancel your free trial and pay nothing.</dd>
+          </div>
+        </dl>
       </div>
     </div>
-  </section>
-  <section class="py-8 mx-auto max-w-7xl">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
-      <div class="mx-auto max-w-4xl">
-        <h2 class="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Frequently asked questions</h2>
-        <dl class="mt-16 divide-y divide-gray-900/10">
-          <% faqs = [
+  </div>
+</section>
+<section class="py-8">
+  <div class="mx-auto max-w-7xl sm:px-4">
+    <div class="relative isolate overflow-hidden bg-stone-900 px-6 py-16 shadow-2xl sm:rounded-3xl sm:px-16">
+      <figure class="mx-auto max-w-2xl">
+        <p class="sr-only">5 out of 5 stars</p>
+        <div class="flex gap-x-1 text-yellow-400/90">
+          <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+          </svg>
+          <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+          </svg>
+          <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+          </svg>
+          <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+          </svg>
+          <svg class="size-5 flex-none" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+            <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <blockquote class="mt-10 text-xl/8 font-semibold tracking-tight text-stone-100 sm:text-2xl/9">
+          <p>"I have been using VIPReply for the last 6 months for an airport parking lot. I used to struggle to be consistent answering customer questions. VIPReply has made the process 10 times easier and more enjoyable."</p>
+        </blockquote>
+        <figcaption class="mt-10 flex items-center gap-x-6">
+          <%= image_tag "cathy_testimonial.jpg", class: "size-12 rounded-full bg-stone-200", alt: "Cathy Testimonial" %>
+          <div class="text-sm/6">
+            <div class="font-semibold text-stone-100">Cathy</div>
+            <div class="mt-0.5 text-stone-300">Midway Park Saver</div>
+          </div>
+        </figcaption>
+      </figure>
+      <svg viewBox="0 0 1024 1024" class="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]" aria-hidden="true">
+        <circle cx="512" cy="512" r="512" fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)" fill-opacity="0.7" />
+        <defs>
+          <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
+            <stop stop-color="#7775D6" />
+            <stop offset="1" stop-color="#713f12" />
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+</section>
+<section class="py-8 mx-auto max-w-7xl">
+  <div class="mx-auto max-w-7xl px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+      <h2 class="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">Frequently asked questions</h2>
+      <dl class="mt-16 divide-y divide-gray-900/10">
+        <% faqs = [
           ["How long does it take to set up VIPReply?", "It takes two minutes to set up VIPReply. You'll be prompted to connect your email account and grant permission. That's it! You'll immediately be able to start answering emails."],
           ["What happens after my free trial expires?", "After your 30-day free trial ends, you'll be automatically charged $19/month unless you cancel. You can cancel anytime during your trial with no charge, and if you cancel, you'll still have access until your trial period ends."],
           ["What if VIPReply's AI gets something wrong?", "You review and approve every reply before it's sent. VIPReply only suggests responses - it never automatically sends emails or changes your Gmail settings. You stay in complete control, and VIPReply gets better over time."],
           ["Is my email data secure?", "Yes. Your data is encrypted and we're security-certified by Google's approved auditors. No human will see your data unless you explicitly request support or in rare cases to prevent abuse. You can disconnect and remove all your data anytime."],
           ["Does VIPReply support other email providers besides Gmail?", "Currently Gmail only, but Outlook support is planned. There are no plans for other email providers beyond Outlook."],
         ] %>
-          <% faqs.each_with_index do |(question, answer), index| %>
-            <div class="py-6 first:pt-0 last:pb-0" data-controller="faq">
-              <dt>
-                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900 hover:cursor-pointer"
+        <% faqs.each_with_index do |(question, answer), index| %>
+          <div class="py-6 first:pt-0 last:pb-0" data-controller="faq">
+            <dt>
+              <button type="button" class="flex w-full items-start justify-between text-left text-gray-900 hover:cursor-pointer"
                       data-action="click->faq#toggle"
-                  data-faq-target="button"
-                  aria-controls="faq-<%= index %>"
-                  aria-expanded="false">
-                  <span class="text-base/7 font-semibold"><%= question %></span>
-                  <span class="ml-6 flex h-7 items-center">
-                    <!-- Plus icon (collapsed state) -->
-                    <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-faq-target="expandIcon">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
-                    </svg>
-                    <!-- Minus icon (expanded state) -->
-                    <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-faq-target="collapseIcon">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
-                    </svg>
-                  </span>
-                </button>
-              </dt>
-              <dd class="mt-2 pr-12 hidden" id="faq-<%= index %>" data-faq-target="answer">
-                <p class="text-base/7 text-gray-600"><%= answer %></p>
-              </dd>
-            </div>
-          <% end %>
-        </dl>
-      </div>
+                data-faq-target="button"
+                aria-controls="faq-<%= index %>"
+                aria-expanded="false">
+                <span class="text-base/7 font-semibold"><%= question %></span>
+                <span class="ml-6 flex h-7 items-center">
+                  <!-- Plus icon (collapsed state) -->
+                  <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-faq-target="expandIcon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                  </svg>
+                  <!-- Minus icon (expanded state) -->
+                  <svg class="hidden size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-faq-target="collapseIcon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
+                  </svg>
+                </span>
+              </button>
+            </dt>
+            <dd class="mt-2 pr-12 hidden" id="faq-<%= index %>" data-faq-target="answer">
+              <p class="text-base/7 text-gray-600"><%= answer %></p>
+            </dd>
+          </div>
+        <% end %>
+      </dl>
     </div>
-  </section>
-  <section class="py-8">
-    <div class="mx-auto max-w-7xl sm:px-4">
-      <div class="relative isolate overflow-hidden bg-slate-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
-        <h2 class="text-balance text-2xl font-semibold tracking-tight text-white sm:text-5xl">Fly through your replies for just $19/month.</h2>
-        <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-slate-300">30-day free trial. Cancel and disconnect anytime.</p>
-        <div class="mt-6 flex items-center justify-center gap-x-6">
-          <%= link_to "Try for free", login_path, class: "rounded-md text-lg bg-white px-3.5 py-2.5 text font-semibold text-stone-900 shadow-sm hover:bg-stone-100" %>
-          <%= link_to "https://cal.com/jacob.duba/vipreply-onboarding?overlayCalendar=true", target: "_blank", class: "font-semibold text-lg text-white" do %>
-            Book a demo
-            <span aria-hidden="true">→</span>
-          <% end %>
-        </div>
-        <svg viewBox="0 0 1024 1024" class="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]" aria-hidden="true">
-          <circle cx="512" cy="512" r="512" fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)" fill-opacity="0.7" />
-          <defs>
-            <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
-              <stop stop-color="#0f172a" />
-              <stop offset="1" stop-color="#854d0e" />
-            </radialGradient>
-          </defs>
-        </svg>
+  </div>
+</section>
+<section class="py-8">
+  <div class="mx-auto max-w-7xl sm:px-4">
+    <div class="relative isolate overflow-hidden bg-slate-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
+      <h2 class="text-balance text-2xl font-semibold tracking-tight text-white sm:text-5xl">Fly through your replies for just $19/month.</h2>
+      <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-slate-300">30-day free trial. Cancel and disconnect anytime.</p>
+      <div class="mt-6 flex items-center justify-center gap-x-6">
+        <%= link_to "Try for free", login_path, class: "rounded-md text-lg bg-white px-3.5 py-2.5 text font-semibold text-stone-900 shadow-sm hover:bg-stone-100" %>
+        <%= link_to "https://cal.com/jacob.duba/vipreply-onboarding?overlayCalendar=true", target: "_blank", class: "font-semibold text-lg text-white" do %>
+          Book a demo
+          <span aria-hidden="true">→</span>
+        <% end %>
       </div>
+      <svg viewBox="0 0 1024 1024" class="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]" aria-hidden="true">
+        <circle cx="512" cy="512" r="512" fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)" fill-opacity="0.7" />
+        <defs>
+          <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
+            <stop stop-color="#0f172a" />
+            <stop offset="1" stop-color="#854d0e" />
+          </radialGradient>
+        </defs>
+      </svg>
     </div>
-  </section>
-  <%= render partial: 'marketing/marketing_footer' %>
+  </div>
+</section>
+<%= render partial: 'marketing/marketing_footer' %>

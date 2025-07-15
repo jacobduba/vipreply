@@ -12,6 +12,13 @@ class MarketingController < ApplicationController
   end
 
   def parking
+    render :home, locals: {
+      hero_pill: "Built for parking lots",
+      hero_subtext: "Handle parking lot customer emails with 10x less effort.",
+      pathos_1_title: "Stop re-explaining policies",
+      pathos_1_desc: "VIPReply remembers your rates, rules, and refund policies.",
+      pathos_2_desc: "Generate patient and helpful replies for stressed travelers."
+    }
   end
 
   def privacy
