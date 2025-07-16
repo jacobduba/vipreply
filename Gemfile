@@ -7,7 +7,7 @@ ruby "3.4.2"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.0"
 
-gem "propshaft", "~> 1.1"
+gem "propshaft", "~> 1.2"
 
 # Postgres
 gem "pg", "~> 1.5"
