@@ -86,7 +86,7 @@ group :development, :test do
   gem "debug", platforms: %i[mri windows]
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
-  gem "brakeman", require: false
+  gem "brakeman", "~> 7.1", require: false
 
   # Linter for code standard
   gem "standard", "1.49"
