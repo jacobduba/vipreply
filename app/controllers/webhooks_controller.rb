@@ -48,14 +48,12 @@ class WebhooksController < ApplicationController
   def handle_invoice_paid(invoice)
     customer_id = invoice["customer"]
     subscription_id = invoice["subscription"]
+    period_end = invoice["period_end"]
+    status = invoice["status"]
     account = Account.find_by!(stripe_customer_id: customer_id)
 
-    # Fetch subscription to get updated period end
-    subscription = Stripe::Subscription.retrieve(subscription_id)
-    period_end = subscription.items.data.first.current_period_end
-
     account.update!(
-      stripe_status: subscription.status,
+      stripe_status: status,
       stripe_subscription_id: subscription_id,
       subscription_period_end: Time.at(period_end)
     )
