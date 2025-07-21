@@ -25,15 +25,12 @@ class WebhooksController < ApplicationController
     type = event["type"]
     object = event["data"]["object"]
 
+    # Note: if you change these events you have to tell the dashboard to send those events
     case type
     when "invoice.paid"
       handle_invoice_paid(object)
-    when "invoice.payment_failed"
-      handle_payment_failed(object)
     when "customer.subscription.updated"
       handle_subscription_updated(object)
-    when "customer.subscription.deleted"
-      handle_subscription_deleted(object)
     else
       Rails.logger.info "Unhandled event type: #{type}"
     end
@@ -48,12 +45,15 @@ class WebhooksController < ApplicationController
   def handle_invoice_paid(invoice)
     customer_id = invoice["customer"]
     subscription_id = invoice["subscription"]
-    period_end = invoice["period_end"]
-    status = invoice["status"]
     account = Account.find_by!(stripe_customer_id: customer_id)
 
+    invoice_item = invoice["lines"]["data"].first
+    stripe_status = invoice["status"]
+    subscription_id = invoice_item["parent"]["subscription_item_details"]["subscription"]
+    period_end = invoice_item["period"]["end"]
+
     account.update!(
-      stripe_status: status,
+      stripe_status: stripe_status,
       stripe_subscription_id: subscription_id,
       subscription_period_end: Time.at(period_end)
     )
@@ -68,13 +68,6 @@ class WebhooksController < ApplicationController
     end
   end
 
-  def handle_payment_failed(invoice)
-    customer_id = invoice["customer"]
-    account = Account.find_by!(stripe_customer_id: customer_id)
-
-    account.update!(stripe_status: "past_due")
-  end
-
   def handle_subscription_updated(subscription)
     customer_id = subscription["customer"]
     account = Account.find_by!(stripe_customer_id: customer_id)
@@ -87,12 +80,5 @@ class WebhooksController < ApplicationController
       subscription_period_end: Time.at(period_end),
       cancel_at_period_end: subscription["cancel_at_period_end"]
     )
-  end
-
-  def handle_subscription_deleted(subscription)
-    customer_id = subscription["customer"]
-    account = Account.find_by!(stripe_customer_id: customer_id)
-
-    account.update!(stripe_status: "cancelled")
   end
 end
