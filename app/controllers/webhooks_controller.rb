@@ -20,10 +20,10 @@ class WebhooksController < ApplicationController
       end
     end
 
+    Rails.error.set_context(event: JSON.pretty_generate(event))
+
     type = event["type"]
     object = event["data"]["object"]
-
-    Rails.error.set_context(type: type, object: object)
 
     case type
     when "invoice.paid"
