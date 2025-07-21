@@ -71,6 +71,8 @@ class WebhooksController < ApplicationController
     subscription_id = invoice["subscription"]
     account = Account.find_by!(stripe_customer_id: customer_id)
 
+    Rails.error.set_context(invoice: invoice, customer_id: customer_id, subscription_id: subscription_id)
+
     # Fetch subscription to get updated period end
     subscription = Stripe::Subscription.retrieve(subscription_id)
     period_end = subscription.items.data.first.current_period_end
