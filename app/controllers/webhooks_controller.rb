@@ -44,7 +44,6 @@ class WebhooksController < ApplicationController
   # that VIPReply offers
   def handle_invoice_paid(invoice)
     customer_id = invoice["customer"]
-    subscription_id = invoice["subscription"]
     account = Account.find_by!(stripe_customer_id: customer_id)
 
     invoice_item = invoice["lines"]["data"].first
