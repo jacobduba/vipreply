@@ -46,7 +46,6 @@ class WebhooksController < ApplicationController
   # We can assume they are paying for the One Subscription
   # that VIPReply offers
   def handle_invoice_paid(invoice)
-    debugger
     customer_id = invoice["customer"]
     subscription_id = invoice["subscription"]
     account = Account.find_by!(stripe_customer_id: customer_id)
