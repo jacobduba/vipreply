@@ -32,6 +32,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_23_212441) do
     t.integer "input_token_usage", default: 0
     t.integer "output_token_usage", default: 0
     t.boolean "has_gmail_permissions", default: false
+    t.string "stripe_customer_id"
+    t.string "stripe_subscription_id"
+    t.datetime "subscription_period_end"
+    t.boolean "cancel_at_period_end", default: false
     t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 

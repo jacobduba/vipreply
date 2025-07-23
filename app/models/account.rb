@@ -16,9 +16,9 @@ class Account < ApplicationRecord
   attribute :output_token_usage, :integer, default: 0
   attribute :has_gmail_permissions, :boolean, default: false
 
-  enum billing_status: {
+  enum :billing_status, {
     setup: "setup",
-    trialing: "trialing", 
+    trialing: "trialing",
     trial_expired: "trial_expired",
     active: "active",
     past_due: "past_due",

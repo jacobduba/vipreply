@@ -61,9 +61,11 @@ class SessionsController < ApplicationController
     end
 
     if new_refresh_token && account.has_gmail_permissions? && account.has_access?
-      # Create inbox if it doesn't exist
+      # Inbox nil means account just got created
       if account.inbox.nil?
         account.create_inbox
+        # New accounts connected to gmail get a free trial
+        account.update(billing_status: :trialing) # TODO: is this n+1? if u have time clean up
         SetupInboxJob.perform_later account.inbox.id
       else
         # We lost refresh token and just got it back
