@@ -9,7 +9,7 @@
     <%= render 'marketing/logo' %>
     <div class="flex gap-4 items-center">
       <%= link_to login_path,
-            class: "hidden text-stone-600 bg-stone-100 hover:bg-stone-100 border border-stone-200 font-medium rounded-lg text-sm px-6 py-2.5 text-center md:inline-flex items-center" do %>
+            class: "hidden sm:inline-flex items-center text-stone-600 bg-stone-100 hover:bg-stone-100 border border-stone-200 font-medium rounded-lg text-sm px-6 py-2.5 text-center " do %>
         Sign In
       <% end %>
       <%= link_to "Try for free", login_path,

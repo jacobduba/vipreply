@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+    --breakpoint-gt-1280: 1281px;
     --animate-fade-in: fade-in 0.05s ease-in-out;
 
     @keyframes fade-in {
