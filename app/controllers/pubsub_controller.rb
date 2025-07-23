@@ -36,7 +36,7 @@ class PubsubController < ApplicationController
     # Find the account by email and use the associated inbox
     account = Account.find_by(email: email)
 
-    if account&.inbox && account.subscribed?
+    if account&.inbox && account.has_access?
       UpdateFromHistoryJob.perform_later account.inbox.id
     end
 

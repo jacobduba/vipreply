@@ -60,17 +60,19 @@ class SessionsController < ApplicationController
       return
     end
 
-    # Create inbox if it doesn't exist
-    if account.inbox.nil?
-      account.create_inbox
-      # SetupInboxJob.perform_later account.inbox.id
-    elsif new_refresh_token && account.has_gmail_permissions && account.subscribed?
-      # We lost refresh token and just got it back
-      # gmail watch can't refresh without refresh token
-      # so refresh now that we have it
-      RestoreGmailPubsubJob.perform_later account.id
-      # No gmail watch means inbox is possibly out of date
-      UpdateFromHistoryJob.perform_later account.inbox.id
+    if new_refresh_token && account.has_gmail_permissions? && account.has_access?
+      # Create inbox if it doesn't exist
+      if account.inbox.nil?
+        account.create_inbox
+        SetupInboxJob.perform_later account.inbox.id
+      else
+        # We lost refresh token and just got it back
+        # gmail watch can't refresh without refresh token
+        # so refresh now that we have it
+        RestoreGmailPubsubJob.perform_later account.id
+        # No gmail watch means inbox is possibly out of date
+        UpdateFromHistoryJob.perform_later account.inbox.id
+      end
     end
 
     was_upgrading = session[:account_id].present? && session[:account_id] == account.id

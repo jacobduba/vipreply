@@ -47,24 +47,19 @@ class WebhooksController < ApplicationController
     account = Account.find_by!(stripe_customer_id: customer_id)
 
     invoice_item = invoice["lines"]["data"].first
-    stripe_status = invoice["status"]
+    billing_status = invoice["status"]
     subscription_id = invoice_item["parent"]["subscription_item_details"]["subscription"]
     period_end = invoice_item["period"]["end"]
 
     account.update!(
-      stripe_status: stripe_status,
+      billing_status: billing_status,
       stripe_subscription_id: subscription_id,
-      subscription_period_end: Time.at(period_end)
+      access_period_end: Time.at(period_end),
+      cancel_at_period_end: false
     )
 
-    # Setup inbox for first-time subscribers, import for returning users
-    if account.inbox.history_id.present?
-      # Returning user - import emails since last history_id
-      UpdateFromHistoryJob.perform_later(account.inbox.id)
-    else
-      # First-time user - setup Gmail watch and get initial history_id
-      SetupInboxJob.perform_later(account.id)
-    end
+    # Can assume if you are paying you have setup inbox because comes with free trial
+    UpdateFromHistoryJob.perform_later(account.inbox.id)
   end
 
   def handle_subscription_updated(subscription)
@@ -73,11 +68,13 @@ class WebhooksController < ApplicationController
 
     # Get period end from first subscription item
     period_end = subscription["items"]["data"].first["current_period_end"]
+    billing_status = subscription["status"]
+    cancel_at_period_end = subscription["cancel_at_period_end"]
 
     account.update!(
-      stripe_status: subscription["status"],
-      subscription_period_end: Time.at(period_end),
-      cancel_at_period_end: subscription["cancel_at_period_end"]
+      billing_status: billing_status,
+      cancel_at_period_end: cancel_at_period_end,
+      access_period_end: Time.at(period_end)
     )
   end
 end
