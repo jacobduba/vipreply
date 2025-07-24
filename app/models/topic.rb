@@ -230,9 +230,9 @@ class Topic < ApplicationRecord
       Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided text. If something is not directly mentioned, do not include it.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
-      If the template contains a link, make sure you provide a link or hyperlink to the customer.
-      DO NOT include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
-      You use a friendly and active voice.
+      Always start your response with a greeting followed by the customer's name.
+      Use a friendly and active voice.
+      Write in your own words.
     PROMPT
 
     data = {
