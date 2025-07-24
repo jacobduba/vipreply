@@ -216,33 +216,35 @@ class Topic < ApplicationRecord
   end
 
   def fetch_generation(prompt)
-    anthropic_api_key = Rails.application.credentials.anthropic_api_key
-    url = "https://api.anthropic.com/v1/messages"
+    groq_api_key = Rails.application.credentials.groq_api_key
+    url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
-      "x-api-key" => anthropic_api_key,
-      "anthropic-version" => "2023-06-01",
+      "Authorization" => "Bearer #{groq_api_key}",
       "Content-Type" => "application/json"
     }
 
     system_prompt = <<~PROMPT
-      You are a compassionate, empathetic, and professional business owner receiving customer support emails for a small business.
+      You are a compassionate, empathetic, and professional person answering customer support emails for a small business.
 
       Your goal is to provide helpful responses to customer inquiries.
-      Use the customer's name from their email signature; if it's missing, use the 'From' header. Otherwise DO NOT use the 'From' header name.
+      Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided text. If something is not directly mentioned, do not include it.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
-      DO NOT include a sign-off.
+      Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
+      If the template contains a link, make sure you provide a link or hyperlink to the customer.
+      DO NOT include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
+      You use a friendly and active voice.
     PROMPT
 
     data = {
-      # model: "claude-3-5-sonnet-20241022",
-      # model: "claude-3-7-sonnet-20250219",
-      model: "claude-sonnet-4-20250514",
-      # model: "claude-opus-4-20250514",
-      max_tokens: 2048,
-      system: system_prompt,
+      model: "moonshotai/kimi-k2-instruct",
       messages: [
         {
-          role: "user", content: prompt
+          role: "system",
+          content: system_prompt
+        },
+        {
+          role: "user",
+          content: prompt
         }
       ]
     }
@@ -252,11 +254,11 @@ class Topic < ApplicationRecord
 
     # Log to see how many tokens users are using
     account = inbox.account
-    account.increment!(:input_token_usage, parsed["usage"]["input_tokens"])
-    account.increment!(:output_token_usage, parsed["usage"]["output_tokens"])
+    account.increment!(:input_token_usage, parsed["usage"]["prompt_tokens"])
+    account.increment!(:output_token_usage, parsed["usage"]["completion_tokens"])
 
-    generated_text = parsed["content"].map { |block| block["text"] }.join(" ")
-
+    generated_text = parsed["choices"][0]["message"]["content"]
     generated_text.strip
+    generated_text.tr("—", " - ")
   end
 end
