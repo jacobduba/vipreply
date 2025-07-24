@@ -231,8 +231,9 @@ class Topic < ApplicationRecord
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
       Always start your response with a greeting followed by the customer's name.
-      Use a friendly and active voice.
-      Write in your own words.
+      Use a friendly and active voice. You may want to thank them for reaching out.
+      Avoid "I just wanted to let you know" or "I see you are asking about."
+      Write as if you're personally typing this email to a friend - use your own natural language, vary sentence structure, and avoid any phrases that sound like they came from a script.
     PROMPT
 
     data = {
