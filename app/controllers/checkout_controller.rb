@@ -35,7 +35,7 @@ class CheckoutController < ApplicationController
     })
 
     # Set status to track checkout attempt
-    @account.update!(stripe_status: "incomplete")
+    @account.update!(billing_status: "incomplete")
 
     redirect_to session.url, allow_other_host: true
   end

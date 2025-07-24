@@ -16,6 +16,18 @@ class Account < ApplicationRecord
   attribute :output_token_usage, :integer, default: 0
   attribute :has_gmail_permissions, :boolean, default: false
 
+  enum :billing_status, {
+    setup: "setup",
+    trialing: "trialing",
+    trial_expired: "trial_expired",
+    active: "active",
+    past_due: "past_due",
+    unpaid: "unpaid",
+    canceled: "canceled",
+    incomplete: "incomplete",
+    incomplete_expired: "incomplete_expired"
+  }
+
   # Note on permissions
   # - If account is disconencted we we sign the person out and show error message
   # - If account doesnt have enough scopes we should the kinda oauth screen to prompt to grant permissions
@@ -107,7 +119,7 @@ class Account < ApplicationRecord
       # WHY? right now we have the provider: "google_oauth2".
       # cool if we could also do provider: "google_oauth2", subscribed: true
       # Instead of loading all accounts rn
-      next unless account.subscribed?
+      next unless account.has_access?
 
       Rails.error.handle do # just learned about this, lets u report error but doesnt stop the process
         account.refresh_gmail_watch
@@ -115,8 +127,8 @@ class Account < ApplicationRecord
     end
   end
 
-  def subscribed?
-    subscription_period_end.present? && subscription_period_end >= Time.current
+  def has_access?
+    trialing? || active?
   end
 
   def to_honeybadger_context

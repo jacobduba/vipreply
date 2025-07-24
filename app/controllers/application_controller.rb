@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_subscription
-    unless @account.subscribed?
+    unless @account.has_access?
       redirect_to inbox_path
     end
   end
