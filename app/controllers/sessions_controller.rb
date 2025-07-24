@@ -68,7 +68,7 @@ class SessionsController < ApplicationController
         subscription_period_end: 30.days.from_now
       ) # TODO: is this n+1? if u have time clean up
       SetupInboxJob.perform_later account.inbox.id
-    elsif new_refresh_token && account.has_gmail_permissions && account.subscribed?
+    elsif new_refresh_token && account.has_gmail_permissions && account.has_access?
       # We lost refresh token and just got it back
       # gmail watch can't refresh without refresh token
       # so refresh now that we have it
