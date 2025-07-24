@@ -1,5 +1,5 @@
 <% content_for :title, "Inbox | VIPReply" %>
-<%= render 'shared/tabs', selected_page: "inbox" %>
+<%= render 'shared/header_with_tabs', selected_page: "inbox" %>
 <div class="container mx-auto px-3">
   <% if @inbox.initial_import_jobs_remaining.nonzero? %>
     <div class="w-full border border-blue-200/90 bg-blue-50/90 text-blue-700/90 rounded-lg mt-3 py-3 px-4 items-center flex gap-3">
