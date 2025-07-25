@@ -121,8 +121,14 @@ class Account < ApplicationRecord
       # Instead of loading all accounts rn
       next unless account.has_access?
 
-      Rails.error.handle do # just learned about this, lets u report error but doesnt stop the process
+      begin
         account.refresh_gmail_watch
+      rescue Account::NoGmailPermissionsError
+        # when this error is thrown has_gmail_permissions is set to false automatically
+        # so just do notthing
+      rescue => e
+        # swallow the error so app can continue refreshing accounts
+        Rails.error.report(e)
       end
     end
   end
