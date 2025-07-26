@@ -7,7 +7,7 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
-  enum :status, [:needs_reply, :has_reply]
+  enum :status, %i[needs_reply has_reply]
 
   scope :not_spam, -> { where(is_spam: false) }
 
@@ -37,14 +37,14 @@ class Topic < ApplicationRecord
 
     # Modified to only search templates with message_embeddings
     candidate_templates = inbox.templates
-      .joins(:message_embeddings)
-      .select(<<~SQL)
-        templates.id AS template_id,
-        templates.output AS template_text,
-        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
-      SQL
-      .group("templates.id, templates.output")
-      .order("similarity DESC NULLS LAST")
+                               .joins(:message_embeddings)
+                               .select(<<~SQL)
+                                 templates.id AS template_id,
+                                 templates.output AS template_text,
+                                 MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
+                               SQL
+                               .group('templates.id, templates.output')
+                               .order('similarity DESC NULLS LAST')
 
     first_threshold = 0.85
     additional_threshold = 0.9
@@ -55,9 +55,7 @@ class Topic < ApplicationRecord
 
       candidate_templates[1..].each do |candidate|
         sim = candidate.similarity.to_f
-        if sim >= additional_threshold
-          selected_candidates << candidate
-        end
+        selected_candidates << candidate if sim >= additional_threshold
       end
     end
 
@@ -84,14 +82,14 @@ class Topic < ApplicationRecord
     target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
 
     inbox.templates
-      .left_joins(:message_embeddings)
-      .select(<<~SQL)
-        templates.id AS id,
-        templates.output AS output,
-        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
-      SQL
-      .group("templates.id, templates.output")
-      .order("similarity DESC NULLS LAST")
+         .left_joins(:message_embeddings)
+         .select(<<~SQL)
+           templates.id AS id,
+           templates.output AS output,
+           MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
+         SQL
+         .group('templates.id, templates.output')
+         .order('similarity DESC NULLS LAST')
   end
 
   # Debugging helper to identify the message most similar to the latest message
@@ -108,9 +106,9 @@ class Topic < ApplicationRecord
 
     Message
       .joins(message_embedding: :templates)
-      .where(templates: {id: template_id})
+      .where(templates: { id: template_id })
       .select("messages.*, (message_embeddings.vector <#> #{target_vector_literal}::vector) AS distance")
-      .order("distance")
+      .order('distance')
       .first
   end
 
@@ -120,10 +118,10 @@ class Topic < ApplicationRecord
     message_text = truncate_text(latest_message.to_s, EMBEDDING_TOKEN_LIMIT)
 
     template_prompt = if templates.any?
-      "TEMPLATE RESPONSE EMAIL:\n" + templates.map(&:output).join("\n---\n") + "\n\n"
-    else
-      ""
-    end
+                        "TEMPLATE RESPONSE EMAIL:\n" + templates.map(&:output).join("\n---\n") + "\n\n"
+                      else
+                        ''
+                      end
 
     email_prompt = "EMAIL:\n#{message_text}\nRESPONSE:\n"
     prompt = "#{template_prompt}#{email_prompt}"
@@ -134,7 +132,7 @@ class Topic < ApplicationRecord
   # Delete all messages, and readd them back.
   def debug_refresh
     account = inbox.account
-    user_id = "me"
+    user_id = 'me'
 
     account.with_gmail_service do |service|
       thread_response = service.get_user_thread(user_id, thread_id)
@@ -154,9 +152,9 @@ class Topic < ApplicationRecord
       topic.save!
 
       api_messages = response_body.messages
-      cached_messages = api_messages.map { |api_message|
+      cached_messages = api_messages.map do |api_message|
         Message.cache_from_gmail(topic, api_message)
-      }
+      end
 
       first_message = cached_messages.first
       last_message = cached_messages.last
@@ -169,12 +167,12 @@ class Topic < ApplicationRecord
       to_name = last_message.to_name
       is_old_email = date < 3.weeks.ago
       status = if from_email == inbox.account.email
-        :has_reply
-      elsif is_old_email
-        :has_reply
-      else
-        :needs_reply
-      end
+                 :has_reply
+               elsif is_old_email
+                 :has_reply
+               else
+                 :needs_reply
+               end
       message_count = response_body.messages.count
       awaiting_customer = (from_email == inbox.account.email)
 
@@ -217,10 +215,10 @@ class Topic < ApplicationRecord
 
   def fetch_generation(prompt)
     groq_api_key = Rails.application.credentials.groq_api_key
-    url = "https://api.groq.com/openai/v1/chat/completions"
+    url = 'https://api.groq.com/openai/v1/chat/completions'
     headers = {
-      "Authorization" => "Bearer #{groq_api_key}",
-      "Content-Type" => "application/json"
+      'Authorization' => "Bearer #{groq_api_key}",
+      'Content-Type' => 'application/json'
     }
 
     system_prompt = <<~PROMPT
@@ -237,14 +235,14 @@ class Topic < ApplicationRecord
     PROMPT
 
     data = {
-      model: "moonshotai/kimi-k2-instruct",
+      model: 'moonshotai/kimi-k2-instruct',
       messages: [
         {
-          role: "system",
+          role: 'system',
           content: system_prompt
         },
         {
-          role: "user",
+          role: 'user',
           content: prompt
         }
       ]
@@ -255,11 +253,11 @@ class Topic < ApplicationRecord
 
     # Log to see how many tokens users are using
     account = inbox.account
-    account.increment!(:input_token_usage, parsed["usage"]["prompt_tokens"])
-    account.increment!(:output_token_usage, parsed["usage"]["completion_tokens"])
+    account.increment!(:input_token_usage, parsed['usage']['prompt_tokens'])
+    account.increment!(:output_token_usage, parsed['usage']['completion_tokens'])
 
-    generated_text = parsed["choices"][0]["message"]["content"]
+    generated_text = parsed['choices'][0]['message']['content']
     generated_text.strip
-    generated_text.tr("—", " - ")
+    generated_text.tr('—', ' - ')
   end
 end
