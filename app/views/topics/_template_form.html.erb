@@ -12,11 +12,11 @@
             </ul>
           <% end %>
           <div class="my-2 w-full flex justify-between items-center">
-            <%= form.label "templates[#{template.id}][output]", "Training template", class: "font-medium text-stone-600 text-sm" %>
+            <%= form.label "templates[#{template.id}][output]", "Trainplate", class: "font-medium text-stone-600 text-sm" %>
             <%= link_to "Remove", remove_template_topic_path(topic, template),
               data: {
                 turbo_method: :delete,
-                turbo_confirm: "Are you sure you want to remove this training template?"
+                turbo_confirm: "Are you sure you want to remove this trainplate?"
               },
               class: "rounded-lg bg-stone-100 px-2 py-1 text-xs hover:bg-stone-200 flex items-center gap-1.5 text-stone-700 font-medium" %>
           </div>
@@ -45,7 +45,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6" />
       </svg>
-      <p>No training templates are selected.</p>
+      <p>No trainplates are selected.</p>
     </div>
     <div class="flex justify-start mt-4 mb-4">
       <%= button_to update_templates_regenerate_reply_topic_path(topic), class: "text-white bg-slate-700 hover:bg-stone-800 focus:ring-4 focus:outline-none focus:ring-stone-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 hover:cursor-pointer" do %>
