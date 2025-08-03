@@ -60,7 +60,7 @@ class SessionsController < ApplicationController
       return
     end
 
-    if account.inbox.nil?
+    if account.inbox.nil? && account.has_gmail_permissions?
       account.create_inbox
       # New accounts connected to gmail get a free trial
       account.update(
@@ -68,7 +68,7 @@ class SessionsController < ApplicationController
         subscription_period_end: 30.days.from_now
       ) # TODO: is this n+1? if u have time clean up
       SetupInboxJob.perform_later account.inbox.id
-    elsif new_refresh_token && account.has_gmail_permissions && account.has_access?
+    elsif new_refresh_token && account.has_gmail_permissions? && account.has_access?
       # We lost refresh token and just got it back
       # gmail watch can't refresh without refresh token
       # so refresh now that we have it
