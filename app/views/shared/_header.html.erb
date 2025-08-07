@@ -10,7 +10,7 @@
       <el-dropdown class="inline-block">
         <button class="flex items-center focus:outline-none hover:bg-stone-100 focus:ring-4 focus:ring-stone-100 rounded-lg gap-1 font-medium cursor-pointer">
           <span class="inline-flex size-8 items-center justify-center rounded-full bg-stone-200 outline -outline-offset-1 outline-black/5">
-            <span class="text-sm font-medium text-stone-700"><%= "#{@account.first_name&.first}#{@account.last_name&.first}" %></span>
+            <span class="text-sm font-medium text-stone-700"><%= "#{@account.first_name&.match(/[a-zA-Z]/)&.to_s}#{@account.last_name&.match(/[a-zA-Z]/)&.to_s}" %></span>
           </span>
         </button>
         <el-menu anchor="bottom end" popover class="w-56 origin-top-right divide-y divide-stone-100 rounded-md bg-white shadow-lg outline-1 outline-black/5 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
