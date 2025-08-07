@@ -31,9 +31,9 @@ export default class extends Controller {
     }
 
     if (this.totalChecked == 1) {
-      this.buttonTextTarget.textContent = "Select 1 template";
+      this.buttonTextTarget.textContent = "Choose 1 smart template";
     } else {
-      this.buttonTextTarget.textContent = `Select ${this.totalChecked} templates`;
+      this.buttonTextTarget.textContent = `Choose ${this.totalChecked} smart templates`;
     }
   }
 }
