@@ -7,7 +7,30 @@
           Get VIPReply
         </span>
       <% end %>
-      <%= render "shared/logout" %>
+      <el-dropdown class="inline-block">
+        <button class="flex items-center focus:outline-none hover:bg-stone-100 focus:ring-4 focus:ring-stone-100 rounded-lg gap-1 font-medium cursor-pointer">
+          <span class="text-stone-500"><%= @account.first_name %></span>
+          <svg viewBox="0 0 20 20" fill="currentColor" data-slot="icon" aria-hidden="true" class="-mr-1 size-5 text-stone-400">
+            <path d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" fill-rule="evenodd" />
+          </svg>
+        </button>
+        <el-menu anchor="bottom end" popover class="w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg outline-1 outline-black/5 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
+          <div class="px-4 py-3">
+            <p class="text-sm text-gray-700">Signed in as</p>
+            <p class="truncate text-sm font-medium text-gray-900">tom@example.com</p>
+          </div>
+          <div class="py-1">
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden">Account settings</a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden">Support</a>
+            <a href="#" class="block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden">License</a>
+          </div>
+          <div class="py-1">
+            <%= link_to logout_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-gray-700 focus:bg-gray-100 focus:text-gray-900 focus:outline-hidden" do %>
+              Sign out
+            <% end %>
+          </div>
+        </el-menu>
+      </el-dropdown>
     </div>
   </div>
 </div>
