@@ -145,7 +145,7 @@ class Topic < ApplicationRecord
     end
   end
 
-  def self.cache_from_gmail(response_body, snippet, inbox)
+  def self.cache_from_gmail(response_body, inbox)
     ActiveRecord::Base.transaction do
       thread_id = response_body.id
       topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
@@ -175,6 +175,7 @@ class Topic < ApplicationRecord
       end
       message_count = response_body.messages.count
       awaiting_customer = (from_email == inbox.account.email)
+      snippet = last_message.snippet
 
       topic.assign_attributes(
         snippet: snippet,

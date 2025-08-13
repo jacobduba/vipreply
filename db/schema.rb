@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_13_032201) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_193557) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -64,7 +64,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_13_032201) do
     t.datetime "updated_at", null: false
     t.bigint "account_id", null: false
     t.bigint "history_id"
-    t.integer "initial_import_jobs_remaining", default: 0
+    t.integer "initial_import_jobs_remaining", default: -1
     t.index ["account_id"], name: "index_inboxes_on_account_id"
   end
 

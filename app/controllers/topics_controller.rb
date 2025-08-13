@@ -109,8 +109,9 @@ class TopicsController < ApplicationController
       service.send_user_message("me", message_object)
     end
 
-    inbox = @account.inbox
-    UpdateFromHistoryJob.perform_now inbox.id
+    inbox_id = @account.inbox.id
+    thread_id = @topic.thread_id
+    FetchGmailThreadJob.perform_now inbox_id, thread_id
 
     if @topic.templates.any?
       if most_recent_message

@@ -36,7 +36,7 @@ class SetupInboxJob < ApplicationJob
       Rails.logger.info "Found #{thread_info.count} threads for inbox #{inbox.id}. Enqueuing individual fetch jobs."
 
       thread_info.each do |thread|
-        FetchGmailThreadJob.perform_later(inbox.id, thread[:id], thread[:snippet])
+        FetchGmailThreadJob.perform_later(inbox.id, thread[:id], decrement_import_jobs_remaining: true)
       end
       Rails.logger.info "Finished enqueuing fetch jobs for inbox #{inbox.id}."
     end

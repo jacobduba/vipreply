@@ -10,7 +10,7 @@ class FetchGmailThreadJob < ApplicationJob
 
   discard_on ActiveJob::DeserializationError # Ignore if records are deleted
 
-  def perform(inbox_id, thread_id, snippet)
+  def perform(inbox_id, thread_id, decrement_import_jobs_remaining: false)
     inbox = Inbox.find_by(id: inbox_id)
     unless inbox
       Rails.logger.warn "FetchGmailThreadJob: Inbox #{inbox_id} not found. Skipping thread #{thread_id}."
@@ -27,12 +27,12 @@ class FetchGmailThreadJob < ApplicationJob
 
         # Process the fetched thread
         # Using the same caching logic as the original batch callback
-        Topic.cache_from_gmail(thread_response, snippet, inbox)
+        Topic.cache_from_gmail(thread_response, inbox)
 
         Rails.logger.info "FetchGmailThreadJob: Successfully processed thread #{thread_id} for inbox #{inbox.id}"
       end
     ensure
-      inbox.decrement!(:initial_import_jobs_remaining)
+      inbox.decrement!(:initial_import_jobs_remaining) if decrement_import_jobs_remaining
     end
   end
 end
