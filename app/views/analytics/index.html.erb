@@ -7,6 +7,7 @@
         <thead class="bg-stone-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Email</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Registration Date</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Last Active Time</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Session Count</th>
@@ -19,10 +20,13 @@
                 <%= account.name %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500">
+                <%= account.email %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500">
                 <%= account.created_at.strftime("%m/%d/%Y") %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500">
-                <%= account.last_active_at&.strftime("%m/%d/%Y %H:%M") || "Never" %>
+                <%= "#{time_ago_in_words(account.last_active_at)} ago" %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500">
                 <%= account.session_count %>
