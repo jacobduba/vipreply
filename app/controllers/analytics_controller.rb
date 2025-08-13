@@ -7,8 +7,6 @@ class AnalyticsController < ApplicationController
   )
 
   def index
-    @accounts = Account
-      .select(:id, :name, :email, :created_at, :last_active_at, :session_count)
-      .order(created_at: :desc)
+    @accounts = Account.order(last_active_at: :desc)
   end
 end
