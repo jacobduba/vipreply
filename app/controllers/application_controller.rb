@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  after_action :track_daily_activity
+
   rescue_from Account::NoGmailPermissionsError do |e|
     flash[:alert] = "Please connect your Gmail account to continue."
     redirect_to upgrade_permissions_path
@@ -20,9 +22,7 @@ class ApplicationController < ActionController::Base
       return redirect_to root_path
     end
 
-    Honeybadger.context({
-      account: @account
-    })
+    Honeybadger.context({account: @account})
   end
 
   def require_subscription
@@ -33,5 +33,18 @@ class ApplicationController < ActionController::Base
 
   def require_gmail_permissions
     redirect_to upgrade_permissions_path unless @account.has_gmail_permissions
+  end
+
+  private
+
+  def track_daily_activity
+    return unless @account&.persisted?
+
+    time = Time.current
+
+    @account.session_count += 1 if @account.last_active_at + 30.minutes < time
+    @account.last_active_at = Time.current
+
+    @account.save!
   end
 end

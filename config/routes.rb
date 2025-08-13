@@ -23,6 +23,12 @@ Rails.application.routes.draw do
     delete "logout", to: "sessions#destroy"
     get "upgrade_permissions", to: "sessions#upgrade_permissions", as: :upgrade_permissions
 
+    # Analytics
+    get "analytics", to: "analytics#index"
+
+    # Dashboard for Solid Queue
+    mount MissionControl::Jobs::Engine, at: "/jobs"
+
     # Inbox
     scope :inbox do
       get "", to: "inboxes#index", as: :inbox
@@ -58,9 +64,6 @@ Rails.application.routes.draw do
       get "settings", to: "settings#index"
       delete "settings/cancel_subscription", to: "settings#cancel_subscription"
       post "settings/reactivate_subscription", to: "settings#reactivate_subscription"
-
-      # Dashboard for Solid Queue
-      mount MissionControl::Jobs::Engine, at: "/jobs"
     end
   end
 

@@ -193,7 +193,7 @@ class Message < ApplicationRecord
     labels = message.label_ids
 
     date_header = headers.find { |h| h.name.downcase == "date" }
-    date = date_header ? DateTime.parse(date_header.value) : DateTime.now
+    date = date_header ? DateTime.parse(date_header.value) : DateTime.current
 
     subject_header = headers.find { |h| h.name.downcase == "subject" }
     subject = subject_header&.value

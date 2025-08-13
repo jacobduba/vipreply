@@ -28,7 +28,7 @@ module ActiveSupport
         credentials: {
           token: "123456789",
           refresh_token: "123456789",
-          expires_at: Time.now + 1.hour,
+          expires_at: Time.current + 1.hour,
           expires: true,
           scope: scopes.join(" ")
         },

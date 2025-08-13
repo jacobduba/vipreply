@@ -56,7 +56,7 @@ class TopicsController < ApplicationController
     email_body_plaintext = <<~PLAINTEXT
       #{email_body}
 
-      On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
+      On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
       #{quoted_plaintext}
     PLAINTEXT
 
@@ -65,7 +65,7 @@ class TopicsController < ApplicationController
       #{simple_format(email_body)}
 
       <div class="vip_quote">
-        <p>On #{Time.now.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
+        <p>On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
         <blockquote>
           #{most_recent_message.html}
         </blockquote>

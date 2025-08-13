@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_24_005434) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_13_032201) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -36,6 +36,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_24_005434) do
     t.string "stripe_subscription_id"
     t.datetime "subscription_period_end"
     t.boolean "cancel_at_period_end", default: false
+    t.integer "session_count", default: 1
+    t.datetime "last_active_at", default: -> { "CURRENT_TIMESTAMP" }
     t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 
