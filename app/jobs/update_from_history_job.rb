@@ -42,9 +42,6 @@ class UpdateFromHistoryJob < ApplicationJob
 
           # Update history_id after each successful message processing
           inbox.update!(history_id: history_item_id)
-        rescue => e
-          Rails.logger.error "Failed to process message in thread #{thread_id}: #{e.message}"
-          Rails.logger.error e.backtrace.join("\n") if e.backtrace
         end
       end
     rescue Google::Apis::ClientError => e
