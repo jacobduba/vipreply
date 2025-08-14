@@ -165,7 +165,7 @@ class Topic < ApplicationRecord
       from_name = last_message.from_name
       to_email = last_message.to_email
       to_name = last_message.to_name
-      is_old_email = date < 3.weeks.ago
+      is_old_email = date < 3.days.ago
       status = if from_email == inbox.account.email
         :has_reply
       elsif is_old_email
