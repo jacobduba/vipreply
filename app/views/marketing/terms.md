@@ -2,7 +2,7 @@
 
 *Last updated: May 21, 2025*
 
-When we say “Company”, “we”, “our”, or “us” in this document, we are referring to VIPReply operated by Jacob Duba.
+When we say “Company”, “we”, “our”, or “us” in this document, we are referring to VIPReply operated by VIPReply, LLC.
 
 When we say “Services”, we mean our website, vipreply.ai.
 
