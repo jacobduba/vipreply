@@ -159,7 +159,7 @@ GEM
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
     hashie (5.0.0)
-    honeybadger (5.28.0)
+    honeybadger (6.0.6)
       logger
       ostruct
     hotwire-spark (0.1.13)
@@ -272,7 +272,7 @@ GEM
       actionpack (>= 4.2)
       omniauth (~> 2.0)
     os (1.1.4)
-    ostruct (0.6.1)
+    ostruct (0.6.3)
     parallel (1.27.0)
     parser (3.3.8.0)
       ast (~> 2.4.1)
@@ -481,7 +481,7 @@ DEPENDENCIES
   capybara
   debug
   google-api-client (~> 0.53)
-  honeybadger (~> 5.27)
+  honeybadger (~> 6.0)
   hotwire-spark
   importmap-rails (~> 2.1)
   jbuilder (~> 2.13)
