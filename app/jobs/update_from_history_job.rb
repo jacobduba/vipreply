@@ -39,9 +39,16 @@ class UpdateFromHistoryJob < ApplicationJob
 
           thread_id = message_meta.message.thread_id
 
-          # Fetch the entire thread from Gmail
-          thread_response = service.get_user_thread(user_id, thread_id)
-
+          begin
+            # Fetch the entire thread from Gmail
+            thread_response = service.get_user_thread(user_id, thread_id)
+          rescue Google::Apis::ClientError => e
+            if e.status_code == 404
+              next # just ignore it got deleted or something
+            else
+              raise
+            end
+          end
           # Recreate the thread and its messages
           Topic.cache_from_gmail(thread_response, inbox)
 
@@ -49,9 +56,6 @@ class UpdateFromHistoryJob < ApplicationJob
           inbox.update!(history_id: history_item_id)
         end
       end
-    rescue Google::Apis::ClientError => e
-      Rails.logger.error "Failed to update inbox from history: #{e.message}"
-      nil
     end
   rescue Account::NoGmailPermissionsError => e
     Rails.logger.error "No Gmail permissions for account #{account.email}: #{e.message}"
