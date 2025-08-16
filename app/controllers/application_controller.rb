@@ -22,7 +22,11 @@ class ApplicationController < ActionController::Base
       return redirect_to root_path
     end
 
-    Honeybadger.context({account: @account})
+    Rails.error.set_context(
+      # Honeybadger needs user instead of account
+      user_id: @account.id,
+      user_email: @account.email
+    )
   end
 
   def require_subscription

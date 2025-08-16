@@ -7,6 +7,11 @@ class UpdateFromHistoryJob < ApplicationJob
     inbox = Inbox.find(inbox_id)
     account = inbox.account
 
+    Rails.error.set_context(
+      user_id: account.id,
+      user_email: account.email
+    )
+
     user_id = "me"
     history_id = inbox.history_id
 

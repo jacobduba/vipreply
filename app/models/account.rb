@@ -136,15 +136,4 @@ class Account < ApplicationRecord
   def has_access?
     trialing? || active?
   end
-
-  def to_honeybadger_context
-    {
-      id: id,
-      uid: uid,
-      email: email,
-      name: name,
-      provider: provider,
-      token_expires_at: expires_at
-    }
-  end
 end
