@@ -237,11 +237,15 @@ class Message < ApplicationRecord
       labels: labels
     )
 
-    msg_already_exists = Message.exists?(message_id: message_id)
+    existing_msg = Message.find_by(message_id: message_id)
 
     Honeybadger.context({
+      current_topic_id: topic.id,
       msg_id: message_id,
-      msg_already_exists: msg_already_exists
+      new_msg_subject: subject,
+      duplicate_exists: existing_msg.present?,
+      existing_topic_id: existing_msg&.topic_id,
+      existing_subject: existing_msg&.subject
     })
 
     msg.save! if msg.changed?
