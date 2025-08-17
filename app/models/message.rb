@@ -237,7 +237,7 @@ class Message < ApplicationRecord
       labels: labels
     )
 
-    existing_msg = Message.find_by(message_id: message_id)
+    existing_msg = topic.messages.find_by(message_id: message_id)
 
     Honeybadger.context({
       current_topic_id: topic.id,
