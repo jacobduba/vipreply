@@ -239,9 +239,12 @@ class Message < ApplicationRecord
 
     msg_already_exists = Message.exists?(message_id: message_id)
 
-    Rails.error.record(context: {msg_id: message_id, msg_already_exists: msg_already_exists}) do
-      msg.save! if msg.changed?
-    end
+    Honeybader.context({
+      msg_id: message_id,
+      msg_already_exists: msg_already_exists
+    })
+
+    msg.save! if msg.changed?
 
     topic.update(is_spam: true) if msg.labels.include?("SPAM")
 
