@@ -239,7 +239,7 @@ class Message < ApplicationRecord
 
     msg_already_exists = Message.exists?(message_id: message_id)
 
-    Honeybader.context({
+    Honeybadger.context({
       msg_id: message_id,
       msg_already_exists: msg_already_exists
     })

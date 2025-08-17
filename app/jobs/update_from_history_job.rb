@@ -12,8 +12,15 @@ class UpdateFromHistoryJob < ApplicationJob
       user_email: account.email
     )
 
+    return unless account.has_gmail_permissions?
+
     user_id = "me"
     history_id = inbox.history_id
+
+    unless history_id
+      SetupInboxJob.perform_later(inbox.id)
+      return
+    end
 
     Rails.logger.info "Updating Gmail inbox from history_id: #{history_id} for inbox #{inbox.id}"
 
