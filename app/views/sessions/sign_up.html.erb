@@ -1,4 +1,4 @@
-<% content_for :title, "Connect Gmail | VIPReply" %>
+<% content_for :title, "Start your free trial | VIPReply" %>
 <div class="min-h-screen">
   <div class="mx-auto md:px-4 pt-16">
     <div class="flex justify-center mb-8">
@@ -9,7 +9,7 @@
         <h1 class="text-3xl font-bold mb-4 text-stone-900">Start your free trial.</h1>
         <p class="text-lg text-stone-600 mb-6">Sign in with the Google account your business uses to answer customer emails.</p>
         <div class="mb-3">
-          <%= render partial: "shared/google_signin_button" %>
+          <%= render partial: "shared/google_signin_button", locals: { request_gmail_scopes: false } %>
         </div>
         <p class="text-sm text-stone-500 text-center">
           By continuing, you acknowledge that you understand and agree<br/>
