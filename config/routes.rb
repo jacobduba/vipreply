@@ -19,7 +19,8 @@ Rails.application.routes.draw do
     get "terms", to: "marketing#terms"
 
     # Session management
-    get "login", to: "sessions#new", as: :login
+    get "login", to: "sessions#login", as: :login
+    get "sign_up", to: "sessions#sign_up", as: :sign_up
     delete "logout", to: "sessions#destroy"
     get "upgrade_permissions", to: "sessions#upgrade_permissions", as: :upgrade_permissions
 

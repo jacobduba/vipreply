@@ -3,9 +3,12 @@
 class SessionsController < ApplicationController
   before_action :authorize_account, only: [:upgrade_permissions]
 
-  def new
+  def login
     redirect_to root_path if session[:account_id]
     @prompt_consent = flash[:prompt_consent] || false
+  end
+
+  def sign_up
   end
 
   def upgrade_permissions
