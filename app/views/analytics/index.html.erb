@@ -7,6 +7,7 @@
         <thead class="bg-stone-50">
           <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Gmail</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Email</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Registration Date</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-stone-500 uppercase tracking-wider">Last Active</th>
@@ -18,6 +19,9 @@
             <tr>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-stone-900">
                 <%= account.name %>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500">
+                <%= account.has_gmail_permissions %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500">
                 <%= account.email %>
