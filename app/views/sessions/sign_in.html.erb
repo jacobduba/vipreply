@@ -1,4 +1,4 @@
-<% content_for :title, "Login | VIPReply" %>
+<% content_for :title, "Sign In | VIPReply" %>
 <div class="min-h-screen">
   <div class="mx-auto md:px-4 pt-16">
     <div class="flex justify-center mb-8">
@@ -11,12 +11,12 @@
             <%= flash[:alert] %>
           </p>
         <% end %>
-        <h1 class="text-3xl font-bold mb-4 text-stone-900 text-center">Sign in to VIPReply.</h1>
+        <h1 class="text-3xl font-bold mb-4 text-stone-900 text-center">Sign into VIPReply.</h1>
         <div class="mb-3">
           <%= render partial: "shared/google_signin_button", locals: { request_gmail_scopes: false } %>
         </div>
         <p class="text-sm text-stone-500 text-center">
-          If you are having trouble signing in,
+          If you are having trouble signing in, please
           <%= link_to "contact support.", "mailto:hello@vipreply.ai", target: "_blank", class: "text-blue-500 hover:text-blue-600 underline" %>
         </p>
       </div>
