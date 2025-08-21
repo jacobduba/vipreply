@@ -19,7 +19,7 @@
   <div class="flex flex-wrap lg:gap-8">
     <!-- Left column: templates, new buttons, and forms -->
     <div class="w-full lg:w-[calc(50%-1rem)] relative flex flex-col order-2 lg:order-1" id="template">
-      <div class="sticky top-[51px]"> <!-- Is 51px down b/c header is 51px tall -->
+      <div class="sticky overflow-y-auto lg:pb-16" style="top: <%= @account&.trialing? ? 87 : 51 %>px; max-height: calc(100vh - <%= @account&.trialing? ? 88 : 51 %>px)"> <!-- sticks at 88 when trial message shows and 51 otherwise -->
         <div data-controller="template-selector-dropdown" data-action="click@window->template-selector-dropdown#closeIfOutsideSelector" class="relative">
           <div class="flex justify-between lg:mt-3 mb-4">
             <%= render 'change_status_button' %>
@@ -48,7 +48,7 @@
     </div>
     <!-- Right column: messages list -->
     <div class="w-full lg:w-[calc(50%-1rem)] order-1 lg:order-2" data-controller="iframe-resize">
-      <ul class="divide-y divide-stone-200 lg:mb-10">
+      <ul class="divide-y divide-stone-200 lg:pb-14 pb-4">
         <% @messages.each_with_index do |message, index| %>
           <li class="pt-3 pb-4" <%= "data-iframe-resize-target=lastMessage" if message == @messages.last %>>
             <div class="flex justify-between">
