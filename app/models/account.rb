@@ -25,6 +25,11 @@ class Account < ApplicationRecord
     suspended: 5        # we suspended them
   }
 
+  def trial_days_remaining
+    return nil unless trialing? && subscription_period_end.present?
+    (subscription_period_end.to_date - Date.current).to_i
+  end
+
   # Note on permissions
   # - If account is disconencted we we sign the person out and show error message
   # - If account doesnt have enough scopes we should the kinda oauth screen to prompt to grant permissions

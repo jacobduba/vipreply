@@ -1,9 +1,8 @@
 <div class="sticky top-0 z-10">
-  <% if @account.trialing? %>
-    <% days_left = (@account.subscription_period_end.to_date - Date.current).to_i %>
+  <% if @account.trialing? && @account.trial_days_remaining %>
     <div class="bg-stone-200 text-stone-700 py-2 text-center text-sm border-b border-stone-300">
-      You have <span class="font-medium"><%= pluralize(days_left, 'day') %></span> left in your free trial.
-      <%= link_to checkout_subscribe_path, data: { turbo: false }, class: "font-medium underline hover:no-underline" do %>
+      You have <span class="font-medium"><%= pluralize(@account.trial_days_remaining, 'day') %></span> left in your free trial.
+      <%= link_to checkout_plans_path, data: { turbo: false }, class: "font-medium underline" do %>
         Pick a plan for $0
       <% end %> to secure a launch discount.
     </div>

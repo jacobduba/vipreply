@@ -1,0 +1,58 @@
+<% content_for :title, "Choose Your Plan | VIPReply" %>
+<div class="min-h-screen">
+  <div class="mx-auto md:px-4 pt-16">
+    <div class="flex justify-center mb-8">
+      <%= render partial: "marketing/logo" %>
+    </div>
+    <div class="max-w-md mx-auto">
+      <h1 class="text-3xl font-bold mb-5 text-stone-900 text-center">Choose your plan.</h1>
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-sm font-bold text-stone-500 mb-2 uppercase">Plus</h2>
+        <div class="mb-4">
+          <% if @account&.trial_days_remaining %>
+            <span class="text-4xl font-bold text-stone-900">$0</span>
+            <span class="text-stone-500">now, then <span class="font-medium text-stone-700">$19</span>/month in <span class="font-medium text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.</span>
+          <% else %>
+            <span class="text-4xl font-bold text-stone-900">$19</span>
+            <span class="text-stone-600">/month</span>
+          <% end %>
+        </div>
+        <ul class="text-stone-600 mb-6 space-y-2">
+          <li class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4 text-stone-400 mr-2 flex-shrink-0">
+              <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd" />
+            </svg>
+            Unlimited email responses
+          </li>
+          <li class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4 text-stone-400 mr-2 flex-shrink-0">
+              <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd" />
+            </svg>
+            Smart templates
+          </li>
+          <li class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4 text-stone-400 mr-2 flex-shrink-0">
+              <path fill-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" clip-rule="evenodd" />
+            </svg>
+            Cancel anytime
+          </li>
+        </ul>
+        <%= link_to "Secure launch deal", checkout_subscribe_path,
+              data: { turbo_method: :post },
+              class: "block text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700" %>
+        <% if @account&.trial_days_remaining %>
+          <p class="text-xs text-stone-500 text-center mt-3">
+            You won't be charged until your free trial ends in <span class="text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.
+          </p>
+        <% end %>
+      </div>
+      <div class="text-center mt-3">
+        <% if @account&.trialing? %>
+          <%= link_to "Back to app", inbox_path, class: "text-sm text-stone-400 hover:text-stone-500 underline" %>
+        <% else %>
+          <%= link_to "Logout of #{@account.name}", logout_path, data: { turbo_method: :delete }, class: "text-sm text-stone-400 hover:text-stone-500 underline" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

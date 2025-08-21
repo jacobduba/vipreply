@@ -57,6 +57,7 @@ Rails.application.routes.draw do
       get "attachments/:id", to: "attachments#show", as: :attachment
 
       # Checkout
+      get "checkout/plans", to: "checkout#plans"
       post "checkout/subscribe", to: "checkout#subscribe"
       get "checkout/success", to: "checkout#success"
       get "checkout/cancel", to: "checkout#cancel"

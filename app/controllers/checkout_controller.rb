@@ -3,6 +3,9 @@
 class CheckoutController < ApplicationController
   before_action :authorize_account
 
+  def plans
+  end
+
   def subscribe
     if @account.stripe_customer_id.present?
       customer_id = @account.stripe_customer_id
