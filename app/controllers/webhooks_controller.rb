@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class WebhooksController < ApplicationController
-  skip_forgery_protection # Disable CSRF protection for webhookn
+  skip_forgery_protection # Disable CSRF protection for webhooks
 
   def stripe
     payload = request.body.read
@@ -47,9 +47,16 @@ class WebhooksController < ApplicationController
     account = Account.find_by!(stripe_customer_id: customer_id)
 
     invoice_item = invoice["lines"]["data"].first
-    billing_status = invoice["status"]
+    stripe_status = invoice["status"]
     subscription_id = invoice_item["parent"]["subscription_item_details"]["subscription"]
     period_end = invoice_item["period"]["end"]
+
+    # Map Stripe status to our integer enum
+    billing_status = case stripe_status
+    when "paid" then :active
+    when "open" then :past_due
+    else :active # default for paid invoices
+    end
 
     account.update!(
       billing_status: billing_status,
@@ -68,8 +75,24 @@ class WebhooksController < ApplicationController
 
     # Get period end from first subscription item
     period_end = subscription["items"]["data"].first["current_period_end"]
-    billing_status = subscription["status"]
+    stripe_status = subscription["status"]
     cancel_at_period_end = subscription["cancel_at_period_end"]
+
+    # Don't update status for incomplete - it's just processing
+    # apparently incomplete is for payments that take time
+    # there are credit cards that do 2fa? so thats incomplete
+    return if stripe_status == "incomplete"
+
+    # Map Stripe subscription status to our integer enum
+    billing_status = case stripe_status
+    when "active" then :active
+    when "past_due" then :past_due
+    when "canceled" then :canceled
+    when "incomplete_expired" then :canceled
+    when "unpaid" then :suspended
+    when "trialing" then :trialing
+    else :setup
+    end
 
     account.update!(
       billing_status: billing_status,

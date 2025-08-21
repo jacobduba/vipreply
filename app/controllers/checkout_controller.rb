@@ -4,7 +4,6 @@ class CheckoutController < ApplicationController
   before_action :authorize_account
 
   def subscribe
-    # Get or create Stripe customer
     if @account.stripe_customer_id.present?
       customer_id = @account.stripe_customer_id
     else
@@ -19,7 +18,7 @@ class CheckoutController < ApplicationController
     price_id = Rails.application.credentials.stripe_price_id
 
     # Create checkout session
-    # When developing, test with fake cards from https://docs.stripe.com/testing
+    # When developing, test with fake cards from https://docs.stripe.com/billing/quickstart?client=html#testing
     session = Stripe::Checkout::Session.create({
       customer: customer_id,
       line_items: [{
@@ -33,9 +32,6 @@ class CheckoutController < ApplicationController
       success_url: checkout_success_url,
       cancel_url: checkout_cancel_url
     })
-
-    # Set status to track checkout attempt
-    @account.update!(billing_status: "incomplete")
 
     redirect_to session.url, allow_other_host: true
   end

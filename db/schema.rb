@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_17_200044) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_21_011152) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -28,7 +28,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_200044) do
     t.string "last_name"
     t.datetime "expires_at"
     t.string "image_url"
-    t.string "billing_status", default: "setup"
     t.integer "input_token_usage", default: 0
     t.integer "output_token_usage", default: 0
     t.boolean "has_gmail_permissions", default: false
@@ -38,6 +37,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_200044) do
     t.boolean "cancel_at_period_end", default: false
     t.integer "session_count", default: 1
     t.datetime "last_active_at", default: -> { "CURRENT_TIMESTAMP" }
+    t.integer "billing_status", default: 0, null: false
     t.index ["provider", "uid"], name: "index_accounts_on_provider_and_uid", unique: true
   end
 
@@ -105,6 +105,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_200044) do
     t.index ["topic_id"], name: "index_messages_on_topic_id"
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "status"
+    t.string "stripe_subscription_id"
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.datetime "trial_start"
+    t.datetime "trial_end"
+    t.string "stripe_price_id"
+    t.boolean "cancel_at_period_end"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_subscriptions_on_account_id"
+  end
+
   create_table "templates", force: :cascade do |t|
     t.text "output"
     t.bigint "inbox_id", null: false
@@ -144,6 +159,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_17_200044) do
   add_foreign_key "inboxes", "accounts"
   add_foreign_key "message_embeddings", "messages"
   add_foreign_key "messages", "topics"
+  add_foreign_key "subscriptions", "accounts"
   add_foreign_key "templates", "inboxes"
   add_foreign_key "topics", "inboxes"
 end

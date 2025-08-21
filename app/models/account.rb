@@ -17,15 +17,12 @@ class Account < ApplicationRecord
   attribute :has_gmail_permissions, :boolean, default: false
 
   enum :billing_status, {
-    setup: "setup",
-    trialing: "trialing",
-    trial_expired: "trial_expired",
-    active: "active",
-    past_due: "past_due",
-    unpaid: "unpaid",
-    canceled: "canceled",
-    incomplete: "incomplete",
-    incomplete_expired: "incomplete_expired"
+    setup: 0,           # gmail not connected
+    trialing: 1,        # trial active
+    active: 2,          # can use everything
+    past_due: 3,        # payment issue
+    canceled: 4,        # access revoked
+    suspended: 5        # we suspended them
   }
 
   # Note on permissions
