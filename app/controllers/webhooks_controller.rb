@@ -27,10 +27,10 @@ class WebhooksController < ApplicationController
 
     # Note: if you change these events you have to tell the dashboard to send those events
     case type
-    when "invoice.paid"
-      handle_invoice_paid(object)
-    when "customer.subscription.updated"
+    when "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"
       handle_subscription_updated(object)
+    when "customer.subscription.trial_will_end"
+      Rails.logger.info "Trial ending soon for customer: #{object["customer"]}"
     else
       Rails.logger.info "Unhandled event type: #{type}"
     end
@@ -40,38 +40,10 @@ class WebhooksController < ApplicationController
 
   private
 
-  # We can assume they are paying for the One Subscription
-  # that VIPReply offers
-  def handle_invoice_paid(invoice)
-    customer_id = invoice["customer"]
-    account = Account.find_by!(stripe_customer_id: customer_id)
-
-    invoice_item = invoice["lines"]["data"].first
-    stripe_status = invoice["status"]
-    subscription_id = invoice_item["parent"]["subscription_item_details"]["subscription"]
-    period_end = invoice_item["period"]["end"]
-
-    # Map Stripe status to our integer enum
-    billing_status = case stripe_status
-    when "paid" then :active
-    when "open" then :past_due
-    else :active # default for paid invoices
-    end
-
-    account.update!(
-      billing_status: billing_status,
-      stripe_subscription_id: subscription_id,
-      access_period_end: Time.at(period_end),
-      cancel_at_period_end: false
-    )
-
-    # Can assume if you are paying you have setup inbox because comes with free trial
-    UpdateFromHistoryJob.perform_later(account.inbox.id)
-  end
-
   def handle_subscription_updated(subscription)
     customer_id = subscription["customer"]
     account = Account.find_by!(stripe_customer_id: customer_id)
+    subscription_id = subscription["id"]
 
     # Get period end from first subscription item
     period_end = subscription["items"]["data"].first["current_period_end"]
@@ -96,8 +68,9 @@ class WebhooksController < ApplicationController
 
     account.update!(
       billing_status: billing_status,
+      stripe_subscription_id: subscription_id,
       cancel_at_period_end: cancel_at_period_end,
-      access_period_end: Time.at(period_end)
+      subscription_period_end: Time.at(period_end)
     )
   end
 end

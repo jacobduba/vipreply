@@ -37,7 +37,7 @@
             Cancel anytime
           </li>
         </ul>
-        <%= button_to "Secure launch deal", checkout_subscribe_path,
+        <%= button_to "Secure launch discount", checkout_subscribe_path,
               data: { turbo: false },
               class: "block text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 w-full cursor-pointer" %>
         <% if @account&.trialing? %>
