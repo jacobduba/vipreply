@@ -82,9 +82,9 @@ We also store information you may volunteer, for example, written responses to s
 - **Groq**: primary AI provider for generating personalized email replies.
 - **Google**: for OAuth authentication, fetching Gmail messages and attachments when you connect your inbox, and delivering web fonts to your browser.
 - **Honeybadger**: for application error monitoring and reporting.
-- **Datafast**: for product analytics and usage tracking.
+- **DataFast**: for product analytics and usage tracking.
 
-Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and Datafast retain only technical metadata and usage analytics - not your email content. AI providers (VoyageAI, OpenRouter, Anthropic, and OpenAI) process your data in real-time to generate responses but do not store, retain, or train on your information.
+Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. DataFast retains only analytics and event tracking data (user actions, feature usage) but does not receive email content or other sensitive personal information. Honeybadger retains error data (which may include email content if errors occur during email processing) for 15 days for debugging and monitoring purposes, after which it is automatically deleted. AI providers (VoyageAI, Groq) process your data in real-time to generate responses but do not store, retain, or train on your information.
 
 **We do not transfer or disclose your information to third parties for purposes other than the ones provided**: We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
 
