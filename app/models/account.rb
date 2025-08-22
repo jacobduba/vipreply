@@ -26,7 +26,7 @@ class Account < ApplicationRecord
   }
 
   def trial_days_remaining
-    return nil unless trialing? && subscription_period_end.present?
+    return 0 unless trialing? && subscription_period_end.present?
     (subscription_period_end.to_date - Date.current).to_i
   end
 

@@ -30,8 +30,9 @@ class CheckoutController < ApplicationController
       }],
       mode: "subscription",
       subscription_data: {
-        trial_period_days: 30
+        trial_period_days: @account.trial_days_remaining
       },
+      payment_method_types: ["card"],
       success_url: checkout_success_url,
       cancel_url: checkout_cancel_url
     })

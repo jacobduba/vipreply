@@ -37,9 +37,9 @@
             Cancel anytime
           </li>
         </ul>
-        <%= link_to "Secure launch deal", checkout_subscribe_path,
-              data: { turbo_method: :post },
-              class: "block text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700" %>
+        <%= button_to "Secure launch deal", checkout_subscribe_path,
+              data: { turbo: false },
+              class: "block text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 w-full cursor-pointer" %>
         <% if @account&.trial_days_remaining %>
           <p class="text-xs text-stone-500 text-center mt-3">
             You won't be charged until your free trial ends in <span class="text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.
