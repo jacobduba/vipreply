@@ -188,6 +188,11 @@ class Message < ApplicationRecord
 
   # Returns Message
   def self.cache_from_gmail(topic, message)
+    Honeybadger.context({
+      topic_id: topic.id,
+      gmail_message: message.to_h
+    })
+
     headers = message.payload.headers
     gmail_message_id = message.id
     labels = message.label_ids
@@ -237,15 +242,9 @@ class Message < ApplicationRecord
       labels: labels
     )
 
-    existing_msg = topic.messages.find_by(message_id: message_id)
-
+    # Sometimes we get duplicate key errors, this allows me to inspect.
     Honeybadger.context({
-      current_topic_id: topic.id,
-      msg_id: message_id,
-      new_msg_subject: subject,
-      duplicate_exists: existing_msg.present?,
-      existing_topic_id: existing_msg&.topic_id,
-      existing_subject: existing_msg&.subject
+      message_id: message_id
     })
 
     msg.save! if msg.changed?
