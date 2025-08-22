@@ -4,7 +4,10 @@
 The current account is available as an instance variable `@account` defined in `application_controller.rb:13`. This is set by the `authorize_account` before_action which finds the account from the session and handles authentication/token refresh.
 
 ### Account Methods
+- `@account.trialing?` - Returns true if account is in trial period
 - `@account.trial_days_remaining` - Returns the number of days remaining in trial (returns 0 if not trialing or no trial days left)
+- `@account.has_access?` - Returns true if account is trialing or active (has access to the app)
+- `@account.subscription_period_end` - DateTime when current subscription/trial period ends
 
 ## Route Format Constraints
 User-facing routes are constrained to `html|turbo_stream` formats only for security, with OAuth callbacks and webhooks exempt as they receive external data formats. If you encounter issues with non-HTML/Turbo Stream formats, this is intentional - add explicit format support only if absolutely required.

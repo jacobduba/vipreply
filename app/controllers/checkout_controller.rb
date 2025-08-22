@@ -20,6 +20,16 @@ class CheckoutController < ApplicationController
 
     price_id = Rails.application.credentials.stripe_price_id
 
+    # Use billing_cycle_anchor for users with trial/active access to defer payment
+    subscription_data = if @account.has_access?
+      {
+        billing_cycle_anchor: @account.subscription_period_end.to_i,
+        proration_behavior: "none"
+      }
+    else
+      {}
+    end
+
     # Create checkout session
     # When developing, test with fake cards from https://docs.stripe.com/billing/quickstart?client=html#testing
     session = Stripe::Checkout::Session.create({
@@ -29,9 +39,7 @@ class CheckoutController < ApplicationController
         quantity: 1
       }],
       mode: "subscription",
-      subscription_data: {
-        trial_period_days: @account.trial_days_remaining
-      },
+      subscription_data: subscription_data,
       payment_method_types: ["card"],
       success_url: checkout_success_url,
       cancel_url: checkout_cancel_url

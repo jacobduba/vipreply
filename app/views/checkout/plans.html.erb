@@ -9,7 +9,7 @@
       <div class="bg-white rounded-lg shadow-lg p-6">
         <h2 class="text-sm font-bold text-stone-500 mb-2 uppercase">Plus</h2>
         <div class="mb-4">
-          <% if @account&.trial_days_remaining %>
+          <% if @account&.trialing? %>
             <span class="text-4xl font-bold text-stone-900">$0</span>
             <span class="text-stone-500">now, then <span class="font-medium text-stone-700">$19</span>/month in <span class="font-medium text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.</span>
           <% else %>
@@ -40,7 +40,7 @@
         <%= button_to "Secure launch deal", checkout_subscribe_path,
               data: { turbo: false },
               class: "block text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 w-full cursor-pointer" %>
-        <% if @account&.trial_days_remaining %>
+        <% if @account&.trialing? %>
           <p class="text-xs text-stone-500 text-center mt-3">
             You won't be charged until your free trial ends in <span class="text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.
           </p>
