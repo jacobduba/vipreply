@@ -22,7 +22,8 @@ class Account < ApplicationRecord
     active: 2,          # can use everything
     past_due: 3,        # payment issue
     canceled: 4,        # access revoked
-    suspended: 5        # we suspended them
+    suspended: 5,       # we suspended them
+    trial_expired: 6    # trial ended without payment
   }
 
   def trial_days_remaining

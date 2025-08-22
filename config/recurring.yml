@@ -9,7 +9,15 @@
 #     priority: 2
 #     schedule: at 5am every day
 
+development:
+  update_expired_trials:
+    class: UpdateExpiredTrialsJob
+    schedule: every 5 minutes
+
 production:
   refresh_all_gmail_watches:
     class: PubsubRefreshJob
     schedule: every day at 2am
+  update_expired_trials:
+    class: UpdateExpiredTrialsJob
+    schedule: every hour
