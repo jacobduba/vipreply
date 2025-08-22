@@ -82,13 +82,13 @@ We also store information you may volunteer, for example, written responses to s
 - **Groq**: primary AI provider for generating personalized email replies.
 - **Google**: for OAuth authentication, fetching Gmail messages and attachments when you connect your inbox, and delivering web fonts to your browser.
 - **Honeybadger**: for application error monitoring and reporting.
-- **PostHog**: for product analytics and usage tracking.
+- **Datafast**: for product analytics and usage tracking.
 
-Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and PostHog retain only technical metadata and usage analytics - not your email content. AI providers (VoyageAI, OpenRouter, Anthropic, and OpenAI) process your data in real-time to generate responses but do not store, retain, or train on your information.
+Most of our third-party processors only temporarily process your data and do not store it. Only DigitalOcean (our infrastructure host) stores your actual data. Honeybadger and Datafast retain only technical metadata and usage analytics - not your email content. AI providers (VoyageAI, OpenRouter, Anthropic, and OpenAI) process your data in real-time to generate responses but do not store, retain, or train on your information.
 
 **We do not transfer or disclose your information to third parties for purposes other than the ones provided**: We only share the minimum necessary data with these processors and use them to improve your experience with our products and services.
 
-**To help you troubleshoot or squash a software bug, with your permission**: If at any point we need to access your content to help you with a support case, we will ask for your consent before proceeding.
+**To help you troubleshoot or squash a software bug**: When errors occur in our application, we will access and review the relevant parts of your data that are causing the error to diagnose and resolve issues. This helps us maintain service reliability and improve our product.
 
 **To investigate, prevent, or take action regarding restricted uses**: Accessing a customer’s account when investigating potential abuse is a measure of last resort. We want to protect the privacy and safety of both our customers and the people reporting issues to us, and we do our best to balance those responsibilities throughout the process. If we discover you are using our products for a restricted purpose, we will take action as necessary, including notifying appropriate authorities where warranted.
 
