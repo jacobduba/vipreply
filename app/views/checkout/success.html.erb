@@ -1,17 +1,58 @@
-<% content_for :title, "Welcome to VIPReply! | VIPReply" %>
-<div class="min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full bg-white rounded-xl border border-stone-200 p-8 text-center">
-    <!-- Welcome Message -->
-    <h1 class="text-2xl font-bold text-gray-900 mt-3 mb-3">Welcome to VIPReply! 🎉</h1>
-    <p class="text-gray-600 mb-2">Your subscription is active and we're setting up your inbox.</p>
-    <p class="text-sm text-gray-500 mb-5">This usually takes just a few seconds.</p>
-    <!-- CTA Button -->
-    <%= link_to inbox_path, class: "inline-block w-full bg-blue-700 hover:bg-blue-800 text-white font-medium py-2.5 px-6 rounded-lg" do %>
-      Go to your inbox
-    <% end %>
-    <!-- Help Text -->
-    <p class="text-xs text-gray-400 mt-4">
-      Your inbox may still be importing.
-    </p>
+<% content_for :title, "Thank you | VIPReply" %>
+<div class="min-h-screen">
+  <div class="mx-auto md:px-4 pt-16">
+    <div class="flex justify-center mb-8">
+      <%= render partial: "marketing/logo" %>
+    </div>
+    <div class="max-w-md mx-auto">
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold mb-4 text-stone-900"><%= @amount_paid == 0 ? "Subscription confirmed!" : "Successful payment!" %></h1>
+        <p class="text-stone-600 mb-6">First of all, thank you for your trust. We're ecstatic to have you onboard. :)</p>
+        <% if @amount_paid.present? %>
+          <div class="border-stone-200 border rounded-lg p-4 mb-6 text-left">
+            <div class="mb-4">
+              <p class="text-sm text-stone-500 mb-1">Amount paid</p>
+              <p class="text-2xl font-bold text-stone-900">
+                <%= @amount_paid == 0 ? "$0.00" : "$#{'%.2f' % @amount_paid}" %>
+              </p>
+              <% if @amount_paid == 0 %>
+                <p class="text-xs text-stone-500 mt-1">Your trial is active</p>
+              <% end %>
+            </div>
+            <% if @line_items&.first %>
+              <div class="mb-3">
+                <p class="text-xs text-stone-500 mb-1">Product</p>
+                <p class="text-sm text-stone-700"><%= @line_items.first.description || "VIPReply Plus" %></p>
+              </div>
+            <% end %>
+            <% if @card_brand && @card_last4 %>
+              <div class="mb-3">
+                <p class="text-xs text-stone-500 mb-1">Payment method</p>
+                <p class="text-sm text-stone-700">Paid with <%= @card_brand %> ending in <%= @card_last4 %></p>
+              </div>
+            <% end %>
+            <% if @payment_intent_id %>
+              <div class="mb-3">
+                <p class="text-xs text-stone-500 mb-1">Transaction ID</p>
+                <p class="text-stone-700 font-mono text-xs"><%= @payment_intent_id %></p>
+              </div>
+            <% end %>
+            <% if @created_at %>
+              <div>
+                <p class="text-xs text-stone-500 mb-1">Date</p>
+                <p class="text-sm text-stone-700"><%= @created_at.strftime("%B %d, %Y at %l:%M %p") %></p>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+        <%= link_to inbox_path,
+            class: "flex items-center justify-center text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 w-full" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6 mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+          </svg>
+          Go to inbox
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>

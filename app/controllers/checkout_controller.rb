@@ -41,7 +41,7 @@ class CheckoutController < ApplicationController
       mode: "subscription",
       subscription_data: subscription_data,
       payment_method_types: ["card"],
-      success_url: checkout_success_url,
+      success_url: checkout_success_url + "?session_id={CHECKOUT_SESSION_ID}",
       cancel_url: checkout_cancel_url
     })
 
@@ -49,6 +49,48 @@ class CheckoutController < ApplicationController
   end
 
   def success
+    if params[:session_id].blank?
+      redirect_to checkout_error_path
+      return
+    end
+
+    begin
+      @checkout_session = Stripe::Checkout::Session.retrieve({
+        id: params[:session_id],
+        expand: ['line_items', 'payment_intent.payment_method']
+      })
+      
+      # Extract payment info for display
+      @amount_paid = @checkout_session.amount_total / 100.0  # Convert from cents
+      @subscription_status = @checkout_session.payment_status  # "paid" or "unpaid"
+      @payment_intent_id = @checkout_session.payment_intent
+      @created_at = Time.at(@checkout_session.created)
+      
+      # Extract product info
+      @line_items = @checkout_session.line_items.data if @checkout_session.line_items
+      
+      # Extract payment method info if available
+      if @checkout_session.payment_intent && @checkout_session.payment_intent.respond_to?(:payment_method)
+        payment_method = @checkout_session.payment_intent.payment_method
+        if payment_method && payment_method.respond_to?(:card)
+          @card_brand = payment_method.card.brand.capitalize
+          @card_last4 = payment_method.card.last4
+        end
+      end
+    rescue Stripe::InvalidRequestError => e
+      Rails.error.report(e, context: { stripe_session_id: params[:session_id] })
+      Rails.logger.error "Invalid checkout session: #{e.message}"
+      redirect_to checkout_error_path
+      return
+    rescue Stripe::StripeError => e
+      Rails.error.report(e, context: { stripe_session_id: params[:session_id] })
+      Rails.logger.error "Failed to retrieve checkout session: #{e.message}"
+      redirect_to checkout_error_path
+      return
+    end
+  end
+  
+  def error
   end
 
   def cancel

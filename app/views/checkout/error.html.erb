@@ -1,0 +1,19 @@
+<% content_for :title, "Payment Error | VIPReply" %>
+<div class="min-h-screen">
+  <div class="mx-auto md:px-4 pt-16">
+    <div class="flex justify-center mb-8">
+      <%= render partial: "marketing/logo" %>
+    </div>
+    <div class="max-w-lg mx-auto">
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold mb-5 text-stone-900">Error activating subscription.</h1>
+        <p class="text-stone-600 mb-2">There was an error with our third party payment provider when creating your subscription.</p>
+        <p class="text-stone-600 mb-6">If you were charged, please immediately contact support.</p>
+        <%= link_to "Try again", checkout_plans_path,
+            class: "block text-center bg-blue-600 text-white font-medium py-3 px-4 rounded-lg hover:bg-blue-700 w-full mb-3" %>
+        <%= link_to "Contact support", "mailto:support@vipreply.com",
+            class: "block text-center bg-white border border-stone-300 text-stone-700 font-medium py-3 px-4 rounded-lg hover:bg-stone-50 w-full" %>
+      </div>
+    </div>
+  </div>
+</div>
