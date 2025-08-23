@@ -21,7 +21,7 @@ class CheckoutController < ApplicationController
     price_id = Rails.application.credentials.stripe_price_id
 
     # Use billing_cycle_anchor for users with trial/active access to defer payment
-    subscription_data = if @account.has_access?
+    subscription_data = if @account.has_access? && @account.subscription_period_end&.future? # Account access only updates every five minutes, so if <5 minutes over subscription period end can be negative which causes stripe error
       {
         billing_cycle_anchor: @account.subscription_period_end.to_i,
         proration_behavior: "none"

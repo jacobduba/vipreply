@@ -2,7 +2,7 @@
   <% if @account.trialing? %>
     <div class="bg-stone-200 text-stone-700 py-2 text-center text-sm border-b border-stone-300">
       You have <span class="font-medium"><%= pluralize(@account.trial_days_remaining, 'day') %></span> left in your free trial.
-      <%= link_to checkout_plans_path, data: { turbo: false }, class: "font-medium underline" do %>Pick a plan for $0<% end %> to secure the launch discount.
+      <%= link_to checkout_plans_path, data: { turbo: false }, class: "font-medium underline" do %>Pick a plan for $0<% end %> to keep access.
     </div>
   <% end %>
   <div class="bg-stone-100 border-b border-stone-200">
