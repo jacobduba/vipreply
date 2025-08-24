@@ -7,7 +7,8 @@ class WebhooksController < ApplicationController
     payload = request.body.read
 
     event = if Rails.env.development?
-      JSON.parse(payload)
+      json_event = JSON.parse(payload)
+      Stripe::Event.construct_from(json_event)
     else
       sig_header = request.env["HTTP_STRIPE_SIGNATURE"]
       endpoint_secret = Rails.application.credentials.stripe_webhook_secret
@@ -21,20 +22,20 @@ class WebhooksController < ApplicationController
     end
 
     Rails.error.set_context(
-      stripe_event_type: event["type"],
-      stripe_customer_id: event.dig("data", "object", "customer"),
-      event_data: event
+      stripe_event_type: event.type,
+      stripe_customer_id: event.data.object.customer,
+      event_data: event.to_hash
     )
 
-    type = event["type"]
-    object = event["data"]["object"]
+    type = event.type
+    object = event.data.object
 
     # Note: if you change these events you have to tell the dashboard to send those events
     case type
     when "customer.subscription.created", "customer.subscription.updated", "customer.subscription.deleted"
       handle_subscription_updated(object)
     when "customer.subscription.trial_will_end"
-      Rails.logger.info "Trial ending soon for customer: #{object["customer"]}"
+      Rails.logger.info "Trial ending soon for customer: #{object.customer}"
     else
       Rails.logger.info "Unhandled event type: #{type}"
     end
@@ -45,14 +46,14 @@ class WebhooksController < ApplicationController
   private
 
   def handle_subscription_updated(subscription)
-    customer_id = subscription["customer"]
+    customer_id = subscription.customer
     account = Account.find_by!(stripe_customer_id: customer_id)
-    subscription_id = subscription["id"]
+    subscription_id = subscription.id
 
     # Get period end from first subscription item
-    period_end = subscription["items"]["data"].first["current_period_end"]
-    stripe_status = subscription["status"]
-    cancel_at_period_end = subscription["cancel_at_period_end"]
+    period_end = subscription.items.data.first.current_period_end
+    stripe_status = subscription.status
+    cancel_at_period_end = subscription.cancel_at_period_end
 
     # Don't update status for incomplete - it's just processing
     # apparently incomplete is for payments that take time
