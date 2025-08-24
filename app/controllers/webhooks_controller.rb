@@ -20,7 +20,11 @@ class WebhooksController < ApplicationController
       end
     end
 
-    Rails.error.set_context(event: JSON.pretty_generate(event))
+    Rails.error.set_context(
+      stripe_event_type: event["type"],
+      stripe_customer_id: event.dig("data", "object", "customer"),
+      event_data: event
+    )
 
     type = event["type"]
     object = event["data"]["object"]
