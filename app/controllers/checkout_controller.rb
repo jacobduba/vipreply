@@ -57,21 +57,17 @@ class CheckoutController < ApplicationController
     begin
       @checkout_session = Stripe::Checkout::Session.retrieve({
         id: params[:session_id],
-        expand: ["line_items", "payment_intent.payment_method"]
+        expand: ["line_items", "subscription.default_payment_method"]
       })
 
       @amount_paid = @checkout_session.amount_total / 100.0 # Convert from cents
-      @subscription_status = @checkout_session.payment_status # "paid" or "unpaid"
-      @payment_intent_id = @checkout_session.payment_intent
       @created_at = Time.at(@checkout_session.created)
-
       @line_items = @checkout_session.line_items.data if @checkout_session.line_items
 
-      payment_method = @checkout_session.payment_intent&.payment_method
-      if payment_method&.respond_to?(:card)
-        @card_brand = payment_method.card.brand.capitalize
-        @card_last4 = payment_method.card.last4
-      end
+      payment_method = @checkout_session.subscription.default_payment_method
+      @card_brand = payment_method.card.brand.capitalize
+      @card_last4 = payment_method.card.last4
+      # Todo show more information
     rescue Stripe::InvalidRequestError => e
       Rails.error.report(e, context: {stripe_session_id: params[:session_id]})
       redirect_to checkout_error_path
