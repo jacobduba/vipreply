@@ -41,6 +41,7 @@ class CheckoutController < ApplicationController
       mode: "subscription",
       subscription_data: subscription_data,
       payment_method_types: ["card"],
+      allow_promotion_codes: true,
       success_url: checkout_success_url + "?session_id={CHECKOUT_SESSION_ID}",
       cancel_url: checkout_cancel_url
     })
