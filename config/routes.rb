@@ -34,6 +34,7 @@ Rails.application.routes.draw do
     get "checkout/plans", to: "checkout#plans"
     post "checkout/subscribe", to: "checkout#subscribe"
     get "checkout/success", to: "checkout#success"
+    get "checkout/error", to: "checkout#error"
     get "checkout/cancel", to: "checkout#cancel"
 
     # Settings

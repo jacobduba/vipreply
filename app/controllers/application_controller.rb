@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
 
   def require_subscription
     unless @account.has_access?
-      redirect_to inbox_path
+      redirect_to checkout_plans_path
     end
   end
 
