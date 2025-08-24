@@ -25,7 +25,7 @@
               <a href="mailto:hello@vipreply.ai" class="block px-4 py-2 text-sm text-stone-700 focus:bg-stone-100 focus:text-stone-900 focus:outline-hidden">Support</a>
             </div>
             <div class="py-1">
-              <%= link_to logout_path, data: { turbo_method: :delete }, class: "block px-4 py-2 text-sm text-stone-700 focus:bg-stone-100 focus:text-stone-900 focus:outline-hidden" do %>
+              <%= button_to logout_path, method: :delete, class: "block w-full text-left px-4 py-2 text-sm text-stone-700 focus:bg-stone-100 focus:text-stone-900 focus:outline-hidden" do %>
                 Sign out
               <% end %>
             </div>
