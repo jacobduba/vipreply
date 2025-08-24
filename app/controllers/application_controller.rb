@@ -3,7 +3,7 @@
 class ApplicationController < ActionController::Base
   after_action :track_daily_activity
 
-  rescue_from Account::NoGmailPermissionsError do |e|
+  rescue_from Account::NoGmailPermissionsError do |_e|
     flash[:alert] = "Please connect your Gmail account to continue."
     redirect_to upgrade_permissions_path
   end
@@ -11,9 +11,7 @@ class ApplicationController < ActionController::Base
   def authorize_account
     account_id = session[:account_id]
 
-    unless account_id
-      return redirect_to root_path
-    end
+    return redirect_to root_path unless account_id
 
     begin
       @account = Account.find account_id
@@ -30,9 +28,9 @@ class ApplicationController < ActionController::Base
   end
 
   def require_subscription
-    unless @account.has_access?
-      redirect_to checkout_plans_path
-    end
+    return if @account.has_access?
+
+    redirect_to checkout_plans_path
   end
 
   def require_gmail_permissions
