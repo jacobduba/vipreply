@@ -19,7 +19,7 @@
   <div class="flex flex-wrap lg:gap-8">
     <!-- Left column: templates, new buttons, and forms -->
     <div class="w-full lg:w-[calc(50%-1rem)] relative flex flex-col order-2 lg:order-1" id="template">
-      <div class="sticky overflow-y-auto lg:pb-16" style="top: <%= @account&.trialing? ? 88 : 51 %>px; max-height: calc(100vh - <%= @account&.trialing? ? 88 : 51 %>px)"> <!-- sticks at 88 when trial message shows and 51 otherwise -->
+      <div class="sticky overflow-y-auto lg:pb-16" style="top: <%= @account&.trialing? ? 88 : 51 %>px; height: calc(100vh - <%= @account&.trialing? ? 88 : 51 %>px)"> <!-- sticks at 88 when trial message shows and 51 otherwise -->
         <div data-controller="template-selector-dropdown" data-action="click@window->template-selector-dropdown#closeIfOutsideSelector" class="relative">
           <div class="flex justify-between lg:mt-3 mb-4">
             <%= render 'change_status_button' %>
