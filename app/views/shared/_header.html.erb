@@ -10,7 +10,7 @@
       <%= left_side.html_safe %>
       <div class="flex gap-4 items-center">
         <el-dropdown class="inline-block">
-          <button class="flex items-center focus:outline-none hover:bg-stone-100 focus:ring-4 focus:ring-stone-100 rounded-lg gap-1 font-medium cursor-pointer">
+          <button class="flex items-center focus:outline-none hover:bg-stone-100 focus:ring-4 focus:ring-stone-100 rounded-lg gap-1 font-medium">
             <span class="inline-flex size-8 items-center justify-center rounded-full bg-stone-200 outline -outline-offset-1 outline-black/5">
               <span class="text-sm font-medium text-stone-700"><%= @account.first_name&.match(/[a-zA-Z]/)&.to_s %></span>
             </span>
@@ -25,7 +25,7 @@
               <a href="mailto:hello@vipreply.ai" class="block px-4 py-2 text-sm text-stone-700 focus:bg-stone-100 focus:text-stone-900 focus:outline-hidden">Support</a>
             </div>
             <div class="py-1">
-              <%= button_to logout_path, method: :delete, class: "block w-full text-left px-4 py-2 text-sm text-stone-700 focus:bg-stone-100 focus:text-stone-900 focus:outline-hidden" do %>
+              <%= button_to logout_path, method: :delete, class: "block w-full text-left px-4 py-2 text-sm text-stone-700 focus:bg-stone-100 focus:text-stone-900 focus:outline-hidden hover:cursor-pointer" do %>
                 Sign out
               <% end %>
             </div>
