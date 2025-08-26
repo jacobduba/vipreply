@@ -1,20 +1,10 @@
 <% content_for :title, "#{@topic.subject} | VIPReply" %>
-<% back_and_title = capture do %>
-  <div class="flex text-stone-500 divide-x divide-stone-500 min-w-0 gap-3">
-    <%= link_to root_path,
-                  class: "flex items-center bg-stone-50 border border-stone-200 focus:outline-none hover:bg-stone-100 focus:ring-4 focus:ring-stone-100 rounded-lg px-2 py-0.5 gap-1",
-                  data: (@from_inbox ? { controller: :navigation, action: "navigation#back" } : {}) do %>
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-        <path fill-rule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z" clip-rule="evenodd" />
-      </svg>
-      <p class="font-medium">Inbox</p>
-    <% end %>
-    <div class="min-w-0 flex-shrink">
-      <p class="text-lg text-stone-600 font-semibold truncate"><%= @topic.subject %></p>
-    </div>
-  </div>
-<% end %>
-<%= render partial: "shared/header", locals: { left_side: back_and_title } %>
+<%= render partial: "shared/header_with_back", locals: { 
+  back_path: inbox_path, 
+  back_text: "Inbox",
+  back_data: (@from_inbox ? { controller: :navigation, action: "navigation#back" } : {}),
+  title: @topic.subject 
+} %>
 <div class="container mx-auto px-3">
   <div class="flex flex-wrap lg:gap-8">
     <!-- Left column: templates, new buttons, and forms -->
