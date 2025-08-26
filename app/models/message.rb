@@ -278,35 +278,38 @@ class Message < ApplicationRecord
         result[:html] ||= subresult[:html]
         result[:attachments].concat(subresult[:attachments])
       end
-    elsif part.mime_type == "text/plain"
+    elsif part.body.data
+      # Has inline content - process based on mime_type
       # Gmail data comes as ASCII-8BIT bytes, normalize to UTF-8 to prevent encoding conflicts
-      result[:plain] = part.body.data.force_encoding("UTF-8").scrub
-    elsif part.mime_type == "text/html"
-      # Gmail data comes as ASCII-8BIT bytes, normalize to UTF-8 to prevent encoding conflicts
-      result[:html] = part.body.data.force_encoding("UTF-8").scrub
-    else
-      # header.name.downcase BECAUSE Content-ID sometimes was Content-Id ? Phantom bug just solved
-      content_disposition_header = part.headers.find { |h| h.name.downcase == "content-disposition" }&.value
-      if content_disposition_header&.start_with?("attachment") || part.filename
-        cid_header = part.headers.find { |h| h.name.downcase == "content-id" }&.value
-        x_attachment_id = part.headers.find { |h| h.name.downcase == "x-attachment-id" }&.value
-        cid = if x_attachment_id
-          "cid:#{x_attachment_id}" # if attachment id provided use it directly
-        elsif cid_header
-          "cid:#{cid_header[1..-2]}" # cid headers are in brackets <cid:...> so strip brackets
-        end
-        # Sometimes content-disposition is not present in the header
-        # Thus make it inline else will violate content-disposition being non-null
-        content_disposition = content_disposition_header&.split(";")&.first&.strip || "inline"
-        result[:attachments] << {
-          attachment_id: part.body.attachment_id,
-          content_id: cid,
-          filename: part.filename,
-          mime_type: part.mime_type,
-          size: (part.body.size / 1024.0).round,
-          content_disposition: content_disposition
-        }
+      if part.mime_type == "text/plain"
+        result[:plain] = part.body.data.force_encoding("UTF-8").scrub
+      elsif part.mime_type == "text/html"
+        result[:html] = part.body.data.force_encoding("UTF-8").scrub
       end
+    elsif part.body.attachment_id
+      # It's an attachment - process attachment metadata
+      cid_header = part.headers.find { |h| h.name.downcase == "content-id" }&.value
+      x_attachment_id = part.headers.find { |h| h.name.downcase == "x-attachment-id" }&.value
+      content_disposition_header = part.headers.find { |h| h.name.downcase == "content-disposition" }&.value
+
+      cid = if x_attachment_id
+        "cid:#{x_attachment_id}" # if attachment id provided use it directly
+      elsif cid_header
+        "cid:#{cid_header[1..-2]}" # cid headers are in brackets <cid:...> so strip brackets
+      end
+
+      # Sometimes content-disposition is not present in the header
+      # Thus make it inline else will violate content-disposition being non-null
+      content_disposition = content_disposition_header&.split(";")&.first&.strip || "inline"
+
+      result[:attachments] << {
+        attachment_id: part.body.attachment_id,
+        content_id: cid,
+        filename: part.filename,
+        mime_type: part.mime_type,
+        size: (part.body.size / 1024.0).round,
+        content_disposition: content_disposition
+      }
     end
     result
   end
