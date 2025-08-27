@@ -195,7 +195,7 @@ class Message < ApplicationRecord
 
     headers = message.payload.headers
     gmail_message_id = message.id
-    labels = message.label_ids
+    labels = message.label_ids || []
 
     date_header = headers.find { |h| h.name.downcase == "date" }
     date = date_header ? DateTime.parse(date_header.value) : DateTime.current

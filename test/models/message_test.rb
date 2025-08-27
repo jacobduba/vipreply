@@ -33,7 +33,7 @@ class MessageTest < ActiveSupport::TestCase
     end
   end
 
-  test "WIP: extract_parts handles nil body data" do
+  test "handles message with HTML attachments" do
     topic = topics(:acc1_topic1)
 
     gmail_message = OpenStruct.new(
@@ -138,6 +138,66 @@ class MessageTest < ActiveSupport::TestCase
     )
 
     # Should not raise NoMethodError when body.data is nil
+    assert_nothing_raised do
+      Message.cache_from_gmail(topic, gmail_message)
+    end
+  end
+
+  test "handles message without label_ids field" do
+    topic = topics(:acc1_topic1)
+
+    gmail_message = OpenStruct.new(
+      history_id: 14175304,
+      id: "198f620c7272a833",
+      internal_date: 1756476000000,
+      payload: OpenStruct.new(
+        body: OpenStruct.new(size: 0),
+        filename: "",
+        headers: [
+          OpenStruct.new(name: "MIME-Version", value: "1.0"),
+          OpenStruct.new(name: "Date", value: "Fri, 29 Aug 2025 09:00:00 -0500"),
+          OpenStruct.new(name: "Message-ID", value: "<TEST-MESSAGE-ID-123@mail.example.com>"),
+          OpenStruct.new(name: "Subject", value: "Weekly Update"),
+          OpenStruct.new(name: "From", value: "Test Sender <test.sender@example.org>"),
+          OpenStruct.new(name: "To", value: "Test Group <test-group@example.org>"),
+          OpenStruct.new(name: "Content-Type", value: "multipart/alternative; boundary=\"0000000000000a14b6063d46c609\"")
+        ],
+        mime_type: "multipart/alternative",
+        part_id: "",
+        parts: [
+          OpenStruct.new(
+            body: OpenStruct.new(
+              data: "This is a test message with plain text content. Here are some updates: - First update item - Second update item - Third update item. Please review and respond if you have any questions.",
+              size: 2168
+            ),
+            filename: "",
+            headers: [
+              OpenStruct.new(name: "Content-Type", value: "text/plain; charset=\"UTF-8\"")
+            ],
+            mime_type: "text/plain",
+            part_id: "0"
+          ),
+          OpenStruct.new(
+            body: OpenStruct.new(
+              data: "<div dir=\"ltr\"><div><font face=\"times new roman, serif\" size=\"4\">This is a test message</font></div><div><font face=\"times new roman, serif\" size=\"4\"><br></font></div><div><font face=\"times new roman, serif\" size=\"4\">Here are some updates:</font></div><div><ul><li><font face=\"times new roman, serif\" size=\"4\">First update item with HTML formatting</font></li><li><font face=\"times new roman, serif\" size=\"4\">Second update item with additional details</font></li><li><font face=\"times new roman, serif\" size=\"4\">Third update item for testing purposes</font></li></ul></div><div><font face=\"times new roman, serif\" size=\"4\">Please review and respond if you have any questions!</font></div></div>",
+              size: 6900
+            ),
+            filename: "",
+            headers: [
+              OpenStruct.new(name: "Content-Type", value: "text/html; charset=\"UTF-8\""),
+              OpenStruct.new(name: "Content-Transfer-Encoding", value: "quoted-printable")
+            ],
+            mime_type: "text/html",
+            part_id: "1"
+          )
+        ]
+      ),
+      size_estimate: 10261,
+      snippet: "This is a test message with plain text content. Here are some updates: First update item Second update item Third update item",
+      thread_id: "198e70ea89d45b7f"
+    )
+
+    # Should handle multipart/alternative structure without errors
     assert_nothing_raised do
       Message.cache_from_gmail(topic, gmail_message)
     end
