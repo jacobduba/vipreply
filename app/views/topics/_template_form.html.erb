@@ -2,7 +2,7 @@
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
     <div class="space-y-3">
       <% topic.templates.each_with_index do |template, i| %>
-        <div id="template-<%= i %>">
+        <div id="template-<%= i %>" class="border border-stone-200 bg-stone-100 rounded-lg focus-within:border-blue-500/90">
           <% #we need to do error checking on EACH template %>
           <% if output_errors.any? %>
             <ul class="list-disc list-inside text-red-800 text-sm mb-2">
@@ -11,26 +11,30 @@
               <% end %>
             </ul>
           <% end %>
-          <div class="my-2 w-full flex justify-between items-center">
-            <%= form.label "templates[#{template.id}][output]", "Smart template", class: "font-medium text-stone-600 text-sm" %>
-            <%= link_to "Remove", remove_template_topic_path(topic, template),
+          <%= form.label "templates[#{template.id}][output]", class: "w-full flex justify-between items-center px-4 py-2.5 cursor-text" do %>
+            <span class="font-medium text-stone-600 text-sm">Smart template</span>
+            <%= link_to remove_template_topic_path(topic, template),
               data: {
                 turbo_method: :delete,
                 turbo_confirm: "Are you sure you want to remove this smart template?"
               },
-              class: "rounded-lg bg-stone-100 px-2 py-1 text-xs hover:bg-stone-200 flex items-center gap-1.5 text-stone-700 font-medium" %>
-          </div>
+              class: "text-stone-400 hover:text-stone-600" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+              </svg>
+            <% end %>
+          <% end %>
           <%= form.text_area "templates[#{template.id}][output]",
               value: template.output,
               rows: 1,
               placeholder: "Write a smart template you can reuse for similar emails...",
               data: { controller: "textbox-autoresize" },
               autocomplete: "off",
-              class: "block border border-stone-200 px-4 py-3 w-full text-sm text-stone-900 bg-stone-100 rounded-lg focus:outline-none focus:border-blue-500/90 resize-none" %>
+              class: "block px-4 pb-2.5 w-full text-sm text-stone-900 bg-transparent focus:outline-none resize-none" %>
         </div>
       <% end %>
     </div>
-    <div class="flex justify-start my-5">
+    <div class="flex justify-start my-4">
       <button type="submit" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:outline-none focus:ring-slate-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2 hover:cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
