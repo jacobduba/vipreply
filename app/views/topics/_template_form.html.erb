@@ -13,12 +13,9 @@
             </ul>
           <% end %>
           <%= form.label "templates[#{template.id}][output]", class: "w-full flex justify-between items-center px-4 py-2.5 cursor-text" do %>
-            <div class="flex items-center gap-2">
-              <span class="font-medium text-stone-600 text-sm">Smart template</span>
-              <span class="<%= confidence_badge_classes(template_with_confidence.confidence_score) %>">
-                <%= confidence_percentage(template_with_confidence.confidence_score) %>%
-              </span>
-            </div>
+            <span class="font-medium text-stone-600 text-sm">
+              Smart template <span class="text-stone-500">| <%= confidence_percentage(template_with_confidence.confidence_score) %>%</span>
+            </span>
             <%= link_to remove_template_topic_path(topic, template),
               data: {
                 turbo_method: :delete,
