@@ -2,7 +2,8 @@
 
 class Topic < ApplicationRecord
   belongs_to :inbox
-  has_and_belongs_to_many :templates
+  has_many :template_topics, dependent: :destroy
+  has_many :templates, through: :template_topics
 
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages

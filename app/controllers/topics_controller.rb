@@ -18,6 +18,7 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
+    @templates_with_confidence = @topic.template_topics.includes(:template)
 
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
@@ -176,10 +177,16 @@ class TopicsController < ApplicationController
       return
     end
 
-    @topic.templates = valid_templates
+    # Yeah I know it's slow but there shouldn't be too many records. I want validations because that's the Rails way
+    TemplateTopic.where(topic_id: @topic.id).destroy_all
+    valid_templates.each do |template|
+      TemplateTopic.create!(template: template, topic: @topic, confidence_score: 0.69)
+    end
+
     refresh_topic_reply(@topic)
   end
 
+  # This is for the template form where users edit template text and click "Save template & regenerate reply"
   def update_templates_regenerate_reply
     if params[:templates].blank?
       refresh_topic_reply(@topic)

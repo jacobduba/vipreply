@@ -5,7 +5,8 @@ class Template < ApplicationRecord
   MAX_TEMPLATE_SIZE = 6000
 
   belongs_to :inbox
-  has_and_belongs_to_many :topics
+  has_many :template_topics, dependent: :destroy
+  has_many :topics, through: :template_topics
   has_and_belongs_to_many :message_embeddings
 
   validates :output, length: {in: MIN_TEMPLATE_SIZE..MAX_TEMPLATE_SIZE}

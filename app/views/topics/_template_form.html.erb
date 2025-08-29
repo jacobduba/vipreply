@@ -1,7 +1,8 @@
-<% if topic.templates.any? # Topic eager loads templates in show %>
+<% if @templates_with_confidence.any? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
     <div class="space-y-3">
-      <% topic.templates.each_with_index do |template, i| %>
+      <% @templates_with_confidence.each_with_index do |template_with_confidence, i| %>
+        <% template = template_with_confidence.template %>
         <div id="template-<%= i %>" class="border border-stone-200 bg-stone-100 rounded-lg focus-within:border-blue-500/90">
           <% #we need to do error checking on EACH template %>
           <% if output_errors.any? %>
@@ -12,7 +13,12 @@
             </ul>
           <% end %>
           <%= form.label "templates[#{template.id}][output]", class: "w-full flex justify-between items-center px-4 py-2.5 cursor-text" do %>
-            <span class="font-medium text-stone-600 text-sm">Smart template</span>
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-stone-600 text-sm">Smart template</span>
+              <span class="<%= confidence_badge_classes(template_with_confidence.confidence_score) %>">
+                <%= confidence_percentage(template_with_confidence.confidence_score) %>%
+              </span>
+            </div>
             <%= link_to remove_template_topic_path(topic, template),
               data: {
                 turbo_method: :delete,
