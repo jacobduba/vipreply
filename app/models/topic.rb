@@ -32,19 +32,7 @@ class Topic < ApplicationRecord
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.vector
 
-    target_vector = latest_message.message_embedding.vector
-    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
-
-    # Modified to only search templates with message_embeddings
-    candidate_templates = inbox.templates
-      .joins(:message_embeddings)
-      .select(<<~SQL)
-        templates.id AS template_id,
-        templates.output AS template_text,
-        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
-      SQL
-      .group("templates.id, templates.output")
-      .order("similarity DESC NULLS LAST")
+    candidate_templates = list_templates_by_relevance
 
     first_threshold = 0.85
     additional_threshold = 0.9
@@ -59,7 +47,7 @@ class Topic < ApplicationRecord
       end
     end
 
-    selected_templates = Template.where(id: selected_candidates.map(&:template_id))
+    selected_templates = Template.where(id: selected_candidates.map(&:id))
 
     # Automatically attach templates to the topic
     if selected_templates.any?
