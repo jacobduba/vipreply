@@ -1,6 +1,7 @@
 <% if @templates_with_confidence.any? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
-    <div class="space-y-3">
+    <%= form.label :email, "Smart templates", class: "block text-sm font-medium text-stone-600 mb-2" %>
+    <div class="space-y-2">
       <% @templates_with_confidence.each_with_index do |template_with_confidence, i| %>
         <% template = template_with_confidence.template %>
         <div id="template-<%= i %>" class="border border-stone-200 bg-stone-100 rounded-lg focus-within:border-blue-500/90">
@@ -14,7 +15,7 @@
           <% end %>
           <%= form.label "templates[#{template.id}][output]", class: "w-full flex justify-between items-center px-4 py-2.5 cursor-text" do %>
             <span class="font-medium text-stone-600 text-sm">
-              Smart template <span class="text-stone-500">| <%= confidence_percentage(template_with_confidence.confidence_score) %>%</span>
+              Confidence: <%= confidence_percentage(template_with_confidence.confidence_score) %>%
             </span>
             <%= link_to remove_template_topic_path(topic, template),
               data: {
@@ -42,7 +43,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
-        Save template<%= "s" if topic.templates.count > 1 %> & regenerate reply
+        Save templates & regenerate reply
       </button>
     </div>
   <% end %>

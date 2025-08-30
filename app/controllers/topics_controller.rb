@@ -183,6 +183,9 @@ class TopicsController < ApplicationController
       TemplateTopic.create!(template: template, topic: @topic, confidence_score: 0.69)
     end
 
+    # Reload templates with confidence after updating associations
+    @templates_with_confidence = @topic.template_topics.includes(:template)
+
     refresh_topic_reply(@topic)
   end
 
@@ -211,6 +214,8 @@ class TopicsController < ApplicationController
       end
     end
 
+    @templates_with_confidence = @topic.template_topics.includes(:template)
+
     refresh_topic_reply(@topic)
   end
 
@@ -224,6 +229,9 @@ class TopicsController < ApplicationController
 
     @topic.templates.delete(template_id)
     @topic.save
+
+    @templates_with_confidence = @topic.template_topics.includes(:template)
+
     render turbo_stream: [
       turbo_stream.replace("template_form", partial: "topics/template_form", locals: {
         output_errors: [],
