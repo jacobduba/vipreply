@@ -57,7 +57,7 @@ export default class extends Controller {
 
     if (!html) return;
 
-    const height = html.scrollHeight + 2; // Add 2 pixels to account for border 1px padding
+    const height = html.scrollHeight + 2; // Add 2 pixels to account for border 2px padding at top
     iframe.style.height = `${height}px`;
   };
 }
