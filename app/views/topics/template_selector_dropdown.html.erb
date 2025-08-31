@@ -63,8 +63,13 @@
                         turbo:submit-start->template-selector-dropdown#showLoadingOverlay"
               } do |f| %>
               <%= f.hidden_field "template_ids[]", value: [template.id] %>
-              <%= f.submit template.output,
-              class: "text-left text-stone-700 py-3 pr-3 w-full whitespace-normal hover:cursor-pointer" %>
+              <%= f.hidden_field "confidence_scores[#{template.id}]", value: template.similarity || 0 %>
+              <%= f.button type: :submit, class: "text-stone-700 py-2.5 pr-2.5 w-full whitespace-normal hover:cursor-pointer" do %>
+                <div class="mb-1">
+                  <%= render 'shared/confidence_score', confidence_score: template.similarity || 0 %>
+                </div>
+                <div class="text-left text-stone-900"><%= template.output %></div>
+              <% end %>
             <% end %>
           </div>
         <% end %>
