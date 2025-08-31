@@ -106,11 +106,7 @@ class Topic < ApplicationRecord
     # TODO: why do we need to truncate the last message with the embedding token limit?
     message_text = truncate_text(latest_message.to_s, EMBEDDING_TOKEN_LIMIT)
 
-    template_prompt = if templates.any?
-      "TEMPLATE RESPONSE EMAIL:\n" + templates.map(&:output).join("\n---\n") + "\n\n"
-    else
-      ""
-    end
+    template_prompt = templates.map.with_index { |t, i| "SMART TEMPLATE ##{i + 1}:\n#{t.output}" }.join("\n\n") + "\n\n"
 
     email_prompt = "EMAIL:\n#{message_text}\nRESPONSE:\n"
     prompt = "#{template_prompt}#{email_prompt}"
@@ -213,9 +209,11 @@ class Topic < ApplicationRecord
 
     system_prompt = <<~PROMPT
       You are a compassionate, empathetic, and professional person answering customer support emails for a small business.
-
       Your goal is to provide helpful responses to customer inquiries.
-      Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided text. If something is not directly mentioned, do not include it.
+
+      CRITICAL: You MUST incorporate information from ALL provided smart templates in your response, even if they weren't directly asked about.
+
+      Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided smart templates. If something is not directly mentioned, do not include it.
       If the template contains a link, make sure you provide a link or hyperlink to the customer.
       Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
       Always start your response with a greeting followed by the customer's name.
