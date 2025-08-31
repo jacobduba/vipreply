@@ -180,7 +180,7 @@ class TopicsController < ApplicationController
     # Yeah I know it's slow but there shouldn't be too many records. I want validations because that's the Rails way
     TemplateTopic.where(topic_id: @topic.id).destroy_all
     valid_templates.each do |template|
-      TemplateTopic.create!(template: template, topic: @topic, confidence_score: 0.69)
+      TemplateTopic.create!(template: template, topic: @topic, confidence_score: 0.87)
     end
 
     # Reload templates with confidence after updating associations
