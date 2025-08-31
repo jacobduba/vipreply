@@ -169,7 +169,15 @@ class TopicsController < ApplicationController
   end
 
   def change_templates_regenerate_response
-    template_ids = params.dig(:template_ids) || []
+    template_ids, confidence_scores = params.expect(template_ids: [], confidence_scores: {})
+
+    # The confidence scores are purely cosmetic, if that changes
+    # obviously we should not be loading them from a form in the dom
+    validated_scores = {}
+    confidence_scores.each do |template_id, score|
+      validated_scores[template_id] = score.to_f.clamp(0.0, 1.0)
+    end
+
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
     if valid_templates.count != template_ids.size || @account != @topic.inbox.account
@@ -180,7 +188,8 @@ class TopicsController < ApplicationController
     # Yeah I know it's slow but there shouldn't be too many records. I want validations because that's the Rails way
     TemplateTopic.where(topic_id: @topic.id).destroy_all
     valid_templates.each do |template|
-      TemplateTopic.create!(template: template, topic: @topic, confidence_score: 0.87)
+      confidence_score = validated_scores[template.id.to_s] || 0.0
+      TemplateTopic.create!(template: template, topic: @topic, confidence_score: confidence_score)
     end
 
     # Reload templates with confidence after updating associations
