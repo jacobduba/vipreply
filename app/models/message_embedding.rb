@@ -2,6 +2,8 @@
 
 # app/models/message_embedding.rb
 class MessageEmbedding < ApplicationRecord
+  EMBEDDING_TOKEN_LIMIT = 32_000
+
   belongs_to :message
   has_and_belongs_to_many :templates
 
@@ -19,9 +21,36 @@ class MessageEmbedding < ApplicationRecord
       Body: #{message.plaintext}
     TEXT
 
-    embedding_text = message.truncate_embedding_text(embedding_text)
-    vector = message.fetch_embedding(embedding_text)
+    vector = fetch_embedding(embedding_text)
 
     create!(message: message, vector: vector)
+  end
+
+  def self.fetch_embedding(text)
+    # Truncate text to token limit
+    encoding = TOKENIZER.encode(text)
+    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
+      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+      text = TOKENIZER.decode(truncated_ids)
+    end
+
+    voyage_api_key = Rails.application.credentials.voyage_api_key
+    url = "https://api.voyageai.com/v1/embeddings"
+
+    response = Net::HTTP.post(
+      URI(url),
+      {
+        input: text,
+        model: "voyage-3-large",
+        output_dimension: 2048
+      }.to_json,
+      "Authorization" => "Bearer #{voyage_api_key}",
+      "Content-Type" => "application/json"
+    )
+
+    JSON.parse(response.body)["data"][0]["embedding"]
+  rescue => e
+    Rails.logger.error "Embedding generation failed: #{e.message}"
+    nil
   end
 end

@@ -3,8 +3,6 @@
 class Message < ApplicationRecord
   include ActionView::Helpers::TextHelper
 
-  EMBEDDING_TOKEN_LIMIT = 32_000
-
   belongs_to :topic
   has_many :attachments, dependent: :destroy
   has_one :message_embedding, dependent: :destroy
@@ -312,38 +310,6 @@ class Message < ApplicationRecord
       }
     end
     result
-  end
-
-  # TODO: make this more MVC like, process the message's text and save it here.
-  # Better yet, move this to the class THAT STORES AN EMBEDDING (message_embedding)
-  def truncate_embedding_text(text)
-    encoding = TOKENIZER.encode(text)
-    return text if encoding.tokens.size <= EMBEDDING_TOKEN_LIMIT
-
-    truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-    TOKENIZER.decode(truncated_ids)
-  end
-
-  # Modified to store directly on message
-  def fetch_embedding(text)
-    voyage_api_key = Rails.application.credentials.voyage_api_key
-    url = "https://api.voyageai.com/v1/embeddings"
-
-    response = Net::HTTP.post(
-      URI(url),
-      {
-        input: text,
-        model: "voyage-3-large",
-        output_dimension: 2048
-      }.to_json,
-      "Authorization" => "Bearer #{voyage_api_key}",
-      "Content-Type" => "application/json"
-    )
-
-    JSON.parse(response.body)["data"][0]["embedding"]
-  rescue => e
-    Rails.logger.error "Embedding generation failed: #{e.message}"
-    nil
   end
 
   # Returns all the attachments that ARE NOT inline
