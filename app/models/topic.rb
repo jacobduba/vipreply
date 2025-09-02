@@ -53,9 +53,9 @@ class Topic < ApplicationRecord
     # Automatically attach templates to the topic with confidence scores
     if selected_templates.any?
       # Clear existing templates and add new ones with confidence scores
-      self.template_topics.destroy_all
+      template_topics.destroy_all
       selected_candidates.each do |candidate|
-        self.template_topics.create!(
+        template_topics.create!(
           template_id: candidate.id,
           confidence_score: candidate.similarity.to_f
         )
