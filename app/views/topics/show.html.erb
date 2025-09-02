@@ -40,7 +40,7 @@
     <div class="w-full lg:w-[calc(50%-1rem)] order-1 lg:order-2" data-controller="iframe-resize">
       <ul class="lg:pb-14 pb-4">
         <% @messages.each_with_index do |message, index| %>
-          <li class="mt-3 mb-4 border-2 border-stone-100 bg-white rounded-lg" <%= "data-iframe-resize-target=lastMessage" if message == @messages.last %>>
+          <li class="mt-3 mb-4 border border-stone-200 bg-white rounded-lg" <%= "data-iframe-resize-target=lastMessage" if message == @messages.last %>>
             <div class="p-2 text-sm">
               <div class="flex justify-between">
                 <p class="truncate">
@@ -69,7 +69,7 @@
                 </div>
               <% end %>
             </div>
-            <div class="border-t-2 border-stone-100">
+            <div class="border-t border-stone-200">
               <div class="text-center p-1 rounded-b-lg" data-iframe-resize-target="loader">
                 <div role="status">
                   <svg class="animate-spin h-8 w-8 text-stone-300 inline transition-opacity duration-300 ease-in-out" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
