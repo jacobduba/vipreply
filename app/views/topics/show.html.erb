@@ -59,7 +59,7 @@
               <% if file_attachments.any? %>
                 <div class="flex flex-wrap gap-x-1 mt-1">
                   <% file_attachments.each do |attachment| %>
-                    <%= link_to attachment_path(attachment), target: "_blank", class: "mb-1 text-stone-600 bg-white border border-stone-100 focus:outline-none hover:bg-stone-100 hover:border-stone-200 focus:ring-2 focus:ring-stone-100 font-medium rounded-lg text-sm py-1 px-2 inline-flex items-center gap-1" do %>
+                    <%= link_to attachment_path(attachment), target: "_blank", class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 hover:border-stone-300 focus:ring-2 focus:ring-stone-100 font-medium rounded-lg text-sm py-1 px-2 inline-flex items-center gap-1" do %>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                       </svg>
@@ -70,8 +70,7 @@
               <% end %>
             </div>
             <div class="border-t border-stone-200">
-              <div class="text-center p-1 rounded-b-lg" data-iframe-resize-target="loader">
-                <div role="status">
+              <div class="text-center py-1 rounded-b-lg" data-iframe-resize-target="loader"><div role="status">
                   <svg class="animate-spin h-8 w-8 text-stone-300 inline transition-opacity duration-300 ease-in-out" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
