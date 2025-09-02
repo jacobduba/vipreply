@@ -50,10 +50,16 @@ class Topic < ApplicationRecord
 
     selected_templates = Template.where(id: selected_candidates.map(&:id))
 
-    # Automatically attach templates to the topic
+    # Automatically attach templates to the topic with confidence scores
     if selected_templates.any?
-      self.templates = selected_templates
-      save!
+      # Clear existing templates and add new ones with confidence scores
+      self.template_topics.destroy_all
+      selected_candidates.each do |candidate|
+        self.template_topics.create!(
+          template_id: candidate.id,
+          confidence_score: candidate.similarity.to_f
+        )
+      end
     end
 
     selected_templates
