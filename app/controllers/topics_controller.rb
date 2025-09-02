@@ -201,6 +201,7 @@ class TopicsController < ApplicationController
   # This is for the template form where users edit template text and click "Save template & regenerate reply"
   def update_templates_regenerate_reply
     if params[:templates].blank?
+      @templates_with_confidence = []
       refresh_topic_reply(@topic)
       return
     end
