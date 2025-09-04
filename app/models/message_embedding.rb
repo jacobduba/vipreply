@@ -9,6 +9,7 @@ class MessageEmbedding < ApplicationRecord
 
   # Vector search functionality
   has_neighbors :vector, dimensions: 2048
+  has_neighbors :embedding_new, dimensions: 1024
 
   validates :message_id, uniqueness: true
 
@@ -16,13 +17,14 @@ class MessageEmbedding < ApplicationRecord
     # Skip if message already has an embedding
     return if message.message_embedding.present?
 
-    vector = create_embedding_currrent(message)
+    vector = cur_create_embedding(message)
+    embedding_new = new_create_embedding(message)
 
-    create!(message: message, vector: vector)
+    create!(message: message, vector: vector, embedding_new: embedding_new)
   end
 
-  def self.create_embedding_current(message)
-    embedding_text = <<~TEXT
+  def self.cur_create_embedding(message)
+    text = <<~TEXT
       Subject: #{message.subject}
       Body: #{message.plaintext}
     TEXT
@@ -51,8 +53,8 @@ class MessageEmbedding < ApplicationRecord
     JSON.parse(response.body)["data"][0]["embedding"]
   end
 
-  def self.create_embedding_new(message)
-    embedding_text = <<~TEXT
+  def self.new_create_embedding(message)
+    text = <<~TEXT
       Subject: #{message.subject}
       Body: #{message.plaintext}
     TEXT
