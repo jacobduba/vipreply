@@ -163,7 +163,7 @@ class TopicsController < ApplicationController
       return
     end
 
-    @topic.templates = [@template]
+    @templates_with_confidence = [TemplateTopic.new(template_id: @template.id, topic_id: @topic.id, confidence_score: 0)]
     refresh_topic_reply(@topic)
     nil
   end
