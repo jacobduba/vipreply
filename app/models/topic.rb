@@ -31,7 +31,7 @@ class Topic < ApplicationRecord
   # during merge rename: autoselect_templates
   def find_best_templates
     latest_message = messages.order(date: :desc).first
-    return Template.none unless latest_message&.message_embedding&.vector
+    return Template.none unless latest_message&.message_embedding&.embedding
 
     candidate_templates = list_templates_by_relevance
 
@@ -71,17 +71,17 @@ class Topic < ApplicationRecord
     # List all templates when no embedding
     # This is the case for messages loaded before templates v2
     # Could probaly remove this in a month or two
-    return inbox.templates unless latest_message&.message_embedding&.vector
+    return inbox.templates unless latest_message&.message_embedding&.embedding
 
-    target_vector = latest_message.message_embedding.vector
-    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+    target_embedding = latest_message.message_embedding.embedding
+    target_embedding_literal = ActiveRecord::Base.connection.quote(target_embedding.to_s)
 
     inbox.templates
       .left_joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
         templates.output AS output,
-        MAX(-1 * (message_embeddings.vector <#> #{target_vector_literal}::vector)) AS similarity
+        MAX(-1 * (message_embeddings.embedding <#> #{target_embedding_literal}::vector)) AS similarity
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC NULLS LAST")
@@ -94,15 +94,15 @@ class Topic < ApplicationRecord
     # List all templates when no embedding
     # This is the case for messages loaded before templates v2
     # Could probaly remove this in a month or two
-    return inbox.templates unless latest_message&.message_embedding&.vector
+    return inbox.templates unless latest_message&.message_embedding&.embedding
 
-    target_vector = latest_message.message_embedding.vector
-    target_vector_literal = ActiveRecord::Base.connection.quote(target_vector.to_s)
+    target_embedding = latest_message.message_embedding.embedding
+    target_embedding_literal = ActiveRecord::Base.connection.quote(target_embedding.to_s)
 
     Message
       .joins(message_embedding: :templates)
       .where(templates: {id: template_id})
-      .select("messages.*, (message_embeddings.vector <#> #{target_vector_literal}::vector) AS distance")
+      .select("messages.*, (message_embeddings.embedding <#> #{target_embedding_literal}::vector) AS distance")
       .order("distance")
       .first
   end

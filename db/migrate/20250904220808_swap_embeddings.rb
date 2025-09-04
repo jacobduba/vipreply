@@ -1,0 +1,6 @@
+class SwapEmbeddings < ActiveRecord::Migration[8.0]
+  def change
+    remove_column :message_embeddings, :vector
+    rename_column :message_embeddings, :embedding_new, :embedding
+  end
+end
