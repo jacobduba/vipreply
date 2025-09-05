@@ -3,14 +3,15 @@ namespace :data_migration do
   task migrate_embeddings: :environment do
     puts "Starting data migration..."
 
-    MessageEmbedding.where(embedding_new: nil).find_each do |embedding|
-      # Your data migration logic here
-      # Example: embedding.update!(embedding_new: embedding.vector)
+    MessageEmbedding.where(embedding_new: nil).includes(:message).find_in_batches(batch_size: 128) do |message_embeddings|
+      messages = message_embeddings.map(&:message)
 
-      embedding_new = MessageEmbedding.new_create_embedding(embedding.message)
-      embedding.update(embedding_new: embedding_new)
+      new_embeddings = MessageEmbedding.new_create_embeddings(messages)
 
-      puts "Processed #{embedding.id}"
+      message_embeddings.zip(new_embeddings).each do |message_embedding, new_embedding|
+        message_embedding.update!(embedding_new: new_embedding)
+        puts "Processed #{message_embedding.id}"
+      end
     end
 
     puts "Data migration completed!"

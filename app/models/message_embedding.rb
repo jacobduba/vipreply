@@ -13,27 +13,34 @@ class MessageEmbedding < ApplicationRecord
 
   validates :message_id, uniqueness: true
 
-  def self.create_for_message(message)
-    # Skip if message already has an embedding
-    return if message.message_embedding.present?
+  def self.create_for_messages(messages)
+    return [] if messages.blank?
+    # Skip if message already  as an embedding
+    # return if message.message_embedding.present?
 
-    vector = cur_create_embedding(message)
-    embedding_new = new_create_embedding(message)
+    embeddings = cur_create_embeddings(messages)
+    new_embeddings = new_create_embeddings(messages)
 
-    create!(message: message, vector: vector, embedding_new: embedding_new)
+    messages.zip(embeddings, new_embeddings).each do |message, embedding, new_embedding|
+      message.create_message_embedding!(vector: embedding, embedding_new: new_embedding)
+    end
   end
 
-  def self.cur_create_embedding(message)
-    text = <<~TEXT
-      Subject: #{message.subject}
-      Body: #{message.plaintext}
-    TEXT
+  def self.cur_create_embeddings(messages)
+    input_texts = messages.map do |message|
+      text = <<~TEXT
+        Subject: #{message.subject}
+        Body: #{message.plaintext}
+      TEXT
 
-    # Truncate text to token limit
-    encoding = TOKENIZER.encode(text)
-    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
-      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-      text = TOKENIZER.decode(truncated_ids)
+      # Truncate text to token limit
+      encoding = TOKENIZER.encode(text)
+      if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
+        truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+        text = TOKENIZER.decode(truncated_ids)
+      end
+
+      text
     end
 
     voyage_api_key = Rails.application.credentials.voyage_api_key
@@ -42,7 +49,7 @@ class MessageEmbedding < ApplicationRecord
     response = Net::HTTP.post(
       URI(url),
       {
-        input: text,
+        input: input_texts,
         model: "voyage-3-large",
         output_dimension: 2048
       }.to_json,
@@ -50,20 +57,24 @@ class MessageEmbedding < ApplicationRecord
       "Content-Type" => "application/json"
     )
 
-    JSON.parse(response.body)["data"][0]["embedding"]
+    JSON.parse(response.body)["data"].map { |item| item["embedding"] }
   end
 
-  def self.new_create_embedding(message)
-    text = <<~TEXT
-      Subject: #{message.subject}
-      Body: #{message.plaintext}
-    TEXT
+  def self.new_create_embeddings(messages)
+    input_texts = messages.map do |message|
+      text = <<~TEXT
+        Subject: #{message.subject}
+        Body: #{message.plaintext}
+      TEXT
 
-    # Truncate text to token limit
-    encoding = TOKENIZER.encode(text)
-    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
-      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-      text = TOKENIZER.decode(truncated_ids)
+      # Truncate text to token limit
+      encoding = TOKENIZER.encode(text)
+      if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
+        truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+        text = TOKENIZER.decode(truncated_ids)
+      end
+
+      text
     end
 
     voyage_api_key = Rails.application.credentials.voyage_api_key
@@ -72,7 +83,7 @@ class MessageEmbedding < ApplicationRecord
     response = Net::HTTP.post(
       URI(url),
       {
-        input: text,
+        input: input_texts,
         model: "voyage-3-large",
         output_dimension: 1024
       }.to_json,
@@ -80,6 +91,6 @@ class MessageEmbedding < ApplicationRecord
       "Content-Type" => "application/json"
     )
 
-    JSON.parse(response.body)["data"][0]["embedding"]
+    JSON.parse(response.body)["data"].map { |item| item["embedding"] }
   end
 end
