@@ -57,6 +57,13 @@ class MessageEmbedding < ApplicationRecord
       "Content-Type" => "application/json"
     )
 
+    unless response.is_a?(Net::HTTPSuccess)
+      puts "HTTP Error #{response.code}: #{response.message}"
+      puts "Response body: #{response.body}"
+      puts "Response headers: #{response.to_hash}"
+      return
+    end
+
     JSON.parse(response.body)["data"].map { |item| item["embedding"] }
   end
 
@@ -90,6 +97,13 @@ class MessageEmbedding < ApplicationRecord
       "Authorization" => "Bearer #{voyage_api_key}",
       "Content-Type" => "application/json"
     )
+
+    unless response.is_a?(Net::HTTPSuccess)
+      puts "HTTP Error #{response.code}: #{response.message}"
+      puts "Response body: #{response.body}"
+      puts "Response headers: #{response.to_hash}"
+      return
+    end
 
     JSON.parse(response.body)["data"].map { |item| item["embedding"] }
   end
