@@ -3,7 +3,8 @@ namespace :data_migration do
   task migrate_embeddings: :environment do
     puts "Starting data migration..."
 
-    MessageEmbedding.where(embedding_new: nil).includes(:message).find_in_batches(batch_size: 128) do |message_embeddings|
+    batch_size = ENV.fetch("BATCH_SIZE", 100).to_i
+    MessageEmbedding.where(embedding_new: nil).includes(:message).find_in_batches(batch_size: batch_size) do |message_embeddings|
       messages = message_embeddings.map(&:message)
 
       new_embeddings = MessageEmbedding.new_create_embeddings(messages)
