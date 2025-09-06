@@ -171,7 +171,7 @@ class Message < ApplicationRecord
 
   # Modified embedding generation
   def ensure_embedding_exists
-    MessageEmbedding.create_for_message(self)
+    MessageEmbedding.create_for_messages([self])
   end
 
   def self.parse_email_header(header)
