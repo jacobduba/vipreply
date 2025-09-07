@@ -4,12 +4,12 @@ require "ostruct"
 class MessageTest < ActiveSupport::TestCase
   def setup
     stub_request(:post, "https://api.voyageai.com/v1/embeddings")
-      .with(body: hash_including({output_dimension: 2048}))
-      .to_return_json(body: {data: [{embedding: Array.new(2048, 0)}]})
-
-    stub_request(:post, "https://api.voyageai.com/v1/embeddings")
-      .with(body: hash_including({output_dimension: 1024}))
+      # .with(body: hash_including({output_dimension: 1024}))
       .to_return_json(body: {data: [{embedding: Array.new(1024, 0)}]})
+
+    stub_request(:post, "https://api.cohere.com/v2/embed")
+      # .with(body: hash_including({output_dimension: 1024}))
+      .to_return_json(body: {embeddings: {float: [Array.new(1024, 0)]}})
   end
 
   # Tests for message_id uniqueness constraint - allows same email across
