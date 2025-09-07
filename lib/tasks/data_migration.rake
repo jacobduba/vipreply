@@ -3,7 +3,7 @@ namespace :data_migration do
   task migrate_embeddings: :environment do
     puts "Starting data migration..."
 
-    MessageEmbedding.where(embedding_new: nil).includes(:message).find_each do |message_embedding|
+    MessageEmbedding.where(new_embedding: nil).includes(:message).find_each do |message_embedding|
       new_embedding = MessageEmbedding.create_new_embedding(message_embedding.message)
       message_embedding.update(new_embedding: new_embedding)
       puts "Processed #{message_embedding.id}"

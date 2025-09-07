@@ -14,7 +14,7 @@ class MessageEmbedding < ApplicationRecord
 
     if MessageEmbedding.respond_to?(:create_new_embedding)
       embedding = create_embedding(message)
-      embedding_new = create_new_embedding(message)
+      new_embedding = create_new_embedding(message)
       message.create_message_embedding!(embedding: embedding, new_embedding: new_embedding)
     else
       embedding = create_embedding(message)
@@ -29,10 +29,10 @@ class MessageEmbedding < ApplicationRecord
     TEXT
 
     # Truncate text to token limit
-    encoding = TOKENIZER.encode(text)
+    encoding = VOYAGE_TOKENIZER.encode(text)
     if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
       truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-      text = TOKENIZER.decode(truncated_ids)
+      text = VOYAGE_TOKENIZER.decode(truncated_ids)
     end
 
     voyage_api_key = Rails.application.credentials.voyage_api_key
@@ -52,5 +52,39 @@ class MessageEmbedding < ApplicationRecord
     raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
 
     JSON.parse(response.body)["data"][0]["embedding"]
+  end
+
+  def self.create_new_embedding(message)
+    text = <<~TEXT
+      Subject: #{message.subject}
+      Body: #{message.plaintext}
+    TEXT
+
+    # Truncate text to token limit
+    encoding = COHERE_TOKENIZER.encode(text)
+    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
+      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+      text = COHERE_TOKENIZER.decode(truncated_ids)
+    end
+
+    cohere_api_key = Rails.application.credentials.cohere_api_key
+    url = "https://api.cohere.com/v2/embed"
+
+    response = Net::HTTP.post(
+      URI(url),
+      {
+        texts: [text],
+        input_type: "clustering", # we are clustering the documents into topics
+        model: "embed-v4.0",
+        output_dimension: 1024
+      }.to_json,
+      "accept" => "application/json",
+      "content-type" => "application/json",
+      "Authorization" => "bearer #{cohere_api_key}"
+    )
+
+    raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
+
+    JSON.parse(response.body)["embeddings"]["float"][0]
   end
 end
