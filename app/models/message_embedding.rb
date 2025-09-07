@@ -12,12 +12,12 @@ class MessageEmbedding < ApplicationRecord
   def self.create_for_message(message)
     return if message.message_embedding.present?
 
+    embedding = create_embedding(message)
+
     if MessageEmbedding.respond_to?(:create_new_embedding)
-      embedding = create_embedding(message)
       new_embedding = create_new_embedding(message)
       message.create_message_embedding!(embedding: embedding, new_embedding: new_embedding)
     else
-      embedding = create_embedding(message)
       message.create_message_embedding!(embedding: embedding)
     end
   end
