@@ -12,9 +12,6 @@ class Topic < ApplicationRecord
 
   scope :not_spam, -> { where(is_spam: false) }
 
-  # TODO: this is outdated
-  EMBEDDING_TOKEN_LIMIT = 8191
-
   # Maintain compatibility with views that may use from/to
   def from
     from_name.present? ? "#{from_name} <#{from_email}>" : from_email.to_s

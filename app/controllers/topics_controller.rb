@@ -114,15 +114,9 @@ class TopicsController < ApplicationController
     thread_id = @topic.thread_id
     FetchGmailThreadJob.perform_now inbox_id, thread_id
 
-    if @topic.templates.any?
-      if most_recent_message
-        most_recent_message.ensure_embedding_exists # TODO: do i need to do this? wait wtf is going on here...
-
-        if most_recent_message.message_embedding
-          @topic.templates.each do |template|
-            template.message_embeddings << most_recent_message.message_embedding unless template.message_embeddings.include?(most_recent_message.message_embedding)
-          end
-        end
+    @topic.templates.each do |template|
+      unless template.message_embeddings.include?(most_recent_message.message_embedding)
+        template.message_embeddings << most_recent_message.message_embedding
       end
     end
 
