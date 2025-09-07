@@ -10,7 +10,7 @@ class Message < ApplicationRecord
   before_save :check_plaintext_nil
 
   # Embedding is in another model, create that model AFTER message is created (dependent relationship)
-  after_save :ensure_embedding_exists, unless: -> { message_embedding.present? }
+  after_save :ensure_embedding_exists, unless: -> { message_embedding }
 
   def prepare_email_for_rendering(host, index)
     html = replace_cids_with_urls(host)
@@ -171,7 +171,7 @@ class Message < ApplicationRecord
 
   # Modified embedding generation
   def ensure_embedding_exists
-    MessageEmbedding.create_for_message(self)
+    create_message_embedding! unless message_embedding
   end
 
   def self.parse_email_header(header)

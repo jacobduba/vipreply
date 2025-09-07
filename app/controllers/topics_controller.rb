@@ -116,8 +116,7 @@ class TopicsController < ApplicationController
 
     if @topic.templates.any?
       if most_recent_message
-        # Ensure message embedding exists for the message being replied to
-        MessageEmbedding.create_for_message(most_recent_message) unless most_recent_message.message_embedding
+        most_recent_message.ensure_embedding_exists # TODO: do i need to do this? wait wtf is going on here...
 
         if most_recent_message.message_embedding
           @topic.templates.each do |template|

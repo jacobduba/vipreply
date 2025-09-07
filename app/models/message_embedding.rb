@@ -9,20 +9,22 @@ class MessageEmbedding < ApplicationRecord
 
   validates :message_id, uniqueness: true
 
-  def self.create_for_message(message)
-    return if message.message_embedding.present?
+  before_create :generate_embeddings
 
-    embedding = create_embedding(message)
-
-    if MessageEmbedding.respond_to?(:create_new_embedding)
-      new_embedding = create_new_embedding(message)
-      message.create_message_embedding!(embedding: embedding, new_embedding: new_embedding)
+  def generate_embeddings
+    if respond_to?(:generate_embedding_sandbox) && Rails.env.development?
+      self.embedding = generate_embedding_sandbox
+    elsif respond_to?(:generate_embedding) && respond_to?(:generate_embedding_next)
+      self.embedding = generate_embedding
+      self.embedding_next = generate_embedding_next
+    elsif respond_to?(:generate_embedding)
+      self.embedding = generate_embedding
     else
-      message.create_message_embedding!(embedding: embedding)
+      raise NotImplementedError, "#{self.class.name} must implement either `generate_embedding` OR both `generate_embedding` and `generate_embedding_next`"
     end
   end
 
-  def self.create_embedding(message)
+  def generate_embedding
     text = <<~TEXT
       Subject: #{message.subject}
       Body: #{message.plaintext}
