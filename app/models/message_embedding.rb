@@ -12,33 +12,25 @@ class MessageEmbedding < ApplicationRecord
 
   validates :message_id, uniqueness: true
 
-  def self.create_for_messages(messages)
-    return [] if messages.blank?
-    # Skip if message already  as an embedding
-    # return if message.message_embedding.present?
+  def self.create_for_message(message)
+    return if message.message_embedding.present?
 
-    embeddings = cur_create_embeddings(messages)
+    embedding = create_embedding(message)
 
-    messages.zip(embeddings).each do |message, embedding|
-      message.create_message_embedding!(embedding: embedding)
-    end
+    message.create_message_embedding!(embedding: embedding)
   end
 
-  def self.cur_create_embeddings(messages)
-    input_texts = messages.map do |message|
-      text = <<~TEXT
-        Subject: #{message.subject}
-        Body: #{message.plaintext}
-      TEXT
+  def self.create_embedding(message)
+    text = <<~TEXT
+      Subject: #{message.subject}
+      Body: #{message.plaintext}
+    TEXT
 
-      # Truncate text to token limit
-      encoding = TOKENIZER.encode(text)
-      if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
-        truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-        text = TOKENIZER.decode(truncated_ids)
-      end
-
-      text
+    # Truncate text to token limit
+    encoding = TOKENIZER.encode(text)
+    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
+      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+      text = TOKENIZER.decode(truncated_ids)
     end
 
     voyage_api_key = Rails.application.credentials.voyage_api_key
@@ -47,7 +39,7 @@ class MessageEmbedding < ApplicationRecord
     response = Net::HTTP.post(
       URI(url),
       {
-        input: input_texts,
+        input: text,
         model: "voyage-3-large",
         output_dimension: 1024
       }.to_json,
@@ -55,13 +47,8 @@ class MessageEmbedding < ApplicationRecord
       "Content-Type" => "application/json"
     )
 
-    unless response.is_a?(Net::HTTPSuccess)
-      puts "HTTP Error #{response.code}: #{response.message}"
-      puts "Response body: #{response.body}"
-      puts "Response headers: #{response.to_hash}"
-      return
-    end
+    raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
 
-    JSON.parse(response.body)["data"].map { |item| item["embedding"] }
+    JSON.parse(response.body)["data"][0]["embedding"]
   end
 end
