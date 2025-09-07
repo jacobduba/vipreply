@@ -29,38 +29,6 @@ class MessageEmbedding < ApplicationRecord
     TEXT
 
     # Truncate text to token limit
-    encoding = VOYAGE_TOKENIZER.encode(text)
-    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
-      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-      text = VOYAGE_TOKENIZER.decode(truncated_ids)
-    end
-
-    voyage_api_key = Rails.application.credentials.voyage_api_key
-    url = "https://api.voyageai.com/v1/embeddings"
-
-    response = Net::HTTP.post(
-      URI(url),
-      {
-        input: text,
-        model: "voyage-3-large",
-        output_dimension: 1024
-      }.to_json,
-      "Authorization" => "Bearer #{voyage_api_key}",
-      "Content-Type" => "application/json"
-    )
-
-    raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
-
-    JSON.parse(response.body)["data"][0]["embedding"]
-  end
-
-  def self.create_new_embedding(message)
-    text = <<~TEXT
-      Subject: #{message.subject}
-      Body: #{message.plaintext}
-    TEXT
-
-    # Truncate text to token limit
     encoding = COHERE_TOKENIZER.encode(text)
     if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
       truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
