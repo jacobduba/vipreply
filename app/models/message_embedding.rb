@@ -7,17 +7,19 @@ class MessageEmbedding < ApplicationRecord
   belongs_to :message
   has_and_belongs_to_many :templates
 
-  # Vector search functionality
-  has_neighbors :embedding, dimensions: 1024
-
   validates :message_id, uniqueness: true
 
   def self.create_for_message(message)
     return if message.message_embedding.present?
 
-    embedding = create_embedding(message)
-
-    message.create_message_embedding!(embedding: embedding)
+    if MessageEmbedding.respond_to?(:create_new_embedding)
+      embedding = create_embedding(message)
+      embedding_new = create_new_embedding(message)
+      message.create_message_embedding!(embedding: embedding, new_embedding: new_embedding)
+    else
+      embedding = create_embedding(message)
+      message.create_message_embedding!(embedding: embedding)
+    end
   end
 
   def self.create_embedding(message)
