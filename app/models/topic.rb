@@ -109,8 +109,7 @@ class Topic < ApplicationRecord
 
   def generate_reply
     latest_message = messages.order(date: :desc).first
-    # TODO: why do we need to truncate the last message with the embedding token limit?
-    message_text = truncate_text(latest_message.to_s, EMBEDDING_TOKEN_LIMIT)
+    message_text = latest_message.to_s
 
     template_prompt = templates.map.with_index { |t, i| "SMART TEMPLATE ##{i + 1}:\n#{t.output}" }.join("\n\n") + "\n\n"
 
@@ -191,19 +190,6 @@ class Topic < ApplicationRecord
   end
 
   private
-
-  # TODO: Make this more like MVC.
-  # By that I mean, load emb
-  def truncate_text(text, token_limit)
-    encoding = TOKENIZER.encode(text)
-
-    if encoding.tokens.size > token_limit
-      truncated_ids = encoding.ids[0...token_limit]
-      TOKENIZER.decode(truncated_ids)
-    else
-      text
-    end
-  end
 
   def fetch_generation(prompt)
     groq_api_key = Rails.application.credentials.groq_api_key
