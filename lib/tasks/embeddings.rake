@@ -3,7 +3,7 @@ namespace :embeddings do
   task upgrade: :environment do
     puts "Starting upgrade..."
 
-    pool = Concurrent::FixedThreadPool.new(10)
+    pool = Concurrent::FixedThreadPool.new(2)
 
     MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
       pool.post do
