@@ -3,7 +3,7 @@ namespace :embeddings do
   task upgrade: :environment do
     puts "Starting upgrade..."
 
-    pool = Concurrent::FixedThreadPool.new(30)
+    pool = Concurrent::FixedThreadPool.new(10)
 
     MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
       pool.post do
@@ -24,8 +24,6 @@ namespace :embeddings do
   end
 
   task swap: :environment do
-    require "concurrent"
-
     if Rails.env.production?
       raise <<~ERROR
         ERROR: Swap cannot be run in production!
@@ -35,7 +33,7 @@ namespace :embeddings do
 
     puts "Starting swap..."
 
-    pool = Concurrent::FixedThreadPool.new(30)
+    pool = Concurrent::FixedThreadPool.new(20)
 
     MessageEmbedding.includes(:message).find_each do |message_embedding|
       pool.post do
