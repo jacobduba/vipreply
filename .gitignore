@@ -43,3 +43,5 @@ vendor/bundle
 /config/credentials/production.key
 
 /config/credentials/test.key
+
+/config/credentials/pord.key

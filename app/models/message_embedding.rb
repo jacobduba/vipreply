@@ -69,83 +69,39 @@ class MessageEmbedding < ApplicationRecord
     JSON.parse(response.body)["embeddings"]["float"][0]
   end
 
-  def generate_embedding_sandbox
-    groq_api_key = Rails.application.credentials.groq_api_key
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-      "Authorization" => "Bearer #{groq_api_key}",
-      "Content-Type" => "application/json"
-    }
-
-    # system_prompt = <<~PROMPT
-    #   State the request, question, or information for the last message in this customer email.
-    # PROMPT
-    system_prompt = <<~PROMPT
-      Generate a description of a customer request for the last message in this customer email.
-    PROMPT
-    # system_prompt = <<~PROMPT
-    #   Generate a description of the customer request from the email.
-    # PROMPT
-    # system_prompt = <<~PROMPT
-    #   Plan what needs to be in the answer to this customer email.
-    # PROMPT
-
-    data = {
+  def generate_embedding_next
+    # Todo: move this into my own interface? or use rubyllm
+    groq = Faraday.new(url: "https://api.groq.com") do |f|
+      f.request :retry,
+        max: 5,
+        interval: 1,
+        backoff_factor: 2
+      f.request :authorization, "Bearer", Rails.application.credentials.groq_api_key
+      f.request :json
+      f.response :json, content_type: "application/json"
+    end.post("openai/v1/chat/completions", {
       model: "moonshotai/kimi-k2-instruct-0905",
       messages: [
         {
           role: "system",
-          content: system_prompt
+          content: <<~PROMPT
+            Generate a description of a customer request for the last message in this customer email.
+            Do not include names.
+          PROMPT
         },
         {
           role: "user",
           content: "Subject: #{message.subject}\nBody: #{message.plaintext}"
         }
       ]
-    }
+    })
 
-    response = Net::HTTP.post(URI(url), data.to_json, headers)
-    parsed = JSON.parse(response.tap(&:value).body)
-    kimi_text = parsed["choices"][0]["message"]["content"]
+    self.preembed_text = groq.body["choices"][0]["message"]["content"]
 
-    self.sandbox_text = kimi_text
-
-    # text = <<~TEXT
-    #   Instruct: Given a customer email, retrieve similiar customer emails with the same question, request, or issue.
-    #   Query: Subject: #{message.subject}
-    #   Body: #{message.plaintext}
-    # TEXT
-    # text = <<~TEXT
-    #   Instruct: Given a description of a customer request, retrieve descriptions of customer requests asking for the EXACT same answer.
-    #   Body: #{kimi_text}
-    # TEXT
     text = <<~TEXT
-      Instruct: Given a description of a customer request, retrieve descriptions of customer requests that require the EXACT same answer.
-      Body: #{kimi_text}
+      Instruct: Given a description of a customer request, retrieve descriptions of customer requests that require the same answer.
+      Body: #{preembed_text}
     TEXT
-    # text = <<~TEXT
-    #   Instruct: Given a plan to answer a customer email, retrieve plans for customer emails that are exactly the same.
-    #   Body: #{kimi_text}
-    # TEXT
-    # text = <<~TEXT
-    #   Instruct: Given a description of a customer request, retrieve similiar descriptions of customer requests.
-    #   Body: #{kimi_text}
-    # TEXT
-    # text = <<~TEXT
-    #   Instruct: Given a customer request, identify other requests that seek IDENTICAL outcomes or answers, regardless of wording. Requests asking for even slightly different things should be considered completely different.
-
-    #     Matching criteria:
-    #     - Must be requesting the exact same information/action
-    #     - Different phrasing is acceptable if the core request is identical
-    #     - ANY difference in what is being asked for means NO match
-
-    #   Body: #{kimi_text}
-    # TEXT
-    # text = <<~TEXT
-    #   Instruct: Given a description of a customer request, retrieve descriptions of customer requests that require the EXACT same answer.
-    #   Query: Subject: #{message.subject}
-    #   Body: #{message.plaintext}
-    # TEXT
 
     # Truncate text to token limit
     encoding = QWEN_TOKENIZER.encode(text)
@@ -154,22 +110,20 @@ class MessageEmbedding < ApplicationRecord
       text = QWEN_TOKENIZER.decode(truncated_ids)
     end
 
-    fireworks_api_key = Rails.application.credentials.fireworks_api_key
-    url = "https://api.fireworks.ai/inference/v1/embeddings"
+    fw = Faraday.new(url: "https://api.fireworks.ai") do |f|
+      f.request :retry,
+        max: 5,
+        interval: 1,
+        backoff_factor: 2
+      f.request :authorization, "Bearer", Rails.application.credentials.fireworks_api_key
+      f.request :json
+      f.response :json, content_type: "application/json"
+    end.post("inference/v1/embeddings", {
+      input: text,
+      model: "accounts/fireworks/models/qwen3-embedding-8b",
+      dimensions: 1024
+    })
 
-    response = Net::HTTP.post(
-      URI(url),
-      {
-        input: text,
-        model: "accounts/fireworks/models/qwen3-embedding-8b",
-        dimensions: 1024
-      }.to_json,
-      "Content-Type" => "application/json",
-      "Authorization" => "Bearer #{fireworks_api_key}"
-    )
-
-    raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
-
-    JSON.parse(response.body)["data"][0]["embedding"]
+    fw.body["data"][0]["embedding"]
   end
 end

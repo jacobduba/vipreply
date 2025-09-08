@@ -1,35 +1,41 @@
 namespace :embeddings do
   desc "Migrate data from vector column to embedding_new column"
-  task next_backfill: :environment do
-    puts "Starting backfill..."
+  task upgrade: :environment do
+    puts "Starting upgrade..."
+
+    pool = Concurrent::FixedThreadPool.new(30)
 
     MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
-      t0 = Time.now.to_f
-      message_embedding.populate_next
-      message_embedding.save!
-      t1 = Time.now.to_f
-      puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
+      pool.post do
+        t0 = Time.now.to_f
+        message_embedding.populate_next
+        message_embedding.save!
+        t1 = Time.now.to_f
+        puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
+      rescue => e
+        puts "Error processing #{message_embedding.id}: #{e.message}"
+      end
     end
 
-    puts "Backfill completed!"
+    pool.shutdown
+    pool.wait_for_termination
+
+    puts "Upgrade completed!"
   end
 
-  task sandbox_populate: :environment do
+  task swap: :environment do
+    require "concurrent"
+
     if Rails.env.production?
       raise <<~ERROR
-        WARNING: Sandbox populate should not be run in production!
-        Sandbox embeddings are only for development.
-        Use 'rake embeddings:backfill_next' to safely backfill next.
+        ERROR: Swap cannot be run in production!
+        Use 'rails embeddings:upgrade' in conjuction with migrations to safely backfill.
       ERROR
     end
 
-    puts "Starting population..."
+    puts "Starting swap..."
 
-    require "concurrent"
-
-    pool = Concurrent::FixedThreadPool.new(20)
-    mutex = Mutex.new
-    processed_count = 0
+    pool = Concurrent::FixedThreadPool.new(30)
 
     MessageEmbedding.includes(:message).find_each do |message_embedding|
       pool.post do
@@ -37,21 +43,15 @@ namespace :embeddings do
         message_embedding.populate_sandbox
         message_embedding.save!
         t1 = Time.now.to_f
-
-        mutex.synchronize do
-          processed_count += 1
-          puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds (#{processed_count} total)"
-        end
+        puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
       rescue => e
-        mutex.synchronize do
-          puts "Error processing #{message_embedding.id}: #{e.message}"
-        end
+        puts "Error processing #{message_embedding.id}: #{e.message}"
       end
     end
 
     pool.shutdown
     pool.wait_for_termination
 
-    puts "Populate completed!"
+    puts "Swap completed!"
   end
 end

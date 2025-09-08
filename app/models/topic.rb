@@ -110,7 +110,7 @@ class Topic < ApplicationRecord
     Message
       .joins(message_embedding: :templates)
       .where(templates: {id: template_id})
-      .select("messages.*, (message_embeddings.embedding <#> #{target_embedding_literal}::vector) AS distance")
+      .select("messages.*, (message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS distance")
       .order("distance")
       .first
   end
