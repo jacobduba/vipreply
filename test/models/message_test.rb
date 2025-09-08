@@ -6,6 +6,10 @@ class MessageTest < ActiveSupport::TestCase
     stub_request(:post, "https://api.cohere.com/v2/embed")
       # .with(body: hash_including({output_dimension: 1024}))
       .to_return_json(body: {embeddings: {float: [Array.new(1024, 0)]}})
+    stub_request(:post, "https://api.groq.com/openai/v1/chat/completions")
+      .to_return_json(body: {choices: [{message: {content: "test"}}]})
+    stub_request(:post, "https://api.fireworks.ai/inference/v1/embeddings")
+      .to_return_json(body: {data: [{embedding: Array.new(1024, 0)}]})
   end
 
   # Tests for message_id uniqueness constraint - allows same email across
