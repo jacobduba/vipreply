@@ -4,3 +4,4 @@
 # To find the tokenizer file for Cohere basically I had to go to https://docs.cohere.com/reference/list-models?explorer=true
 # Yes thats the api. And run the list models. Search for the embedding model you want... it has a url with the tokenizer
 COHERE_TOKENIZER = Tokenizers::Tokenizer.from_file(Rails.root.join("config/tokenizers/embed-v4.0.json"))
+QWEN_TOKENIZER = Tokenizers::Tokenizer.from_pretrained("Qwen/Qwen3-Embedding-8B")

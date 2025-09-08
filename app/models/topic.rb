@@ -73,12 +73,14 @@ class Topic < ApplicationRecord
     target_embedding = latest_message.message_embedding.embedding
     target_embedding_literal = ActiveRecord::Base.connection.quote(target_embedding.to_s)
 
+    # we're using cosine distance
+
     inbox.templates
       .left_joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
         templates.output AS output,
-        MAX(-1 * (message_embeddings.embedding <#> #{target_embedding_literal}::vector)) AS similarity
+        MAX(1 - ((message_embeddings.embedding <=> #{target_embedding_literal}::vector) / 2)) AS similarity
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC NULLS LAST")

@@ -9,19 +9,30 @@ class MessageEmbedding < ApplicationRecord
 
   validates :message_id, uniqueness: true
 
-  before_create :generate_embeddings
+  before_create :populate_all
 
-  def generate_embeddings
+  def populate_all
     if respond_to?(:generate_embedding_sandbox) && Rails.env.development?
-      self.embedding = generate_embedding_sandbox
-    elsif respond_to?(:generate_embedding) && respond_to?(:generate_embedding_next)
-      self.embedding = generate_embedding
-      self.embedding_next = generate_embedding_next
-    elsif respond_to?(:generate_embedding)
-      self.embedding = generate_embedding
+      populate_sandbox
     else
-      raise NotImplementedError, "#{self.class.name} must implement either `generate_embedding` OR both `generate_embedding` and `generate_embedding_next`"
+      populate
     end
+
+    if respond_to?(:generate_embedding_next)
+      populate_next
+    end
+  end
+
+  def populate
+    self.embedding = generate_embedding
+  end
+
+  def populate_next
+    self.embedding_next = generate_embedding_next
+  end
+
+  def populate_sandbox
+    self.embedding = generate_embedding_sandbox
   end
 
   def generate_embedding
@@ -56,5 +67,73 @@ class MessageEmbedding < ApplicationRecord
     raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
 
     JSON.parse(response.body)["embeddings"]["float"][0]
+  end
+
+  def generate_embedding_sandbox
+    groq_api_key = Rails.application.credentials.groq_api_key
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+      "Authorization" => "Bearer #{groq_api_key}",
+      "Content-Type" => "application/json"
+    }
+
+    system_prompt = <<~PROMPT
+      State the request, question, or information for the last message in this customer email.
+    PROMPT
+
+    data = {
+      model: "moonshotai/kimi-k2-instruct",
+      messages: [
+        {
+          role: "system",
+          content: system_prompt
+        },
+        {
+          role: "user",
+          content: "Subject: #{message.subject}\nBody: #{message.plaintext}"
+        }
+      ]
+    }
+
+    response = Net::HTTP.post(URI(url), data.to_json, headers)
+    parsed = JSON.parse(response.tap(&:value).body)
+
+    debugger
+
+    kimi_text = parsed["choices"][0]["message"]["content"]
+    # text = <<~TEXT
+    #   Instruct: Given a customer email, retrieve similiar customer emails with the same question, request, or issue.
+    #   Query: Subject: #{message.subject}
+    #   Body: #{message.plaintext}
+    # TEXT
+    text = <<~TEXT
+      Instruct: Given a customer email request, question, or notice, retrieve customer emails asking for the same thing .
+      Body: #{kimi_text}
+    TEXT
+
+    # Truncate text to token limit
+    encoding = QWEN_TOKENIZER.encode(text)
+    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
+      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
+      text = QWEN_TOKENIZER.decode(truncated_ids)
+    end
+
+    fireworks_api_key = Rails.application.credentials.fireworks_api_key
+    url = "https://api.fireworks.ai/inference/v1/embeddings"
+
+    response = Net::HTTP.post(
+      URI(url),
+      {
+        input: text,
+        model: "accounts/fireworks/models/qwen3-embedding-8b",
+        dimensions: 1024
+      }.to_json,
+      "Content-Type" => "application/json",
+      "Authorization" => "Bearer #{fireworks_api_key}"
+    )
+
+    raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
+
+    JSON.parse(response.body)["data"][0]["embedding"]
   end
 end
