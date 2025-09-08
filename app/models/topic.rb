@@ -75,12 +75,21 @@ class Topic < ApplicationRecord
 
     # we're using cosine distance
 
+    # inbox.templates
+    #   .left_joins(:message_embeddings)
+    #   .select(<<~SQL)
+    #     templates.id AS id,
+    #     templates.output AS output,
+    #     MAX(1 - ((message_embeddings.embedding <=> #{target_embedding_literal}::vector) / 2)) AS similarity
+    #   SQL
+    #   .group("templates.id, templates.output")
+    #   .order("similarity DESC NULLS LAST")
     inbox.templates
       .left_joins(:message_embeddings)
       .select(<<~SQL)
         templates.id AS id,
         templates.output AS output,
-        MAX(1 - ((message_embeddings.embedding <=> #{target_embedding_literal}::vector) / 2)) AS similarity
+        MAX(GREATEST(1 - ((message_embeddings.embedding <=> #{target_embedding_literal}::vector)), 0)) AS similarity
       SQL
       .group("templates.id, templates.output")
       .order("similarity DESC NULLS LAST")
@@ -214,7 +223,7 @@ class Topic < ApplicationRecord
     PROMPT
 
     data = {
-      model: "moonshotai/kimi-k2-instruct",
+      model: "moonshotai/kimi-k2-instruct-0905",
       messages: [
         {
           role: "system",

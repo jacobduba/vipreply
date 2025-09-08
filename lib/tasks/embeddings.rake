@@ -25,13 +25,32 @@ namespace :embeddings do
 
     puts "Starting population..."
 
+    require "concurrent"
+
+    pool = Concurrent::FixedThreadPool.new(20)
+    mutex = Mutex.new
+    processed_count = 0
+
     MessageEmbedding.includes(:message).find_each do |message_embedding|
-      t0 = Time.now.to_f
-      message_embedding.populate_sandbox
-      message_embedding.save!
-      t1 = Time.now.to_f
-      puts "Prcoesssed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
+      pool.post do
+        t0 = Time.now.to_f
+        message_embedding.populate_sandbox
+        message_embedding.save!
+        t1 = Time.now.to_f
+
+        mutex.synchronize do
+          processed_count += 1
+          puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds (#{processed_count} total)"
+        end
+      rescue => e
+        mutex.synchronize do
+          puts "Error processing #{message_embedding.id}: #{e.message}"
+        end
+      end
     end
+
+    pool.shutdown
+    pool.wait_for_termination
 
     puts "Populate completed!"
   end

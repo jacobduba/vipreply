@@ -77,12 +77,21 @@ class MessageEmbedding < ApplicationRecord
       "Content-Type" => "application/json"
     }
 
+    # system_prompt = <<~PROMPT
+    #   State the request, question, or information for the last message in this customer email.
+    # PROMPT
     system_prompt = <<~PROMPT
-      State the request, question, or information for the last message in this customer email.
+      Generate a description of a customer request for the last message in this customer email.
     PROMPT
+    # system_prompt = <<~PROMPT
+    #   Generate a description of the customer request from the email.
+    # PROMPT
+    # system_prompt = <<~PROMPT
+    #   Plan what needs to be in the answer to this customer email.
+    # PROMPT
 
     data = {
-      model: "moonshotai/kimi-k2-instruct",
+      model: "moonshotai/kimi-k2-instruct-0905",
       messages: [
         {
           role: "system",
@@ -97,19 +106,46 @@ class MessageEmbedding < ApplicationRecord
 
     response = Net::HTTP.post(URI(url), data.to_json, headers)
     parsed = JSON.parse(response.tap(&:value).body)
-
-    debugger
-
     kimi_text = parsed["choices"][0]["message"]["content"]
+
+    self.sandbox_text = kimi_text
+
     # text = <<~TEXT
     #   Instruct: Given a customer email, retrieve similiar customer emails with the same question, request, or issue.
     #   Query: Subject: #{message.subject}
     #   Body: #{message.plaintext}
     # TEXT
+    # text = <<~TEXT
+    #   Instruct: Given a description of a customer request, retrieve descriptions of customer requests asking for the EXACT same answer.
+    #   Body: #{kimi_text}
+    # TEXT
     text = <<~TEXT
-      Instruct: Given a customer email request, question, or notice, retrieve customer emails asking for the same thing .
+      Instruct: Given a description of a customer request, retrieve descriptions of customer requests that require the EXACT same answer.
       Body: #{kimi_text}
     TEXT
+    # text = <<~TEXT
+    #   Instruct: Given a plan to answer a customer email, retrieve plans for customer emails that are exactly the same.
+    #   Body: #{kimi_text}
+    # TEXT
+    # text = <<~TEXT
+    #   Instruct: Given a description of a customer request, retrieve similiar descriptions of customer requests.
+    #   Body: #{kimi_text}
+    # TEXT
+    # text = <<~TEXT
+    #   Instruct: Given a customer request, identify other requests that seek IDENTICAL outcomes or answers, regardless of wording. Requests asking for even slightly different things should be considered completely different.
+
+    #     Matching criteria:
+    #     - Must be requesting the exact same information/action
+    #     - Different phrasing is acceptable if the core request is identical
+    #     - ANY difference in what is being asked for means NO match
+
+    #   Body: #{kimi_text}
+    # TEXT
+    # text = <<~TEXT
+    #   Instruct: Given a description of a customer request, retrieve descriptions of customer requests that require the EXACT same answer.
+    #   Query: Subject: #{message.subject}
+    #   Body: #{message.plaintext}
+    # TEXT
 
     # Truncate text to token limit
     encoding = QWEN_TOKENIZER.encode(text)
