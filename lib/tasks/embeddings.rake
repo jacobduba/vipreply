@@ -3,22 +3,22 @@ namespace :embeddings do
   task upgrade: :environment do
     puts "Starting upgrade..."
 
-    pool = Concurrent::FixedThreadPool.new(2)
+    # pool = Concurrent::FixedThreadPool.new(2)
 
     MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
-      pool.post do
-        t0 = Time.now.to_f
-        message_embedding.populate_next
-        message_embedding.save!
-        t1 = Time.now.to_f
-        puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
-      rescue => e
-        puts "Error processing #{message_embedding.id}: #{e.message}"
-      end
+      # pool.post do
+      t0 = Time.now.to_f
+      message_embedding.populate_next
+      message_embedding.save!
+      t1 = Time.now.to_f
+      puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
+      # rescue => e
+      #   puts "Error processing #{message_embedding.id}: #{e.message}"
+      # end
     end
 
-    pool.shutdown
-    pool.wait_for_termination
+    # pool.shutdown
+    # pool.wait_for_termination
 
     puts "Upgrade completed!"
   end
