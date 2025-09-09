@@ -96,7 +96,12 @@ class MessageEmbedding < ApplicationRecord
       ]
     })
 
-    self.preembed_text = groq.body["choices"][0]["message"]["content"]
+    begin
+      self.preembed_text = groq.body["choices"][0]["message"]["content"]
+    rescue => e
+      Rails.logger.error("Groq payload: #{groq.inspect}")
+      raise
+    end
 
     text = <<~TEXT
       Instruct: Given a description of a customer request, retrieve descriptions of customer requests that require the same answer.
