@@ -128,7 +128,7 @@ class MessageEmbedding < ApplicationRecord
         backoff_factor: 2,
         retry_statuses: [408, 429, 500, 502, 503, 504, 508],
         methods: %i[post]
-      },
+      }
       f.request :authorization, "Bearer", Rails.application.credentials.fireworks_api_key
       f.request :json
       f.response :json, content_type: "application/json"
