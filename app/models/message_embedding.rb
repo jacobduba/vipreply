@@ -75,12 +75,12 @@ class MessageEmbedding < ApplicationRecord
 
     # Todo: move this into my own interface? or use rubyllm
     groq = Faraday.new(url: "https://api.groq.com") do |f|
-      f.request :retry,
-        max: 5,
+      f.request :retry, {
+        max: 10,
         interval: 1,
         backoff_factor: 2,
-        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
-        exceptions: [Faraday::ConnectionFailed, Faraday::TimeoutError]
+        retry_statuses: [408, 429, 500, 502, 503, 504, 508]
+      }
       f.request :authorization, "Bearer", Rails.application.credentials.groq_api_key
       f.request :json
       f.response :json, content_type: "application/json"
