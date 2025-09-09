@@ -98,7 +98,7 @@ class MessageEmbedding < ApplicationRecord
 
     begin
       self.preembed_text = groq.body["choices"][0]["message"]["content"]
-    rescue => e
+    rescue
       Rails.logger.error("Groq payload: #{groq.inspect}")
       raise
     end
