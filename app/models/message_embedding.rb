@@ -78,7 +78,9 @@ class MessageEmbedding < ApplicationRecord
       f.request :retry,
         max: 5,
         interval: 1,
-        backoff_factor: 2
+        backoff_factor: 2,
+        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+        exceptions: [Faraday::ConnectionFailed, Faraday::TimeoutError]
       f.request :authorization, "Bearer", Rails.application.credentials.groq_api_key
       f.request :json
       f.response :json, content_type: "application/json"
@@ -120,10 +122,11 @@ class MessageEmbedding < ApplicationRecord
 
     fw = Faraday.new(url: "https://api.fireworks.ai") do |f|
       f.request :retry,
-        max: 5,
+        max: 10,
         interval: 1,
         backoff_factor: 2,
-        retry_statuses: [408, 503, 508]
+        retry_statuses: [408, 503, 508],
+        exceptions: [Faraday::ConnectionFailed, Faraday::TimeoutError]
       f.request :authorization, "Bearer", Rails.application.credentials.fireworks_api_key
       f.request :json
       f.response :json, content_type: "application/json"
