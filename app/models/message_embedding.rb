@@ -36,40 +36,6 @@ class MessageEmbedding < ApplicationRecord
   end
 
   def generate_embedding
-    text = <<~TEXT
-      Subject: #{message.subject}
-      Body: #{message.plaintext}
-    TEXT
-
-    # Truncate text to token limit
-    encoding = COHERE_TOKENIZER.encode(text)
-    if encoding.tokens.size > EMBEDDING_TOKEN_LIMIT
-      truncated_ids = encoding.ids[0...EMBEDDING_TOKEN_LIMIT]
-      text = COHERE_TOKENIZER.decode(truncated_ids)
-    end
-
-    cohere_api_key = Rails.application.credentials.cohere_api_key
-    url = "https://api.cohere.com/v2/embed"
-
-    response = Net::HTTP.post(
-      URI(url),
-      {
-        texts: [text],
-        input_type: "clustering", # we are clustering the documents into topics
-        model: "embed-v4.0",
-        output_dimension: 1024
-      }.to_json,
-      "accept" => "application/json",
-      "content-type" => "application/json",
-      "Authorization" => "bearer #{cohere_api_key}"
-    )
-
-    raise "HTTP Error #{response.code}: #{response.message}" unless response.is_a?(Net::HTTPSuccess)
-
-    JSON.parse(response.body)["embeddings"]["float"][0]
-  end
-
-  def generate_embedding_next
     subject = message.subject
     body = message.plaintext[0, 10_000]
 
