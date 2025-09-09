@@ -22,8 +22,8 @@ class MessageTest < ActiveSupport::TestCase
     topic2 = topics(:acc2_topic1)
     message_id = "unique@example.com"
 
-    message1 = Message.create!(topic: topic1, message_id: message_id, subject: "Test!")
-    message2 = Message.create!(topic: topic2, message_id: message_id, subject: "Test!")
+    message1 = Message.create!(topic: topic1, message_id: message_id, subject: "Test!", plaintext: "Hey!")
+    message2 = Message.create!(topic: topic2, message_id: message_id, subject: "Test!", plaintext: "Hey!")
 
     assert message1.persisted?
     assert message2.persisted?
@@ -35,10 +35,10 @@ class MessageTest < ActiveSupport::TestCase
     topic = topics(:acc1_topic1)
     message_id = "unique@example.com"
 
-    Message.create!(topic: topic, message_id: message_id, subject: "Test")
+    Message.create!(topic: topic, message_id: message_id, subject: "Test", plaintext: "Hey!")
 
     assert_raises ActiveRecord::RecordNotUnique do
-      Message.create!(topic: topic, message_id: message_id, subject: "Test")
+      Message.create!(topic: topic, message_id: message_id, subject: "Test", plaintext: "Hey!")
     end
   end
 
