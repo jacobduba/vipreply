@@ -32,8 +32,8 @@ class Topic < ApplicationRecord
 
     candidate_templates = list_templates_by_relevance
 
-    first_threshold = 0.85
-    additional_threshold = 0.9
+    first_threshold = 0.80
+    additional_threshold = 0.80
 
     selected_candidates = []
     if candidate_templates.any? && candidate_templates.first.similarity.to_f >= first_threshold
