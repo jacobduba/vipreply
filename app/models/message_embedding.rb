@@ -70,6 +70,9 @@ class MessageEmbedding < ApplicationRecord
   end
 
   def generate_embedding_next
+    subject = message.subject
+    body = message.plaintext[0, 10_000]
+
     # Todo: move this into my own interface? or use rubyllm
     groq = Faraday.new(url: "https://api.groq.com") do |f|
       f.request :retry,
@@ -91,7 +94,7 @@ class MessageEmbedding < ApplicationRecord
         },
         {
           role: "user",
-          content: "Subject: #{message.subject}\nBody: #{message.plaintext}"
+          content: "Subject: #{subject}\nBody: #{body}"
         }
       ]
     })
