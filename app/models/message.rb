@@ -223,6 +223,9 @@ class Message < ApplicationRecord
     html = collected_parts[:html]
     attachments = collected_parts[:attachments]
 
+    # Raise error if no content detected
+    raise "No HTML or plaintext content detected in message #{gmail_message_id}" if plaintext.nil? && html.nil?
+
     # Find or create message
     msg = topic.messages.find_or_initialize_by(message_id: message_id)
     msg.assign_attributes(
