@@ -3,45 +3,32 @@ namespace :embeddings do
   task upgrade: :environment do
     require "async"
     require "async/semaphore"
-    require "async/queue"
-    require "async/barrier"
+
+    concurrent_req = (ENV["CONCURRENT_REQ"] || 50).to_i
+
     puts "Starting upgrade..."
 
-    concurrent_http = (ENV["CONCURRENT_HTTP"] || 40).to_i
+    # todo? make it rewrite ALL embedding next? not just whats null
+    MessageEmbedding.where(embedding_next: nil).includes(:message).find_in_batches do |batch|
+      message_embeddings = Sync do
+        semaphore = Async::Semaphore.new(concurrent_req)
 
-    # Producer consumer with apis and db. because only so many db connections AND apis are slower.
-    # so lots of api calls a few db connections
-    Async do
-      queue = Async::LimitedQueue.new(10)
-      Async do
-        barrier = Async::Barrier.new
-        semaphore = Async::Semaphore.new(concurrent_http, parent: barrier)
-
-        MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
+        batch.map { |message_embedding|
           semaphore.async do
-            queue << {id: message_embedding.id, embedding_next: message_embedding.generate_embedding_next}
-          rescue => e
-            puts "Error processing #{message_embedding.id}:"
-            puts e.message
-            puts e.backtrace
+            {
+              id: message_embedding.id,
+              embedding_next: message_embedding.generate_embedding_next
+            }
           end
-        end
-
-        barrier.wait
-      ensure
-        barrier&.stop
-        queue.close
+        }.map(&:wait)
       end
 
-      # Only one AR connection allowed per thread
-      while (me = queue.dequeue)
-        MessageEmbedding.update(me[:id], embedding_next: me[:embedding_next])
-        puts "Rereloaded #{me[:id]}"
-      end
+      ids = message_embeddings.map { |me| me[:id] }
+      embedding_nexts = message_embeddings.map { |me| {embedding_next: me[:embedding_next]} }
+      MessageEmbedding.update!(ids, embedding_nexts)
+
+      puts "Processed #{embeddings.size} embeddings"
     end
-
-    # pool.shutdown
-    # pool.wait_for_termination
 
     puts "Upgrade completed!"
   end
@@ -50,8 +37,6 @@ namespace :embeddings do
   task reload: :environment do
     require "async"
     require "async/semaphore"
-    require "async/queue"
-    require "async/barrier"
 
     if Rails.env.production?
       raise <<~ERROR
@@ -61,41 +46,29 @@ namespace :embeddings do
       ERROR
     end
 
+    concurrent_req = (ENV["CONCURRENT_REQ"] || 50).to_i
+
     puts "Starting swap..."
 
-    concurrent_http = (ENV["CONCURRENT_HTTP"] || 40).to_i
+    MessageEmbedding.includes(:message).find_in_batches do |batch|
+      message_embeddings = Sync do
+        semaphore = Async::Semaphore.new(concurrent_req)
 
-    # Producer consumer with apis and db. because only so many db connections AND apis are slower.
-    # so lots of api calls a few db connections
-    Async do
-      queue = Async::LimitedQueue.new(10)
-      Async do
-        barrier = Async::Barrier.new
-        semaphore = Async::Semaphore.new(concurrent_http, parent: barrier)
-
-        MessageEmbedding.includes(:message).find_each do |message_embedding|
+        batch.map { |message_embedding|
           semaphore.async do
-            queue << {id: message_embedding.id, embedding: message_embedding.generate_embedding_sandbox}
-          rescue => e
-            puts "Error processing #{message_embedding.id}:"
-            puts e.message
-            puts e.backtrace
+            {
+              id: message_embedding.id,
+              embedding: message_embedding.generate_embedding_sandbox
+            }
           end
-        end
-
-        barrier.wait
-      ensure
-        barrier&.stop
-        queue.close
+        }.map(&:wait)
       end
 
-      # Only one AR connection allowed per thread
-      while (me = queue.dequeue)
-        MessageEmbedding.update(me[:id], embedding: me[:embedding])
-        puts "Rereloaded #{me[:id]}"
-      end
+      ids = message_embeddings.map { |me| me[:id] }
+      embeddings = message_embeddings.map { |me| {embedding: me[:embedding]} }
+      MessageEmbedding.update!(ids, embeddings)
+
+      puts "Processed #{embeddings.size} embeddings"
     end
-
-    puts "Sandbox swap completed!"
   end
 end
