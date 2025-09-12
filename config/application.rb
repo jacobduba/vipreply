@@ -34,5 +34,6 @@ module Emailthingy
 
     # Send logs to Honeybadger
     # config.semantic_logger.add_appender(appender: :honeybadger_insights)
+    config.active_record.async_query_executor = :fiber
   end
 end

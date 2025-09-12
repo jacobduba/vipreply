@@ -12,27 +12,15 @@ class MessageEmbedding < ApplicationRecord
   before_create :populate_all
 
   def populate_all
-    if respond_to?(:generate_embedding_sandbox) && Rails.env.development?
-      populate_sandbox
+    self.embedding = if respond_to?(:generate_embedding_sandbox) && Rails.env.development?
+      generate_embedding_sandbox
     else
-      populate
+      generate_embedding
     end
 
     if respond_to?(:generate_embedding_next)
-      populate_next
+      self.embedding_next = generate_embedding_next
     end
-  end
-
-  def populate
-    self.embedding = generate_embedding
-  end
-
-  def populate_next
-    self.embedding_next = generate_embedding_next
-  end
-
-  def populate_sandbox
-    self.embedding = generate_embedding_sandbox
   end
 
   def generate_embedding
@@ -107,9 +95,9 @@ class MessageEmbedding < ApplicationRecord
     fw.body["data"][0]["embedding"]
   end
 
-  def generate_embedding_sandbox
+  def generate_embedding_next
     text = <<~TEXT
-      Instruct: Given a customer email, retrieve customer emails that require exact the same reply.
+      Instruct: Given a customer email, retrieve customer emails that ask the same question.
       Query: Subject: #{message.subject}
       Body: #{message.plaintext}
     TEXT

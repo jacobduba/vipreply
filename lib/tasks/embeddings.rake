@@ -1,18 +1,43 @@
 namespace :embeddings do
-  desc "Migrate data from vector column to embedding_new column"
+  desc "Backfills embedding_next column for upgrades"
   task upgrade: :environment do
+    require "async"
+    require "async/semaphore"
+    require "async/queue"
+    require "async/barrier"
     puts "Starting upgrade..."
 
-    MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
-      # pool.post do
-      t0 = Time.now.to_f
-      message_embedding.populate_next
-      message_embedding.save!
-      t1 = Time.now.to_f
-      puts "Processed #{message_embedding.id} in #{(t1 - t0).round(3)} seconds"
-      # rescue => e
-      #   puts "Error processing #{message_embedding.id}: #{e.message}"
-      # end
+    concurrent_http = (ENV["CONCURRENT_HTTP"] || 40).to_i
+
+    # Producer consumer with apis and db. because only so many db connections AND apis are slower.
+    # so lots of api calls a few db connections
+    Async do
+      queue = Async::LimitedQueue.new(10)
+      Async do
+        barrier = Async::Barrier.new
+        semaphore = Async::Semaphore.new(concurrent_http, parent: barrier)
+
+        MessageEmbedding.where(embedding_next: nil).includes(:message).find_each do |message_embedding|
+          semaphore.async do
+            queue << {id: message_embedding.id, embedding_next: message_embedding.generate_embedding_next}
+          rescue => e
+            puts "Error processing #{message_embedding.id}:"
+            puts e.message
+            puts e.backtrace
+          end
+        end
+
+        barrier.wait
+      ensure
+        barrier&.stop
+        queue.close
+      end
+
+      # Only one AR connection allowed per thread
+      while (me = queue.dequeue)
+        MessageEmbedding.update(me[:id], embedding_next: me[:embedding_next])
+        puts "Rereloaded #{me[:id]}"
+      end
     end
 
     # pool.shutdown
@@ -21,6 +46,7 @@ namespace :embeddings do
     puts "Upgrade completed!"
   end
 
+  desc "In place swaps embeddings column with the generate_embedding_sandbox. Made for development."
   task reload: :environment do
     require "async"
     require "async/semaphore"
@@ -38,12 +64,11 @@ namespace :embeddings do
     puts "Starting swap..."
 
     concurrent_http = (ENV["CONCURRENT_HTTP"] || 40).to_i
-    # CONCURRENT_DB = ENV["CONCURRENT_DB"] || 2
 
     # Producer consumer with apis and db. because only so many db connections AND apis are slower.
     # so lots of api calls a few db connections
     Async do
-      queue = Async::LimitedQueue.new(50)
+      queue = Async::LimitedQueue.new(10)
       Async do
         barrier = Async::Barrier.new
         semaphore = Async::Semaphore.new(concurrent_http, parent: barrier)
@@ -64,16 +89,11 @@ namespace :embeddings do
         queue.close
       end
 
-      # CONCURRENT_DB.times do
-      # Async do
-      # ActiveRecord::Base.connection_pool.with_connection do
+      # Only one AR connection allowed per thread
       while (me = queue.dequeue)
         MessageEmbedding.update(me[:id], embedding: me[:embedding])
         puts "Rereloaded #{me[:id]}"
       end
-      # end
-      # end
-      # end
     end
 
     puts "Sandbox swap completed!"
