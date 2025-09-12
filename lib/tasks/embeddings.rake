@@ -37,7 +37,7 @@ namespace :embeddings do
 
     puts "Starting swap..."
 
-    CONCURRENT_HTTP = ENV["CONCURRENT_HTTP"] || 40
+    concurrent_http = (ENV["CONCURRENT_HTTP"] || 40).to_i
     # CONCURRENT_DB = ENV["CONCURRENT_DB"] || 2
 
     # Producer consumer with apis and db. because only so many db connections AND apis are slower.
@@ -46,7 +46,7 @@ namespace :embeddings do
       queue = Async::LimitedQueue.new(50)
       Async do
         barrier = Async::Barrier.new
-        semaphore = Async::Semaphore.new(CONCURRENT_HTTP, parent: barrier)
+        semaphore = Async::Semaphore.new(concurrent_http, parent: barrier)
 
         MessageEmbedding.includes(:message).find_each do |message_embedding|
           semaphore.async do
@@ -67,7 +67,7 @@ namespace :embeddings do
       # CONCURRENT_DB.times do
       # Async do
       # ActiveRecord::Base.connection_pool.with_connection do
-      while me = queue.dequeue
+      while (me = queue.dequeue)
         MessageEmbedding.update(me[:id], embedding: me[:embedding])
         puts "Rereloaded #{me[:id]}"
       end
