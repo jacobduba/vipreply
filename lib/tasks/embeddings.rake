@@ -15,10 +15,12 @@ namespace :embeddings do
 
         batch.map { |message_embedding|
           semaphore.async do
-            {
+            ret = {
               id: message_embedding.id,
               embedding_next: message_embedding.generate_embedding_next
             }
+            puts "Fetched embedding #{message_embedding.id}"
+            ret
           end
         }.map(&:wait)
       end
@@ -27,7 +29,7 @@ namespace :embeddings do
       embedding_nexts = message_embeddings.map { |me| {embedding_next: me[:embedding_next]} }
       MessageEmbedding.update!(ids, embedding_nexts)
 
-      puts "Processed #{embeddings.size} embeddings"
+      puts "==========\nSaved #{embedding_nexts.size} embeddings\n=========="
     end
 
     puts "Upgrade completed!"
