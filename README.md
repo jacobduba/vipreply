@@ -164,6 +164,85 @@ bin/stripe
 
 This will forward Stripe events to http://localhost:3000/webhooks/stripe
 
+### Embeddings
+
+VIPReply's embedding infrastructor makes iterating on embeddings locally easy as running a command... and delivers a pre-made process to upgrade embeddings in production.
+
+#### Development
+
+To develop embeddings locally, create a new generate_embeddings_sandbox function in message_embedding.rb.
+You can copy generate_embeddings, rename to generate_embeddings_sandbox.
+Then make edits you want in the generate_embeddings_sandbox.
+NOTE: DO NOT EDIT GENERATE_EMBEDDINGS.
+
+Reload your embeddings with
+```bash
+rails embeddings:reload
+```
+Rails with hotswap your embeddings locally.
+This will break the embeddings momentarily... but not for long because dev shouldn't have too many embeddings
+
+#### Production
+
+Embeddings upgrades production uses an expand, backfill, contract pattern.
+We create a new column (embedding_next), backfill it (by running a command), and then contract it (delete embeddings, rename embedding_nexts to embeddings)
+
+First, create a new expand migration.
+Replace N with what number is next.
+To find N, just look for the newest ExpandEmbeddings migration and do N + 1.
+
+```bash
+rails generate migration ExpandEmbeddingsN
+```
+
+Copy the add_column line into change:
+
+```ruby
+class ExpandEmbeddingsN < ActiveRecord::Migration[8.0]
+  def change
+    # Paste this next line in.
+    add_column :message_embeddings, :embedding_next, :vector, limit: 1024
+  end
+end
+```
+
+Second, rename your sandbox function from generate_embedding_sandbox to generate_embedding_next.
+
+PUSH TO PROD
+
+SSH into the production app and start the backfill.
+```bash
+bin/rails embeddings:upgrade
+```
+
+Wait for the backfill to complete.
+
+CONTRACT
+
+On dev create another migration:
+
+```bash
+rails generate migration ContractEmbeddingsN
+```
+
+Copy the remove_column and rename_column lines into change:
+
+```ruby
+class ContractEmbeddingsN < ActiveRecord::Migration[8.0]
+  def change
+    # Paste this these next two lines in.
+    remove_column :message_embeddings, :embedding
+    rename_column :message_embeddings, :embedding_next, :embedding
+  end
+end
+```
+
+Delete the generate_embedding function in message_embeddings.rb, and rename generate_embeddings_next to generate_embeddings.
+
+PUSH TO PROD.
+
+Congrats you have upgraded embeddings for VIPReply with 0 downtime for users.
+
 ### Debugging Tips
 
 If you need to delete and readd all messages for a Topic, in rails console run:
