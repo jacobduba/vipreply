@@ -42,28 +42,26 @@ class Topic < ApplicationRecord
           methods: %i[post]
         }
         f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
-        f.response :json, content_type: "application/json"
-      end.post("chat/completions") do |req|
-        req.headers["Content-Type"] = "application/json"
-        req.body = {
-          model: "openai/gpt-oss-120b:nitro",
-          messages: [
-            {
-              role: "system",
-              content: "Does the smart template help answer the email? Only reply 'yes' or 'no.'"
-            },
-            {
-              role: "user",
-              content: <<~PROMPT
-                Smart template:
-                #{candidate.output}
-                Email:
-                #{latest_message}
-              PROMPT
-            }
-          ]
-        }.to_json
-      end
+        f.request :json
+        f.response :json
+      end.post("chat/completions", {
+        model: "openai/gpt-oss-120b:nitro",
+        messages: [
+          {
+            role: "system",
+            content: "Does the smart template help answer the email? Only reply 'yes' or 'no.'"
+          },
+          {
+            role: "user",
+            content: <<~PROMPT
+              Smart template:
+              #{candidate.output}
+              Email:
+              #{latest_message}
+            PROMPT
+          }
+        ]
+      })
 
       chat.body["choices"][0]["message"]["content"].downcase == "yes"
     end
@@ -144,8 +142,48 @@ class Topic < ApplicationRecord
 
     email_prompt = "EMAIL:\n#{message_text}\nRESPONSE:\n"
     prompt = "#{template_prompt}#{email_prompt}"
-    reply = fetch_generation(prompt)
-    self.generated_reply = reply
+
+    llm_res = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
+      f.request :retry, {
+        max: 5,
+        interval: 1,
+        backoff_factor: 2,
+        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+        methods: %i[post]
+      }
+      f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
+      f.request :json
+      f.response :json
+    end.post("chat/completions", {
+      model: "anthropic/claude-sonnet-4:nitro",
+      messages: [
+        {
+          role: "system",
+          content: <<~PROMPT
+            You are a compassionate, empathetic, and professional person answering customer support emails for a small business.
+            Your goal is to provide helpful responses to customer inquiries.
+            CRITICAL: Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided smart templates. If something is not directly mentioned, do not include it.
+            If the template contains a link, make sure you provide a link or hyperlink to the customer.
+            Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
+            Always start your response with a greeting followed by the customer's name.
+          PROMPT
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ]
+    })
+
+    # Log to see how many tokens users are using
+    prompt_tokens = llm_res.body["usage"]["prompt_tokens"]
+    completion_tokens = llm_res.body["usage"]["completion_tokens"]
+
+    account = inbox.account
+    account.increment!(:input_token_usage, prompt_tokens)
+    account.increment!(:output_token_usage, completion_tokens)
+
+    self.generated_reply = llm_res.body["choices"][0]["message"]["content"].strip.tr("—", " - ")
   end
 
   # Delete all messages, and readd them back.
@@ -219,54 +257,4 @@ class Topic < ApplicationRecord
   end
 
   private
-
-  def fetch_generation(prompt)
-    groq_api_key = Rails.application.credentials.groq_api_key
-    url = "https://api.groq.com/openai/v1/chat/completions"
-    headers = {
-      "Authorization" => "Bearer #{groq_api_key}",
-      "Content-Type" => "application/json"
-    }
-
-    system_prompt = <<~PROMPT
-      You are a compassionate, empathetic, and professional person answering customer support emails for a small business.
-      Your goal is to provide helpful responses to customer inquiries.
-
-      CRITICAL: You MUST incorporate information from ALL provided smart templates in your response, even if they weren't directly asked about.
-
-      Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided smart templates. If something is not directly mentioned, do not include it.
-      If the template contains a link, make sure you provide a link or hyperlink to the customer.
-      Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
-      Always start your response with a greeting followed by the customer's name.
-      Use a friendly and active voice. You may want to thank them for reaching out.
-      Avoid "I just wanted to let you know" or "I see you are asking about."
-      Write as if you're personally typing this email to a friend - use your own natural language, vary sentence structure, and avoid any phrases that sound like they came from a script.
-    PROMPT
-
-    data = {
-      model: "moonshotai/kimi-k2-instruct-0905",
-      messages: [
-        {
-          role: "system",
-          content: system_prompt
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ]
-    }
-
-    response = Net::HTTP.post(URI(url), data.to_json, headers)
-    parsed = JSON.parse(response.tap(&:value).body)
-
-    # Log to see how many tokens users are using
-    account = inbox.account
-    account.increment!(:input_token_usage, parsed["usage"]["prompt_tokens"])
-    account.increment!(:output_token_usage, parsed["usage"]["completion_tokens"])
-
-    generated_text = parsed["choices"][0]["message"]["content"]
-    generated_text.strip
-    generated_text.tr("—", " - ")
-  end
 end
