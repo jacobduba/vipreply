@@ -45,7 +45,7 @@ class Topic < ApplicationRecord
         f.request :json
         f.response :json
       end.post("chat/completions", {
-        model: "openai/gpt-oss-120b:nitro",
+        model: "qwen/qwen3-32b:nitro",
         messages: [
           {
             role: "system",
@@ -136,11 +136,15 @@ class Topic < ApplicationRecord
 
   def attached_templates_plus_email
     latest_message = messages.order(date: :desc).first
-    message_text = latest_message.to_s
 
-    template_prompt = templates.map.with_index { |t, i| "SMART TEMPLATE ##{i + 1}:\n#{t.output}" }.join("\n\n") + "\n\n"
-    email_prompt = "EMAIL:\n#{message_text}\nRESPONSE:\n"
-    "#{template_prompt}#{email_prompt}"
+    template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
+
+    <<~PROMPT
+      SMART TEMPLATES:
+      #{template_prompt}
+      EMAIL:
+      #{latest_message}
+    PROMPT
   end
 
   def generate_reply
@@ -204,6 +208,8 @@ class Topic < ApplicationRecord
   end
 
   def detect_autosend
+    return unless templates.any?
+
     chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
       f.request :retry, {
         max: 5,
@@ -216,7 +222,7 @@ class Topic < ApplicationRecord
       f.request :json
       f.response :json
     end.post("chat/completions", {
-      model: "openai/gpt-oss-120b:nitro",
+      model: "qwen/qwen3-32b:nitro",
       messages: [
         {
           role: "system",
