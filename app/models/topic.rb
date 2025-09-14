@@ -134,15 +134,16 @@ class Topic < ApplicationRecord
       .first
   end
 
-  def generate_reply
+  def attached_templates_plus_email
     latest_message = messages.order(date: :desc).first
     message_text = latest_message.to_s
 
     template_prompt = templates.map.with_index { |t, i| "SMART TEMPLATE ##{i + 1}:\n#{t.output}" }.join("\n\n") + "\n\n"
-
     email_prompt = "EMAIL:\n#{message_text}\nRESPONSE:\n"
-    prompt = "#{template_prompt}#{email_prompt}"
+    "#{template_prompt}#{email_prompt}"
+  end
 
+  def generate_reply
     llm_res = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
       f.request :retry, {
         max: 5,
@@ -170,7 +171,7 @@ class Topic < ApplicationRecord
         },
         {
           role: "user",
-          content: prompt
+          content: attached_templates_plus_email
         }
       ]
     })
@@ -200,6 +201,35 @@ class Topic < ApplicationRecord
         Topic.cache_from_gmail(thread_response, snippet, inbox)
       end
     end
+  end
+
+  def detect_autosend
+    chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
+      f.request :retry, {
+        max: 5,
+        interval: 1,
+        backoff_factor: 2,
+        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+        methods: %i[post]
+      }
+      f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
+      f.request :json
+      f.response :json
+    end.post("chat/completions", {
+      model: "openai/gpt-oss-120b:nitro",
+      messages: [
+        {
+          role: "system",
+          content: "Do you have enough information from the smart templates to answer the customer email? Only reply with 'yes' or 'no.'"
+        },
+        {
+          role: "user",
+          content: attached_templates_plus_email
+        }
+      ]
+    })
+
+    self.will_autosend = chat.body["choices"][0]["message"]["content"].downcase == "yes"
   end
 
   def self.cache_from_gmail(response_body, inbox)
@@ -247,9 +277,12 @@ class Topic < ApplicationRecord
         message_count: message_count
       )
 
-      unless topic.has_reply? || is_old_email
+      if topic.has_reply? || is_old_email
+        topic.will_autosend = false
+      else
         topic.find_best_templates
         topic.generate_reply
+        topic.detect_autosend
       end
 
       topic.save!
