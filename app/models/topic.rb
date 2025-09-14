@@ -32,23 +32,44 @@ class Topic < ApplicationRecord
 
     candidate_templates = list_templates_by_relevance
 
-    first_threshold = 0.85
-    additional_threshold = 0.9
-
-    selected_candidates = []
-    if candidate_templates.any? && candidate_templates.first.similarity.to_f >= first_threshold
-      selected_candidates << candidate_templates.first
-
-      candidate_templates[1..].each do |candidate|
-        sim = candidate.similarity.to_f
-        selected_candidates << candidate if sim >= additional_threshold
+    selected_candidates = candidate_templates.take_while do |candidate|
+      chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
+        f.request :retry, {
+          max: 5,
+          interval: 1,
+          backoff_factor: 2,
+          retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+          methods: %i[post]
+        }
+        f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
+        f.response :json, content_type: "application/json"
+      end.post("chat/completions") do |req|
+        req.headers["Content-Type"] = "application/json"
+        req.body = {
+          model: "openai/gpt-oss-120b:nitro",
+          messages: [
+            {
+              role: "system",
+              content: "Does the smart template help answer the email? Only reply 'yes' or 'no.'"
+            },
+            {
+              role: "user",
+              content: <<~PROMPT
+                Smart template:
+                #{candidate.output}
+                Email:
+                #{latest_message}
+              PROMPT
+            }
+          ]
+        }.to_json
       end
+
+      chat.body["choices"][0]["message"]["content"].downcase == "yes"
     end
 
-    selected_templates = Template.where(id: selected_candidates.map(&:id))
-
     # Automatically attach templates to the topic with confidence scores
-    if selected_templates.any?
+    if selected_candidates.any?
       # Clear existing templates and add new ones with confidence scores
       template_topics.destroy_all
       selected_candidates.each do |candidate|
@@ -59,7 +80,7 @@ class Topic < ApplicationRecord
       end
     end
 
-    selected_templates
+    nil
   end
 
   # during merge: list_templates_by_similiarity
