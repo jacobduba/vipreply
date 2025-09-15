@@ -45,7 +45,7 @@ class Topic < ApplicationRecord
         f.request :json
         f.response :json
       end.post("chat/completions", {
-        model: "qwen/qwen3-32b:nitro",
+        model: "qwen/qwen3-235b-a22b-thinking-2507:nitro",
         messages: [
           {
             role: "system",
@@ -160,7 +160,7 @@ class Topic < ApplicationRecord
       f.request :json
       f.response :json
     end.post("chat/completions", {
-      model: "anthropic/claude-sonnet-4:nitro",
+      model: "moonshotai/kimi-k2-0905:nitro",
       messages: [
         {
           role: "system",
@@ -171,6 +171,7 @@ class Topic < ApplicationRecord
             If the template contains a link, make sure you provide a link or hyperlink to the customer.
             Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
             Always start your response with a greeting followed by the customer's name.
+            If it's appropriate (aka the first email) start by thanking them for reaching out.
           PROMPT
         },
         {
@@ -222,7 +223,7 @@ class Topic < ApplicationRecord
       f.request :json
       f.response :json
     end.post("chat/completions", {
-      model: "qwen/qwen3-32b:nitro",
+      model: "qwen/qwen3-235b-a22b-thinking-2507:nitro",
       messages: [
         {
           role: "system",
@@ -285,6 +286,7 @@ class Topic < ApplicationRecord
 
       if topic.has_reply? || is_old_email
         topic.will_autosend = false
+        topic.generated_reply = ""
       else
         topic.find_best_templates
         topic.generate_reply

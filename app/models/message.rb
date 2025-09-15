@@ -248,11 +248,19 @@ class Message < ApplicationRecord
       message_id: message_id
     })
 
-    msg.save! if msg.changed?
+    begin
+      msg.save! if msg.changed?
+    rescue ActiveRecord::RecordNotUnique
+      # Race condition: another transaction already created this message
+      # Since the message already exists, we can safely continue
+      return topic.messages.find_by!(message_id: message_id)
+    end
 
-    topic.update(is_spam: true) if msg.labels.include?("SPAM")
+    topic.is_spam = true if msg.labels.include?("SPAM")
 
-    topic.save
+    # idk why this topic.save was here.
+    # if this commit is old and no issues... delete
+    # topic.save!
 
     # Attachment ids change whenever the topic is updated
     # https://stackoverflow.com/questions/28104157/how-can-i-find-the-definitive-attachmentid-for-an-attachment-retrieved-via-googl
