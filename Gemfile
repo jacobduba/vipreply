@@ -96,7 +96,7 @@ group :development, :test do
   gem "brakeman", "~> 7.1", require: false
 
   # Linter for code standard
-  gem "standard", "1.49"
+  gem "standard", "1.51.1"
 
   # Hotreloading
   gem "hotwire-spark"
