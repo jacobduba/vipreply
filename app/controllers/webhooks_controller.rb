@@ -50,8 +50,8 @@ class WebhooksController < ApplicationController
     account = Account.find_by!(stripe_customer_id: customer_id)
     subscription_id = subscription.id
 
-    # Get period end from first subscription item
-    period_end = subscription.items.data.first.current_period_end
+    # Use subscription-level period end (robust across price/plan changes)
+    period_end = subscription.current_period_end
     stripe_status = subscription.status
     cancel_at_period_end = subscription.cancel_at_period_end
 

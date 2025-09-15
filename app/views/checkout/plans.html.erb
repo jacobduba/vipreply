@@ -11,9 +11,9 @@
         <div class="mb-4">
           <% if @account&.trialing? %>
             <span class="text-4xl font-bold text-stone-900">$0</span>
-            <span class="text-stone-500">now, then <span class="font-medium text-stone-700">$19</span>/month in <span class="font-medium text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.</span>
+            <span class="text-stone-500">now, then <span class="font-medium text-stone-700">$1</span>/month in <span class="font-medium text-stone-700"><%= @account.trial_days_remaining %></span> <%= @account.trial_days_remaining == 1 ? 'day' : 'days' %>.</span>
           <% else %>
-            <span class="text-4xl font-bold text-stone-900">$19</span>
+            <span class="text-4xl font-bold text-stone-900">$1</span>
             <span class="text-stone-600">/month</span>
           <% end %>
         </div>
