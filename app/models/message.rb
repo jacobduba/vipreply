@@ -174,6 +174,79 @@ class Message < ApplicationRecord
     create_message_embedding! unless message_embedding
   end
 
+  # Returns raw reply
+  def create_reply(reply_text, account)
+    # Determine the 'from' and 'to' fields using the most recent message
+    from_address = "#{account.name} <#{account.email}>"
+    to_address = if from_email == account.email
+      to
+    else
+      from
+    end
+
+    subject = "Re: #{topic.subject}"
+
+    email_body_plaintext = create_plaintext_reply(reply_text)
+    email_body_html = create_html_reply(reply_text)
+
+    in_reply_to = message_id
+    references = topic.messages.order(date: :asc).map(&:message_id).join(" ")
+
+    email = Mail.new do
+      from from_address
+      to to_address
+      subject subject
+
+      text_part do
+        body email_body_plaintext
+      end
+
+      html_part do
+        content_type "text/html; charset=UTF-8"
+        body email_body_html
+      end
+
+      header["In-Reply-To"] = in_reply_to
+      header["References"] = references
+    end
+
+    email.encoded # return raw email
+  end
+
+  def create_plaintext_reply(reply_text)
+    unless plaintext
+      return reply_text
+    end
+
+    quoted_plaintext = plaintext.lines.map do |line|
+      if line.starts_with?(">")
+        ">#{line}"
+      else
+        "> #{line}"
+      end
+    end.join
+
+    <<~PLAINTEXT
+      #{reply_text}
+
+      On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{from} wrote:
+      #{quoted_plaintext}
+    PLAINTEXT
+  end
+
+  def create_html_reply(reply_text)
+    <<~HTML
+      #{simple_format(reply_text)}
+
+      <div class="vip_quote">
+        <p>On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{from} wrote:</p>
+        <blockquote>
+          #{html}
+        </blockquote>
+      </div>
+    HTML
+  end
+
   def self.parse_email_header(header)
     if header.include?("<")
       name = header.split("<").first.strip
@@ -219,12 +292,14 @@ class Message < ApplicationRecord
 
     collected_parts = extract_parts(message.payload)
 
-    plaintext = collected_parts[:plain]
-    html = collected_parts[:html]
+    # These lines are a bit of a mouthful... use plaintext or html if there ELSE adapt plaintext or html if there ELSE empty string
+    plaintext = collected_parts[:plain] ||
+      (collected_parts[:html] && ActionView::Base.full_sanitizer.sanitize(collected_parts[:html])) ||
+      ""
+    html = collected_parts[:html] ||
+      (collected_parts[:plain] && simple_format(collected_parts[:plain])) ||
+      ""
     attachments = collected_parts[:attachments]
-
-    # Raise error if no content detected
-    raise "No HTML or plaintext content detected in message #{gmail_message_id}" if plaintext.nil? && html.nil?
 
     # Find or create message
     msg = topic.messages.find_or_initialize_by(message_id: message_id)

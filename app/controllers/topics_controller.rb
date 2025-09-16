@@ -26,85 +26,19 @@ class TopicsController < ApplicationController
   end
 
   def send_email
-    # Extract the email body directly from params[:email]
-    email_body = params[:email]
+    reply_text = params[:email]
 
-    # Get the most recent message in the topic
     most_recent_message = @topic.messages.order(date: :desc).first
     if most_recent_message.nil?
       Rails.logger.info "Cannot send email: No messages found in this topic."
       redirect_to topic_path(@topic) and return
     end
 
-    # Determine the 'from' and 'to' fields using the most recent message
-    from_address = "#{@account.name} <#{@account.email}>"
-    to_address = if most_recent_message.from_email == @account.email
-      most_recent_message.to
-    else
-      most_recent_message.from
-    end
+    raw_email_reply = most_recent_message.create_reply(reply_text, @account)
 
-    subject = "Re: #{@topic.subject}"
-
-    quoted_plaintext = most_recent_message.plaintext.lines.map do |line|
-      if line.starts_with?(">")
-        ">#{line}"
-      else
-        "> #{line}"
-      end
-    end.join
-
-    email_body_plaintext = <<~PLAINTEXT
-      #{email_body}
-
-      On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:
-      #{quoted_plaintext}
-    PLAINTEXT
-
-    # TODO remove this stupid div around and just give blockquote id like gmail
-    email_body_html = <<~HTML
-      #{simple_format(email_body)}
-
-      <div class="vip_quote">
-        <p>On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{most_recent_message.from_name} wrote:</p>
-        <blockquote>
-          #{most_recent_message.html}
-        </blockquote>
-      </div>
-    HTML
-
-    in_reply_to = most_recent_message.message_id
-    references = @topic.messages.order(date: :asc).map(&:message_id).join(" ")
-
-    # Build the email message
-    email = Mail.new do
-      from from_address
-      to to_address
-      subject subject
-
-      text_part do
-        body email_body_plaintext
-      end
-
-      html_part do
-        content_type "text/html; charset=UTF-8"
-        body email_body_html
-      end
-
-      # Add headers to attach the email to the thread
-      if most_recent_message.message_id
-        header["In-Reply-To"] = in_reply_to
-        header["References"] = references
-      end
-    end
-
-    # Encode the email message
-    raw_message = email.encoded
-
-    # Send the email using Gmail API
     @account.with_gmail_service do |service|
       message_object = Google::Apis::GmailV1::Message.new(
-        raw: raw_message,
+        raw: raw_email_reply,
         thread_id: @topic.thread_id
       )
       service.send_user_message("me", message_object)

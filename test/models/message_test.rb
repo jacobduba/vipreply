@@ -152,6 +152,63 @@ class MessageTest < ActiveSupport::TestCase
     end
   end
 
+  test "handles message with only attachments and no text content and replies" do
+    travel_to Time.zone.parse("2025-09-16 14:58:00") do
+      topic = topics(:acc1_topic1)
+      account = accounts(:acc1)
+
+      gmail_message = OpenStruct.new(
+        history_id: 12345678,
+        id: "test_message_id_123",
+        internal_date: (Time.current.to_f * 1000).to_i,
+        label_ids: ["INBOX"],
+        payload: OpenStruct.new(
+          body: OpenStruct.new(size: 0),
+          filename: "",
+          headers: [
+            OpenStruct.new(name: "Date", value: Time.current.strftime("%a, %d %b %Y %H:%M:%S %z")),
+            OpenStruct.new(name: "From", value: "sender@example.com"),
+            OpenStruct.new(name: "To", value: "recipient@example.com"),
+            OpenStruct.new(name: "Subject", value: "Test Email with Attachment Only"),
+            OpenStruct.new(name: "Message-Id", value: "<test123@example.com>"),
+            OpenStruct.new(name: "MIME-Version", value: "1.0"),
+            OpenStruct.new(name: "Content-Type", value: "multipart/mixed; boundary=\"test_boundary\"")
+          ],
+          mime_type: "multipart/mixed",
+          part_id: "",
+          parts: [
+            OpenStruct.new(
+              body: OpenStruct.new(
+                attachment_id: "test_attachment_id_456",
+                size: 1024
+              ),
+              filename: "test_document.pdf",
+              headers: [
+                OpenStruct.new(name: "Content-Type", value: "application/pdf; name=\"test_document.pdf\""),
+                OpenStruct.new(name: "Content-Disposition", value: "attachment; filename=\"test_document.pdf\"")
+              ],
+              mime_type: "application/pdf",
+              part_id: "0"
+            )
+          ]
+        ),
+        size_estimate: 2048,
+        snippet: "",
+        thread_id: "test_thread_123"
+      )
+
+      message = Message.cache_from_gmail(topic, gmail_message) # message without content shouldn't raise error
+
+      # replies should be generated when no html or plaintext given
+      actual = message.create_reply("AHH", account)
+      assert_includes actual, "AHH"
+      assert_includes actual, "Content-Type: text/plain"
+      assert_includes actual, "Content-Type: text/html"
+      assert_includes actual, "On Tue, Sep 16, 2025 at 02:58 PM, sender@example.com wrote:"
+      assert_includes actual, "vip_quote"
+    end
+  end
+
   test "handles message without label_ids field" do
     topic = topics(:acc1_topic1)
 
