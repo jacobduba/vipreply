@@ -19,7 +19,7 @@ class PubsubController < ApplicationController
       # Not handling errors to alert me when authorization fails
       bearer = request.headers["Authorization"]
       token = /Bearer (.*)/.match(bearer)[1]
-      claim = Google::Auth::IDTokens.verify_oidc token, aud: "https://vipreply.ai/pubsub/notifications"
+      claim = Google::Auth::IDTokens.verify_oidc token, aud: "https://app.vipreply.ai/pubsub/notifications"
 
       unless claim["email"] == Rails.application.credentials.pubsub_service_account && claim["email_verified"] == true
         raise "Webhook authentication failed - unexpected service account #{claim["email"]}"
