@@ -118,7 +118,7 @@ class Message < ApplicationRecord
   end
 
   def replace_cids_with_urls(host)
-    return ActionView::Helpers::TextHelpers.simple_format(plaintext) unless html
+    return ActionController::Base.helpers.simple_format(plaintext) unless html
 
     updated_html = html.dup
 
@@ -234,7 +234,7 @@ class Message < ApplicationRecord
 
   def create_html_reply(reply_text)
     <<~HTML
-      #{ActionView::Helpers::TextHelpers.simple_format(reply_text)}
+      #{ActionController::Base.helpers.simple_format(reply_text)}
 
       <div class="vip_quote">
         <p>On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{from} wrote:</p>
@@ -295,7 +295,7 @@ class Message < ApplicationRecord
       (collected_parts[:html] && ActionView::Base.full_sanitizer.sanitize(collected_parts[:html])) ||
       ""
     html = collected_parts[:html] ||
-      (collected_parts[:plain] && ActionView::Helpers::TextHelpers.simple_format(collected_parts[:plain])) ||
+      (collected_parts[:plain] && ActionController::Base.helpers.simple_format(collected_parts[:plain])) ||
       ""
     attachments = collected_parts[:attachments]
 
