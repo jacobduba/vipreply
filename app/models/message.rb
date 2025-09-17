@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Message < ApplicationRecord
-  include ActionView::Helpers::TextHelper
-
   belongs_to :topic
   has_many :attachments, dependent: :destroy
   has_one :message_embedding, dependent: :destroy
@@ -120,7 +118,7 @@ class Message < ApplicationRecord
   end
 
   def replace_cids_with_urls(host)
-    return simple_format(plaintext) unless html
+    return ActionView::Helpers::TextHelpers.simple_format(plaintext) unless html
 
     updated_html = html.dup
 
@@ -236,7 +234,7 @@ class Message < ApplicationRecord
 
   def create_html_reply(reply_text)
     <<~HTML
-      #{simple_format(reply_text)}
+      #{ActionView::Helpers::TextHelpers.simple_format(reply_text)}
 
       <div class="vip_quote">
         <p>On #{Time.current.strftime("%a, %b %d, %Y at %I:%M %p")}, #{from} wrote:</p>
@@ -297,7 +295,7 @@ class Message < ApplicationRecord
       (collected_parts[:html] && ActionView::Base.full_sanitizer.sanitize(collected_parts[:html])) ||
       ""
     html = collected_parts[:html] ||
-      (collected_parts[:plain] && simple_format(collected_parts[:plain])) ||
+      (collected_parts[:plain] && ActionView::Helpers::TextHelpers.simple_format(collected_parts[:plain])) ||
       ""
     attachments = collected_parts[:attachments]
 
