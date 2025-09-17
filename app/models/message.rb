@@ -326,7 +326,7 @@ class Message < ApplicationRecord
     rescue ActiveRecord::RecordNotUnique
       # Race condition: another transaction already created this message
       # Since the message already exists, we can safely continue
-      return Messages.find_by!(message_id: message_id)
+      return Message.find_by!(message_id: message_id)
     end
 
     topic.is_spam = true if msg.labels.include?("SPAM")
