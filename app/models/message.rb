@@ -320,7 +320,7 @@ class Message < ApplicationRecord
     topic.is_spam = true if message.labels.include?("SPAM")
 
     message.attachments = attachments.map do |attachment|
-      Attachment.cache_from_gmail(msg, attachment)
+      Attachment.cache_from_gmail(message, attachment)
     end
 
     message
