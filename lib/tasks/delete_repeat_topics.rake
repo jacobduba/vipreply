@@ -3,7 +3,6 @@ namespace :delete_repeat_topics do
   task go: :environment do
     Topic.select(:thread_id).group(:thread_id).each do |group|
       topics = Topic.where(thread_id: group.thread_id).order(:id)
-      keeper = topics.first
       duplicates = topics.offset(1)
 
       duplicates.each do |dup|
