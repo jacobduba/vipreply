@@ -256,15 +256,15 @@ class Message < ApplicationRecord
   end
 
   # Returns Message
-  def self.cache_from_gmail(topic, message)
+  def self.cache_from_gmail(topic, gmail_api_message)
     Honeybadger.context({
       topic_id: topic.id,
-      gmail_message: message.to_h
+      gmail_message: gmail_api_message.to_h
     })
 
-    headers = message.payload.headers
-    gmail_message_id = message.id
-    labels = message.label_ids || []
+    headers = gmail_api_message.payload.headers
+    gmail_message_id = gmail_api_message.id
+    labels = gmail_api_message.label_ids || []
 
     date_header = headers.find { |h| h.name.downcase == "date" }
     date = date_header ? DateTime.parse(date_header.value) : DateTime.current
@@ -281,14 +281,15 @@ class Message < ApplicationRecord
     to_header = to_header_obj&.value || "(Email not provided)"
     to_name, to_email = parse_email_header(to_header)
 
+    # TODO: We need to store the actual message.id thats gmail specific from the object and not rely on the message id header
     message_id_header = headers.find { |h| h.name.downcase == "message-id" }
     message_id = message_id_header&.value || "#{SecureRandom.uuid}@generated.id"
 
     # Gmail's date for message in milliseconds. That's why divide by 1000.
-    internal_date = Time.at(message.internal_date / 1000).to_datetime
-    snippet = message.snippet
+    internal_date = Time.at(gmail_api_message.internal_date / 1000).to_datetime
+    snippet = gmail_api_message.snippet
 
-    collected_parts = extract_parts(message.payload)
+    collected_parts = extract_parts(gmail_api_message.payload)
 
     # These lines are a bit of a mouthful... use plaintext or html if there ELSE adapt plaintext or html if there ELSE empty string
     plaintext = collected_parts[:plain] ||
@@ -299,9 +300,9 @@ class Message < ApplicationRecord
       ""
     attachments = collected_parts[:attachments]
 
-    # Find or create message
-    msg = topic.messages.find_or_initialize_by(message_id: message_id)
-    msg.assign_attributes(
+    # TODO: again, this should be gmail's message id not the actual header message id
+    message = topic.messages.find_or_initialize_by(message_id: message_id)
+    message.assign_attributes(
       date: date,
       subject: subject,
       from_name: from_name,
@@ -316,34 +317,13 @@ class Message < ApplicationRecord
       labels: labels
     )
 
-    # Sometimes we get duplicate key errors, this allows me to inspect.
-    Honeybadger.context({
-      message_id: message_id
-    })
+    topic.is_spam = true if message.labels.include?("SPAM")
 
-    begin
-      msg.save! if msg.changed?
-    rescue ActiveRecord::RecordNotUnique
-      # Race condition: another transaction already created this message
-      # Since the message already exists, we can safely continue
-      return Message.find_by!(message_id: message_id)
-    end
-
-    topic.is_spam = true if msg.labels.include?("SPAM")
-
-    # idk why this topic.save was here.
-    # if this commit is old and no issues... delete
-    # topic.save!
-
-    # Attachment ids change whenever the topic is updated
-    # https://stackoverflow.com/questions/28104157/how-can-i-find-the-definitive-attachmentid-for-an-attachment-retrieved-via-googl
-    # My "solution" is to destory all the attachments and recreate them
-    msg.attachments.destroy_all
-    attachments.each do |attachment|
+    message.attachments = attachments.map do |attachment|
       Attachment.cache_from_gmail(msg, attachment)
     end
 
-    msg
+    message
   end
 
   def self.extract_parts(part)

@@ -203,7 +203,7 @@ class Topic < ApplicationRecord
       ActiveRecord::Base.transaction do
         messages.destroy_all
 
-        Topic.cache_from_gmail(thread_response, snippet, inbox)
+        Topic.cache_from_gmail(inbox, thread_response)
       end
     end
   end
@@ -239,61 +239,62 @@ class Topic < ApplicationRecord
     self.will_autosend = chat.body["choices"][0]["message"]["content"].downcase == "yes"
   end
 
-  def self.cache_from_gmail(response_body, inbox)
-    ActiveRecord::Base.transaction do
-      thread_id = response_body.id
-      topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
-      topic.save!
+  def self.cache_from_gmail(inbox, gmail_api_thread)
+    thread_id = gmail_api_thread.id
+    Topic.with_advisory_lock("inbox:#{inbox.id}:thread_id:#{thread_id}") do
+      ActiveRecord::Base.transaction do
+        topic = inbox.topics.find_or_initialize_by(thread_id: thread_id)
 
-      api_messages = response_body.messages
-      cached_messages = api_messages.map do |api_message|
-        Message.cache_from_gmail(topic, api_message)
+        api_messages = gmail_api_thread.messages
+        cached_messages = api_messages.map do |api_message|
+          Message.cache_from_gmail(topic, api_message)
+        end
+
+        first_message = cached_messages.first
+        last_message = cached_messages.last
+
+        date = last_message.date
+        subject = first_message.subject
+        from_email = last_message.from_email
+        from_name = last_message.from_name
+        to_email = last_message.to_email
+        to_name = last_message.to_name
+        is_old_email = date < 3.days.ago
+        status = if from_email == inbox.account.email
+          :has_reply
+        elsif is_old_email
+          :has_reply
+        else
+          :needs_reply
+        end
+        message_count = gmail_api_thread.messages.count
+        awaiting_customer = (from_email == inbox.account.email)
+        snippet = last_message.snippet
+
+        topic.assign_attributes(
+          snippet: snippet,
+          date: date,
+          subject: subject,
+          from_email: from_email,
+          from_name: from_name,
+          to_email: to_email,
+          to_name: to_name,
+          status: status,
+          awaiting_customer: awaiting_customer,
+          message_count: message_count
+        )
+
+        if topic.has_reply? || is_old_email
+          topic.will_autosend = false
+          topic.generated_reply = ""
+        else
+          topic.find_best_templates
+          topic.generate_reply
+          topic.detect_autosend
+        end
+
+        topic.save!
       end
-
-      first_message = cached_messages.first
-      last_message = cached_messages.last
-
-      date = last_message.date
-      subject = first_message.subject
-      from_email = last_message.from_email
-      from_name = last_message.from_name
-      to_email = last_message.to_email
-      to_name = last_message.to_name
-      is_old_email = date < 3.days.ago
-      status = if from_email == inbox.account.email
-        :has_reply
-      elsif is_old_email
-        :has_reply
-      else
-        :needs_reply
-      end
-      message_count = response_body.messages.count
-      awaiting_customer = (from_email == inbox.account.email)
-      snippet = last_message.snippet
-
-      topic.assign_attributes(
-        snippet: snippet,
-        date: date,
-        subject: subject,
-        from_email: from_email,
-        from_name: from_name,
-        to_email: to_email,
-        to_name: to_name,
-        status: status,
-        awaiting_customer: awaiting_customer,
-        message_count: message_count
-      )
-
-      if topic.has_reply? || is_old_email
-        topic.will_autosend = false
-        topic.generated_reply = ""
-      else
-        topic.find_best_templates
-        topic.generate_reply
-        topic.detect_autosend
-      end
-
-      topic.save!
     end
   end
 

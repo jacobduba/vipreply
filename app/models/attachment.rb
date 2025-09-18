@@ -7,17 +7,19 @@ class Attachment < ApplicationRecord
   # Attachment disposition means the file should be downloaded rather than displayed
   enum :content_disposition, [:inline, :attachment]
 
-  def self.cache_from_gmail(message, attachment_data)
-    # Attachments are deleted and recreated because gmail doesn't have static IDs for them
-    # https://serverfault.com/questions/398962/does-the-presence-of-a-content-id-header-in-an-email-mime-mean-that-the-attachm
-    create!(
+  def self.cache_from_gmail(message, gmail_api_attachment)
+    attachment = message.attachments.find_or_initialize_by(attachment_id: gmail_api_attachment[:attachment_id])
+
+    attachment.assign_attributes(
       message: message,
-      attachment_id: attachment_data[:attachment_id],
-      content_id: attachment_data[:content_id],
-      filename: attachment_data[:filename],
-      mime_type: attachment_data[:mime_type],
-      size: attachment_data[:size],
-      content_disposition: attachment_data[:content_disposition]
+      attachment_id: gmail_api_attachment[:attachment_id],
+      content_id: gmail_api_attachment[:content_id],
+      filename: gmail_api_attachment[:filename],
+      mime_type: gmail_api_attachment[:mime_type],
+      size: gmail_api_attachment[:size],
+      content_disposition: gmail_api_attachment[:content_disposition]
     )
+
+    attachment
   end
 end

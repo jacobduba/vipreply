@@ -27,7 +27,7 @@ class FetchGmailThreadJob < ApplicationJob
 
         # Process the fetched thread
         # Using the same caching logic as the original batch callback
-        Topic.cache_from_gmail(thread_response, inbox)
+        Topic.cache_from_gmail(inbox, thread_response)
 
         Rails.logger.info "FetchGmailThreadJob: Successfully processed thread #{thread_id} for inbox #{inbox.id}"
       end

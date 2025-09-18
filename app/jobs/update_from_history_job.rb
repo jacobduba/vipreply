@@ -57,7 +57,7 @@ class UpdateFromHistoryJob < ApplicationJob
             end
           end
           # Recreate the thread and its messages
-          Topic.cache_from_gmail(thread_response, inbox)
+          Topic.cache_from_gmail(inbox, thread_response)
 
           # Update history_id after each successful message processing
           inbox.update!(history_id: history_item_id)
