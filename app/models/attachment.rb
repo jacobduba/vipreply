@@ -8,7 +8,8 @@ class Attachment < ApplicationRecord
   enum :content_disposition, [:inline, :attachment]
 
   def self.cache_from_gmail(message, gmail_api_attachment)
-    attachment = message.attachments.find_or_initialize_by(attachment_id: gmail_api_attachment[:attachment_id])
+    # content id is static, but apparently attachment id isn't. huh
+    attachment = message.attachments.find_or_initialize_by(content_id: gmail_api_attachment[:content_id])
 
     attachment.assign_attributes(
       message: message,
