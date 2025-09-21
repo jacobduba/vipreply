@@ -27,21 +27,22 @@ class Topic < ApplicationRecord
 
   # during merge rename: autoselect_templates
   def find_best_templates
-    debugger
-    latest_message = messages.max_by { |m| m.date }
+    latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.embedding
 
-    embeddings = MessageEmbedding
-      .joins(:templates)
-      .where(templates: {
-        inbox_id: @account.inbox.id
-      })
-      .select(<<~SQL)
-        templates.id AS id,
-        templates.output AS output,
-        MAX(message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS similarity
-      SQL
-      .order("similarity DESC")
+    # embeddings = MessageEmbedding
+    #   .joins(:templates)
+    #   .where(templates: {
+    #     inbox_id: @account.inbox.id
+    #   })
+    #   .select(<<~SQL)
+    #     templates.id AS id,
+    #     templates.output AS output,
+    #     MAX(message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS similarity
+    #   SQL
+    #   .order("similarity DESC")
+
+    candidate_templates = list_templates_by_relevance
 
     selected_candidates = candidate_templates.take_while do |candidate|
       chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
@@ -56,7 +57,7 @@ class Topic < ApplicationRecord
         f.request :json
         f.response :json
       end.post("chat/completions", {
-        model: "qwen/qwen3-235b-a22b-thinking-2507:nitro",
+        model: "openai/gpt-5:nitro",
         messages: [
           {
             role: "system",
@@ -234,7 +235,7 @@ class Topic < ApplicationRecord
       f.request :json
       f.response :json
     end.post("chat/completions", {
-      model: "qwen/qwen3-235b-a22b-thinking-2507:nitro",
+      model: "openai/gpt-5:nitro",
       messages: [
         {
           role: "system",
@@ -294,6 +295,9 @@ class Topic < ApplicationRecord
           awaiting_customer: awaiting_customer,
           message_count: message_count
         )
+
+        # Method below need access to saved items
+        topic.save!
 
         if topic.has_reply? || is_old_email
           topic.will_autosend = false
