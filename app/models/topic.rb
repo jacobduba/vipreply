@@ -27,10 +27,21 @@ class Topic < ApplicationRecord
 
   # during merge rename: autoselect_templates
   def find_best_templates
-    latest_message = messages.order(date: :desc).first
+    debugger
+    latest_message = messages.max_by { |m| m.date }
     return Template.none unless latest_message&.message_embedding&.embedding
 
-    candidate_templates = list_templates_by_relevance
+    embeddings = MessageEmbedding
+      .joins(:templates)
+      .where(templates: {
+        inbox_id: @account.inbox.id
+      })
+      .select(<<~SQL)
+        templates.id AS id,
+        templates.output AS output,
+        MAX(message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS similarity
+      SQL
+      .order("similarity DESC")
 
     selected_candidates = candidate_templates.take_while do |candidate|
       chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
@@ -160,7 +171,7 @@ class Topic < ApplicationRecord
       f.request :json
       f.response :json
     end.post("chat/completions", {
-      model: "moonshotai/kimi-k2-0905:nitro",
+      model: "openai/gpt-5-chat:nitro",
       messages: [
         {
           role: "system",
