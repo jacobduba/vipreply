@@ -43,11 +43,12 @@ class Topic < ApplicationRecord
         message_embeddings.message_id as message_id,
         message_embeddings.embedding <=> #{target_embedding_literal}::vector AS similarity
       SQL
-      .order("similarity DESC")
+      .order("similarity ASC")
       .limit(3)
 
-    selected_templates = message_embeddings.map { |message_embedding|
-      current_message = latest_message.to_s_anon
+    current_message = latest_message.to_s_anon
+
+    candidate_examples = message_embeddings.map { |message_embedding|
       past_message = message_embedding.message.to_s_anon
 
       chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
@@ -66,7 +67,7 @@ class Topic < ApplicationRecord
         messages: [
           {
             role: "system",
-            content: "Do these two emails require the exact same type of information to answer? Only reply 'yes' or 'no.'"
+            content: "Do these two customer emails require the exact same template reply and/or action taken? Only reply 'yes' or 'no.'"
           },
           {
             role: "user",
@@ -85,7 +86,7 @@ class Topic < ApplicationRecord
       else
         []
       end
-    }
+    }.reject(&:empty?).uniq
 
     debugger
 
