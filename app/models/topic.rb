@@ -81,13 +81,12 @@ class Topic < ApplicationRecord
         ]
       })
 
-      if chat.body["choices"][0]["message"]["content"].downcase == "yes"
-        message_embedding.templates
-      else
-        []
-      end
-    }.reject(&:empty?).uniq
+      same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
 
+      if same_cards_required
+        return message_embedding.templates
+      end
+    }.compact.uniq
     debugger
 
     # Automatically attach templates to the topic with confidence scores
