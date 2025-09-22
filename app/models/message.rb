@@ -167,6 +167,13 @@ class Message < ApplicationRecord
     TEXT
   end
 
+  def to_s_anon
+    <<~TEXT
+      Subject: #{subject}
+      #{plaintext}
+    TEXT
+  end
+
   # Modified embedding generation
   def ensure_embedding_exists
     create_message_embedding! unless message_embedding

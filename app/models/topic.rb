@@ -30,21 +30,26 @@ class Topic < ApplicationRecord
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.embedding
 
-    # embeddings = MessageEmbedding
-    #   .joins(:templates)
-    #   .where(templates: {
-    #     inbox_id: @account.inbox.id
-    #   })
-    #   .select(<<~SQL)
-    #     templates.id AS id,
-    #     templates.output AS output,
-    #     MAX(message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS similarity
-    #   SQL
-    #   .order("similarity DESC")
+    target_embedding = latest_message.message_embedding.embedding
+    target_embedding_literal = ActiveRecord::Base.connection.quote(target_embedding.to_s)
 
-    candidate_templates = list_templates_by_relevance
+    message_embeddings = MessageEmbedding
+      .joins(:templates)
+      .where(templates: {
+        inbox_id: inbox.id
+      })
+      .select(<<~SQL)
+        message_embeddings.id as id,
+        message_embeddings.message_id as message_id,
+        message_embeddings.embedding <=> #{target_embedding_literal}::vector AS similarity
+      SQL
+      .order("similarity DESC")
+      .limit(3)
 
-    selected_candidates = candidate_templates.take_while do |candidate|
+    selected_templates = message_embeddings.map { |message_embedding|
+      current_message = latest_message.to_s_anon
+      past_message = message_embedding.message.to_s_anon
+
       chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
         f.request :retry, {
           max: 5,
@@ -61,34 +66,40 @@ class Topic < ApplicationRecord
         messages: [
           {
             role: "system",
-            content: "Does the smart template help answer the email? Only reply 'yes' or 'no.'"
+            content: "Do these two emails require the exact same type of information to answer? Only reply 'yes' or 'no.'"
           },
           {
             role: "user",
             content: <<~PROMPT
-              Smart template:
-              #{candidate.output}
-              Email:
-              #{latest_message}
+              EMAIL 1:
+              #{current_message}
+              EMAIL 2:
+              #{past_message}
             PROMPT
           }
         ]
       })
 
-      chat.body["choices"][0]["message"]["content"].downcase == "yes"
-    end
+      if chat.body["choices"][0]["message"]["content"].downcase == "yes"
+        message_embedding.templates
+      else
+        []
+      end
+    }
+
+    debugger
 
     # Automatically attach templates to the topic with confidence scores
-    if selected_candidates.any?
-      # Clear existing templates and add new ones with confidence scores
-      template_topics.destroy_all
-      selected_candidates.each do |candidate|
-        template_topics.create!(
-          template_id: candidate.id,
-          confidence_score: candidate.similarity.to_f
-        )
-      end
-    end
+    # if selected_candidates.any?
+    #   # Clear existing templates and add new ones with confidence scores
+    #   template_topics.destroy_all
+    #   selected_candidates.each do |candidate|
+    #     template_topics.create!(
+    #       template_id: candidate.id,
+    #       confidence_score: candidate.similarity.to_f
+    #     )
+    #   end
+    # end
 
     nil
   end
