@@ -10,10 +10,10 @@ module GeneratorConcern
     render turbo_stream: [
       turbo_stream.replace("generated_reply_form",
         partial: "topics/generated_reply_form",
-        locals: {topic: topic, generated_reply: topic.generated_reply}),
+        locals: { topic: topic, generated_reply: topic.generated_reply }),
       turbo_stream.replace("template_form",
         partial: "topics/template_form",
-        locals: {output_errors: [], topic: topic})
+        locals: { output_errors: [], topic: topic })
     ]
   end
 end

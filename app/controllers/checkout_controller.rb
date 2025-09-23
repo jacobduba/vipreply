@@ -34,13 +34,13 @@ class CheckoutController < ApplicationController
     # When developing, test with fake cards from https://docs.stripe.com/billing/quickstart?client=html#testing
     session = Stripe::Checkout::Session.create({
       customer: customer_id,
-      line_items: [{
+      line_items: [ {
         price: price_id,
         quantity: 1
-      }],
+      } ],
       mode: "subscription",
       subscription_data: subscription_data,
-      payment_method_types: ["card"],
+      payment_method_types: [ "card" ],
       allow_promotion_codes: true,
       success_url: checkout_success_url + "?session_id={CHECKOUT_SESSION_ID}",
       cancel_url: checkout_cancel_url
@@ -58,7 +58,7 @@ class CheckoutController < ApplicationController
     begin
       @checkout_session = Stripe::Checkout::Session.retrieve({
         id: params[:session_id],
-        expand: ["line_items", "subscription.default_payment_method"]
+        expand: [ "line_items", "subscription.default_payment_method" ]
       })
 
       @amount_paid = @checkout_session.amount_total / 100.0 # Convert from cents
@@ -70,11 +70,11 @@ class CheckoutController < ApplicationController
       @card_last4 = payment_method.card.last4
       # Todo show more information
     rescue Stripe::InvalidRequestError => e
-      Rails.error.report(e, context: {stripe_session_id: params[:session_id]})
+      Rails.error.report(e, context: { stripe_session_id: params[:session_id] })
       redirect_to checkout_error_path
       nil
     rescue Stripe::StripeError => e
-      Rails.error.report(e, context: {stripe_session_id: params[:session_id]})
+      Rails.error.report(e, context: { stripe_session_id: params[:session_id] })
       redirect_to checkout_error_path
       nil
     end

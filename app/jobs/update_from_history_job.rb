@@ -29,7 +29,7 @@ class UpdateFromHistoryJob < ApplicationJob
       history_response = service.list_user_histories(
         user_id,
         start_history_id: history_id,
-        history_types: ["messageAdded"]
+        history_types: [ "messageAdded" ]
       )
 
       unless history_response.history

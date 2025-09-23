@@ -8,6 +8,6 @@ class CreateEmbeddings < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :embeddings, [:embeddable_type, :embeddable_id]
+    add_index :embeddings, [ :embeddable_type, :embeddable_id ]
   end
 end

@@ -80,7 +80,7 @@ class TopicsController < ApplicationController
   end
 
   def create_template_dropdown
-    template_params = params.expect(template: [:output])
+    template_params = params.expect(template: [ :output ])
 
     @template = @topic.inbox.templates.new(template_params)
 
@@ -90,7 +90,7 @@ class TopicsController < ApplicationController
       return
     end
 
-    @templates_with_confidence = [TemplateTopic.new(template_id: @template.id, topic_id: @topic.id, confidence_score: 0)]
+    @templates_with_confidence = [ TemplateTopic.new(template_id: @template.id, topic_id: @topic.id, confidence_score: 0) ]
     refresh_topic_reply(@topic)
     nil
   end
@@ -133,7 +133,7 @@ class TopicsController < ApplicationController
       return
     end
 
-    templates_params = params.expect(templates: [[:output]])
+    templates_params = params.expect(templates: [ [ :output ] ])
 
     changed_templates = templates_params.keys.map(&:to_i)
 

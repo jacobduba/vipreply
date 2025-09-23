@@ -5,7 +5,7 @@ class Attachment < ApplicationRecord
 
   # An inline attachment appears directly embedded within the message content
   # Attachment disposition means the file should be downloaded rather than displayed
-  enum :content_disposition, [:inline, :attachment]
+  enum :content_disposition, [ :inline, :attachment ]
 
   def self.cache_from_gmail(message, gmail_api_attachment)
     # content id is static, but apparently attachment id isn't. huh

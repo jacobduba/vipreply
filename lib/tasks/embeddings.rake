@@ -26,7 +26,7 @@ namespace :embeddings do
       end
 
       ids = message_embeddings.map { |me| me[:id] }
-      embedding_nexts = message_embeddings.map { |me| {embedding_next: me[:embedding_next]} }
+      embedding_nexts = message_embeddings.map { |me| { embedding_next: me[:embedding_next] } }
       MessageEmbedding.update!(ids, embedding_nexts)
 
       puts "==========\nSaved #{embedding_nexts.size} embeddings\n=========="
@@ -69,7 +69,7 @@ namespace :embeddings do
       end
 
       ids = message_embeddings.map { |me| me[:id] }
-      embeddings = message_embeddings.map { |me| {embedding: me[:embedding]} }
+      embeddings = message_embeddings.map { |me| { embedding: me[:embedding] } }
       MessageEmbedding.update!(ids, embeddings)
 
       puts "==========\nSaved #{embeddings.size} embeddings\n=========="

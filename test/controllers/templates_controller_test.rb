@@ -11,7 +11,7 @@ class TemplatesControllerTest < ActionDispatch::IntegrationTest
     login_as_account1
 
     acc2_template1 = templates(:acc2_template1)
-    patch template_path(acc2_template1), params: {template: {output: "..."}}
+    patch template_path(acc2_template1), params: { template: { output: "..." } }
 
     assert_response 404
   end

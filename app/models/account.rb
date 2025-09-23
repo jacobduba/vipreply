@@ -6,8 +6,8 @@ class Account < ApplicationRecord
   has_one :inbox, dependent: :destroy
 
   validates :provider, presence: true
-  validates :uid, presence: true, uniqueness: {scope: :provider}
-  validates :email, presence: true, format: {with: URI::MailTo::EMAIL_REGEXP}
+  validates :uid, presence: true, uniqueness: { scope: :provider }
+  validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
 
   encrypts :access_token
   encrypts :refresh_token
@@ -39,9 +39,9 @@ class Account < ApplicationRecord
   # This method should only be called when has_gmail_permissions is true
   # Throws Google::Apis::AuthorizationError if tokens are invalid/revoked
   def google_credentials
-    scopes = ["email", "profile"]
+    scopes = [ "email", "profile" ]
     if has_gmail_permissions
-      scopes += ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+      scopes += [ "https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send" ]
     end
 
     credentials = Google::Auth::UserRefreshCredentials.new(
@@ -104,7 +104,7 @@ class Account < ApplicationRecord
 
     with_gmail_service do |service|
       watch_request = Google::Apis::GmailV1::WatchRequest.new(
-        label_ids: ["INBOX"],
+        label_ids: [ "INBOX" ],
         topic_name: Rails.application.credentials.gmail_topic_name
       )
 

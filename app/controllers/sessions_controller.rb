@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SessionsController < ApplicationController
-  before_action :authorize_account, only: [:upgrade_permissions]
+  before_action :authorize_account, only: [ :upgrade_permissions ]
 
   def sign_in
     redirect_to root_path if session[:account_id]
@@ -100,7 +100,7 @@ class SessionsController < ApplicationController
   private
 
   def has_gmail_scopes?(scopes)
-    gmail_scopes = ["https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send"]
+    gmail_scopes = [ "https://www.googleapis.com/auth/gmail.readonly", "https://www.googleapis.com/auth/gmail.send" ]
 
     scopes = scopes.split(" ")
     # & is intersection

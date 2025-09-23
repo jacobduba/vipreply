@@ -5,11 +5,11 @@ class MessageTest < ActiveSupport::TestCase
   def setup
     stub_request(:post, "https://api.cohere.com/v2/embed")
       # .with(body: hash_including({output_dimension: 1024}))
-      .to_return_json(body: {embeddings: {float: [Array.new(1024, 0)]}})
+      .to_return_json(body: { embeddings: { float: [ Array.new(1024, 0) ] } })
     stub_request(:post, "https://api.groq.com/openai/v1/chat/completions")
-      .to_return_json(body: {choices: [{message: {content: "test"}}]})
+      .to_return_json(body: { choices: [ { message: { content: "test" } } ] })
     stub_request(:post, "https://api.fireworks.ai/inference/v1/embeddings")
-      .to_return_json(body: {data: [{embedding: Array.new(1024, 0)}]})
+      .to_return_json(body: { data: [ { embedding: Array.new(1024, 0) } ] })
   end
 
   # Tests for message_id uniqueness constraint - allows same email across
@@ -49,7 +49,7 @@ class MessageTest < ActiveSupport::TestCase
       id: "test-id-123",
       internal_date: 1234567898765,
       snippet: "",
-      label_ids: ["UNREAD", "CATEGORY_UPDATES", "SPAM"],
+      label_ids: [ "UNREAD", "CATEGORY_UPDATES", "SPAM" ],
       payload: OpenStruct.new(
         body: OpenStruct.new(size: 0),
         filename: "",
@@ -161,7 +161,7 @@ class MessageTest < ActiveSupport::TestCase
         history_id: 12345678,
         id: "test_message_id_123",
         internal_date: (Time.current.to_f * 1000).to_i,
-        label_ids: ["INBOX"],
+        label_ids: [ "INBOX" ],
         payload: OpenStruct.new(
           body: OpenStruct.new(size: 0),
           filename: "",

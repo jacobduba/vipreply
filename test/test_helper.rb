@@ -17,10 +17,10 @@ module ActiveSupport
     def login_as_account1(include_gmail_scopes: true)
       OmniAuth.config.test_mode = true
 
-      scopes = ["openid", "https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"]
+      scopes = [ "openid", "https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email" ]
 
       if include_gmail_scopes
-        scopes += ["https://www.googleapis.com/auth/gmail.send", "https://www.googleapis.com/auth/gmail.readonly"]
+        scopes += [ "https://www.googleapis.com/auth/gmail.send", "https://www.googleapis.com/auth/gmail.readonly" ]
       end
 
       OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(

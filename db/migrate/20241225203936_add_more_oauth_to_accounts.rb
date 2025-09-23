@@ -7,6 +7,6 @@ class AddMoreOauthToAccounts < ActiveRecord::Migration[8.0]
     add_column :accounts, :first_name, :string
     add_column :accounts, :last_name, :string
     add_column :accounts, :expires_at, :datetime
-    add_index :accounts, [:provider, :uid], unique: true
+    add_index :accounts, [ :provider, :uid ], unique: true
   end
 end

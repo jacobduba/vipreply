@@ -42,7 +42,7 @@ class MessageEmbedding < ApplicationRecord
         max: 10,
         interval: 1,
         backoff_factor: 2,
-        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+        retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
         methods: %i[post]
       }
       f.request :authorization, "Bearer", Rails.application.credentials.fireworks_api_key

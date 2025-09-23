@@ -9,7 +9,7 @@ class Template < ApplicationRecord
   has_many :topics, through: :template_topics
   has_and_belongs_to_many :message_embeddings
 
-  validates :output, length: {in: MIN_TEMPLATE_SIZE..MAX_TEMPLATE_SIZE}
+  validates :output, length: { in: MIN_TEMPLATE_SIZE..MAX_TEMPLATE_SIZE }
 
   before_save :strip_output, if: :output_changed?
 

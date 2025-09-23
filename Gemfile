@@ -98,11 +98,11 @@ group :development, :test do
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", "~> 7.1", require: false
 
-  # Linter for code standard
-  gem "standard", "1.49"
-
   # Hotreloading
   gem "hotwire-spark"
+
+  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
+  gem "rubocop-rails-omakase", require: false
 end
 
 group :development do

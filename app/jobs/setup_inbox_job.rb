@@ -30,7 +30,7 @@ class SetupInboxJob < ApplicationJob
       inbox.update!(initial_import_jobs_remaining: threads_response.threads.count)
 
       thread_info = threads_response.threads.map do |thread|
-        {id: thread.id, snippet: thread.snippet}
+        { id: thread.id, snippet: thread.snippet }
       end
 
       Rails.logger.info "Found #{thread_info.count} threads for inbox #{inbox.id}. Enqueuing individual fetch jobs."
