@@ -256,9 +256,9 @@ class Message < ApplicationRecord
     if header.include?("<")
       name = header.split("<").first.strip
       email = header[/<(.+?)>/, 1]
-      [ name, email ]
+      [name, email]
     else
-      [ nil, header ]
+      [nil, header]
     end
   end
 
