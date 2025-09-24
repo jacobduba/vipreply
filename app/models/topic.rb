@@ -138,10 +138,10 @@ class Topic < ApplicationRecord
       .select(<<~SQL)
         templates.id AS id,
         templates.output AS output,
-        MAX(GREATEST(1 - ((message_embeddings.embedding <=> #{target_embedding_literal}::vector)), 0)) AS similarity
+        MIN(message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS similarity
       SQL
       .group("templates.id, templates.output")
-      .order("similarity DESC NULLS LAST")
+      .order("similarity ASC NULLS LAST")
   end
 
   # Debugging helper to identify the message most similar to the latest message
