@@ -83,23 +83,27 @@ class Topic < ApplicationRecord
 
       same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
 
-      if same_cards_required
-        return message_embedding.templates
-      end
+      message_embedding.templates.map { |t| t.id } if same_cards_required
     }.compact.uniq
+
     debugger
 
-    # Automatically attach templates to the topic with confidence scores
-    # if selected_candidates.any?
-    #   # Clear existing templates and add new ones with confidence scores
-    #   template_topics.destroy_all
-    #   selected_candidates.each do |candidate|
-    #     template_topics.create!(
-    #       template_id: candidate.id,
-    #       confidence_score: candidate.similarity.to_f
-    #     )
-    #   end
-    # end
+    if candidate_examples.size == 1
+      # THERE SHOULD ONLY BE ONE SET OF CANDIDATES
+      # FOR EACH TYPE OF EMAIL
+      # SO JUST IGNORE IF THERES MULTIPLE
+      # AND EXAMPLE OF MULTIPLE: YES/NO OPTIONS. ITS BEST OT JUST IGNORE THIS
+      selected_candidate_ids = candidate_examples.first
+      # Clear existing templates and add new ones with confidence scores
+      # TODO: remove confidence scores and clean this up?
+      template_topics.destroy_all
+      selected_candidate_ids.each do |candidate_id|
+        template_topics.create!(
+          template_id: candidate_id,
+          confidence_score: 0
+        )
+      end
+    end
 
     nil
   end
