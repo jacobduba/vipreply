@@ -35,6 +35,7 @@ class Topic < ApplicationRecord
 
     message_embeddings = MessageEmbedding
       .joins(:templates)
+      .includes(:message)
       .where(templates: {
         inbox_id: inbox.id
       })
@@ -48,51 +49,53 @@ class Topic < ApplicationRecord
 
     current_message = latest_message.to_s_anon
 
-    candidate_examples = message_embeddings.map { |message_embedding|
-      past_message = message_embedding.message.to_s_anon
+    candidate_examples = Sync do
+      message_embeddings.map do |message_embedding|
+        Async do
+          past_message = message_embedding.message.to_s_anon
 
-      chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
-        f.request :retry, {
-          max: 5,
-          interval: 1,
-          backoff_factor: 2,
-          retry_statuses: [408, 429, 500, 502, 503, 504, 508],
-          methods: %i[post]
-        }
-        f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
-        f.request :json
-        f.response :json
-      end.post("chat/completions", {
-        model: "openai/gpt-5:nitro",
-        messages: [
-          {
-            role: "system",
-            content: "Do these two customer emails require the exact same template reply and/or action taken? Only reply 'yes' or 'no.'"
-          },
-          {
-            role: "user",
-            content: <<~PROMPT
-              EMAIL 1:
-              #{current_message}
-              EMAIL 2:
-              #{past_message}
-            PROMPT
-          }
-        ]
-      })
+          chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
+            f.request :retry, {
+              max: 5,
+              interval: 1,
+              backoff_factor: 2,
+              retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+              methods: %i[post]
+            }
+            f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
+            f.request :json
+            f.response :json
+          end.post("chat/completions", {
+            model: "openai/gpt-5:nitro",
+            messages: [
+              {
+                role: "system",
+                content: "Do these two customer emails require the exact same template reply and/or action taken? Only reply 'yes' or 'no.'"
+              },
+              {
+                role: "user",
+                content: <<~PROMPT
+                  EMAIL 1:
+                  #{current_message}
+                  EMAIL 2:
+                  #{past_message}
+                PROMPT
+              }
+            ]
+          })
 
-      same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
+          same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
 
-      message_embedding.templates.map { |t| t.id } if same_cards_required
-    }.compact.uniq
+          message_embedding.templates.map { |t| t.id } if same_cards_required
+        end
+      end.map(&:wait)
+    end.compact.uniq
 
-    debugger
-
+    # THERE SHOULD ONLY BE ONE SET OF CANDIDATES
+    # FOR EACH TYPE OF EMAIL
+    # SO LET USER CHOOSE IF THERES MULTIPLE SETS
+    # AND EXAMPLE OF MULTIPLE: YES/NO OPTIONS.
     if candidate_examples.size == 1
-      # THERE SHOULD ONLY BE ONE SET OF CANDIDATES
-      # FOR EACH TYPE OF EMAIL
-      # SO JUST IGNORE IF THERES MULTIPLE
-      # AND EXAMPLE OF MULTIPLE: YES/NO OPTIONS. ITS BEST OT JUST IGNORE THIS
       selected_candidate_ids = candidate_examples.first
       # Clear existing templates and add new ones with confidence scores
       # TODO: remove confidence scores and clean this up?
