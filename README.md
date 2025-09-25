@@ -16,12 +16,17 @@
     cd vipreply
     ```
 
-2. Install dependencies:
+2. Install Ruby with Mise
+    ```sh
+     curl https://mise.run | sh
+    ```
+
+3. Install dependencies:
     ```sh
     bundle install
     ```
 
-3. Set up the development key (get it from a team member):
+4. Set up the development key (get it from a team member):
     ```sh
     touch config/credentials/development.key
     chmod 600 config/credentials/development.key
@@ -30,12 +35,12 @@
     ```
    Then paste the master key for development into `config/credentials/development.key` and the master key for testing into `config/credentials/test.key`.
 
-4. Start Postgres:
+5. Start Postgres:
     ```sh
     docker-compose up
     ```
 
-5. In another terminal, set up the database:
+6. In another terminal, set up the database:
     ```sh
     bin/rails db:setup
     ```
@@ -57,88 +62,16 @@ In three seperate terminals:
 Visit `http://localhost:3000` in your browser to see the application running.
 Note that only localhost:3000 will work due to OAuth.
 
-### Linting
+### Editor setup
 
-Run StandardRB to lint and auto-fix Ruby code:
-
-```sh
-bin/lint
-```
-
-### VSCode Setup
-
-Install **Ruby LSP:** [https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp](https://marketplace.visualstudio.com/items?itemName=Shopify.ruby-lsp)
-
-Add this to your `settings.json` to use StandardRB as the formatter and linter:
-```json
-{
-  "[ruby]": {
-    "editor.defaultFormatter": "Shopify.ruby-lsp"
-  },
-  "rubyLsp.formatter": "standard",
-  "rubyLsp.linters": [
-    "standard"
-  ]
-}
-```
-
-### Zed Setup
-
-If you're using Zed, you can configure Ruby LSP with StandardRB formating for Ruby and HTMLBeautifier linting for ERB with:
+Install the following gems:
 
 ```sh
-gem install ruby-lsp htmlbeautifier
+gem install ruby-lsp solargraph htmlbeautifier
 ```
 
-```json
-{
-
-  "languages": {
-    "HTML/ERB": {
-      "tab_size": 2,
-      "language_servers": ["tailwindcss-language-server", "..."],
-      "formatter": {
-        "external": {
-          "command": "ruby",
-          "arguments": ["-S", "htmlbeautifier"]
-        }
-      }
-    },
-    "Ruby": {
-      "language_servers": [
-        "ruby-lsp",
-        "tailwindcss-language-server",
-        "!solargraph",
-        "!rubocop"
-      ],
-      "formatter": "language_server",
-      "format_on_save": "on"
-    }
-  },
-  "lsp": {
-    "ruby-lsp": {
-      "initialization_options": {
-        "enabledFeatures": {
-          "diagnostics": false,
-          "formatting": true
-        },
-        "formatter": "standard"
-      }
-    },
-    "tailwindcss-language-server": {
-      "settings": {
-        "includeLanguages": {
-          "html/erb": "html",
-          "ruby": "html"
-        },
-        "experimental": {
-          "classRegex": ["\\bclass:\\s*['\"]([^'\"]*)['\"]"]
-        }
-      }
-    }
-  }
-}
-```
+Note: Zed will auto-load the correct configuration.
+I have not set that up for other editors.
 
 ### Webhooks
 
