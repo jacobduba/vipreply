@@ -33,12 +33,9 @@ class Topic < ApplicationRecord
     target_embedding = latest_message.message_embedding.embedding
     target_embedding_literal = ActiveRecord::Base.connection.quote(target_embedding.to_s)
 
-    message_embeddings = MessageEmbedding
+    top_3_embeddings = MessageEmbedding
       .joins(:templates)
-      .includes(:message)
-      .where(templates: {
-        inbox_id: inbox.id
-      })
+      .where(templates: { inbox_id: inbox.id })
       .select(<<~SQL)
         message_embeddings.id as id,
         message_embeddings.message_id as message_id,
@@ -47,10 +44,15 @@ class Topic < ApplicationRecord
       .order("similarity ASC")
       .limit(3)
 
+    message_embeddings = MessageEmbedding
+      .from(top_3_embeddings, :message_embeddings)
+      .includes(:message, :templates) # need to PRELOAD EVERYTHING thanks to active record not working in async (which we do later)
+      .order("similarity ASC")
+
     current_message = latest_message.to_s_anon
 
-    candidate_examples = Sync do
-      message_embeddings.map do |message_embedding|
+    candidate_template_sets_ids = Sync do
+      candidate_template_set = message_embeddings.map do |message_embedding|
         Async do
           past_message = message_embedding.message.to_s_anon
 
@@ -59,7 +61,7 @@ class Topic < ApplicationRecord
               max: 5,
               interval: 1,
               backoff_factor: 2,
-              retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+              retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
               methods: %i[post]
             }
             f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
@@ -86,29 +88,38 @@ class Topic < ApplicationRecord
 
           same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
 
-          message_embedding.templates.map { |t| t.id } if same_cards_required
+          if same_cards_required
+            message_embedding.templates.map(&:id) # turn template model into its id -> later we need uniq to work and uniq doesnt work with lists of active record models
+          end
         end
-      end.map(&:wait)
-    end.compact.uniq
-
-    # THERE SHOULD ONLY BE ONE SET OF CANDIDATES
-    # FOR EACH TYPE OF EMAIL
-    # SO LET USER CHOOSE IF THERES MULTIPLE SETS
-    # AND EXAMPLE OF MULTIPLE: YES/NO OPTIONS.
-    if candidate_examples.size == 1
-      selected_candidate_ids = candidate_examples.first
-      # Clear existing templates and add new ones with confidence scores
-      # TODO: remove confidence scores and clean this up?
-      template_topics.destroy_all
-      selected_candidate_ids.each do |candidate_id|
-        template_topics.create!(
-          template_id: candidate_id,
-          confidence_score: 0
-        )
       end
+
+      candidate_template_set.map(&:wait)
     end
 
-    nil
+    # finds unique sets of candidate templates (which are lists of ids of templates)
+    candidate_template_sets_ids_uniq = candidate_template_sets_ids
+      .compact # if the candidate example is nil, that means LLM determined that candidate wasn't the same
+      .uniq # make sure the lists of candidate templates are uniq
+
+    # TODO ::: REMOVE THIS IS IS SHIT
+    # IF SOMEONE HAS A DUPLICATE TEMPLATE>>> I MEAN HWO WOU
+    # okay so if theres MORE THAN 1 unique set of candidate examples...
+    # STOP
+    return unless candidate_template_sets_ids_uniq.length == 1
+    # there should only be one set of candidate templates worth auto selecting for one type of email
+    # if more than one, the user should manually select the templates
+
+    chosen_templates_set_ids = candidate_template_sets_ids_uniq.first
+    # Clear existing templates and add new ones with confidence scores
+    # TODO: remove confidence scores and clean this up?
+    template_topics.destroy_all
+    chosen_templates_set_ids.each do |template_id|
+      template_topics.create!(
+        template_id: template_id,
+        confidence_score: 0
+      )
+    end
   end
 
   # during merge: list_templates_by_similiarity
@@ -158,7 +169,7 @@ class Topic < ApplicationRecord
 
     Message
       .joins(message_embedding: :templates)
-      .where(templates: {id: template_id})
+      .where(templates: { id: template_id })
       .select("messages.*, (message_embeddings.embedding <=> #{target_embedding_literal}::vector) AS distance")
       .order("distance")
       .first
@@ -183,7 +194,7 @@ class Topic < ApplicationRecord
         max: 5,
         interval: 1,
         backoff_factor: 2,
-        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+        retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
         methods: %i[post]
       }
       f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
@@ -249,7 +260,7 @@ class Topic < ApplicationRecord
         max: 5,
         interval: 1,
         backoff_factor: 2,
-        retry_statuses: [408, 429, 500, 502, 503, 504, 508],
+        retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
         methods: %i[post]
       }
       f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
