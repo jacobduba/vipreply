@@ -51,8 +51,8 @@ class Topic < ApplicationRecord
 
     current_message = latest_message.to_s_anon
 
-    candidate_template_sets_ids = Sync do
-      candidate_template_set = message_embeddings.map do |message_embedding|
+    candidate_template_sets = Sync do
+      message_embeddings.map do |message_embedding|
         Async do
           past_message = message_embedding.message.to_s_anon
 
@@ -89,33 +89,19 @@ class Topic < ApplicationRecord
           same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
 
           if same_cards_required
-            message_embedding.templates.map(&:id) # turn template model into its id -> later we need uniq to work and uniq doesnt work with lists of active record models
+            message_embedding.templates
           end
         end
-      end
-
-      candidate_template_set.map(&:wait)
+      end.map(&:wait)
     end
 
     # finds unique sets of candidate templates (which are lists of ids of templates)
-    candidate_template_sets_ids_uniq = candidate_template_sets_ids
-      .compact # if the candidate example is nil, that means LLM determined that candidate wasn't the same
-      .uniq # make sure the lists of candidate templates are uniq
+    chosen_templates = candidate_template_sets
+      .flatten
+      .compact
+      .uniq
 
-    # TODO ::: REMOVE THIS IS IS SHIT
-    # IF SOMEONE HAS A DUPLICATE TEMPLATE>>> I MEAN HWO WOU
-    # okay so if theres MORE THAN 1 unique set of candidate examples...
-    # STOP
-    return unless candidate_template_sets_ids_uniq.length == 1
-    # there should only be one set of candidate templates worth auto selecting for one type of email
-    # if more than one, the user should manually select the templates
-
-    chosen_templates_set_ids = candidate_template_sets_ids_uniq.first
-    # Clear existing templates and add new ones
-    template_topics.destroy_all
-    chosen_templates_set_ids.each do |template_id|
-      template_topics.create!(template_id: template_id)
-    end
+    self.templates = chosen_templates
   end
 
   # during merge: list_templates_by_similiarity
