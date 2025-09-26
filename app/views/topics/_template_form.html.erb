@@ -1,9 +1,9 @@
-<% if @templates_with_confidence.any? %>
+<% if @template_topics.any? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
     <%= form.label :email, "Smart templates", class: "block text-sm font-medium text-stone-600 mb-2" %>
     <div class="space-y-2">
-      <% @templates_with_confidence.each_with_index do |template_with_confidence, i| %>
-        <% template = template_with_confidence.template %>
+      <% @template_topics.each_with_index do |template_topic, i| %>
+        <% template = template_topic.template %>
         <div id="template-<%= i %>" class="border border-stone-200 bg-stone-100 rounded-lg focus-within:border-blue-500/90">
           <% #we need to do error checking on EACH template %>
           <% if output_errors.any? %>
@@ -14,7 +14,14 @@
             </ul>
           <% end %>
           <%= form.label "templates[#{template.id}][output]", class: "w-full flex justify-between items-center px-4 pt-2.5 cursor-text" do %>
-            <%= render 'shared/confidence_score', confidence_score: template_with_confidence.confidence_score %>
+            <div class="flex items-center gap-1 text-stone-400">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                <path fill-rule="evenodd" d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm1 5.75A.75.75 0 0 1 5.75 7h4.5a.75.75 0 0 1 0 1.5h-4.5A.75.75 0 0 1 5 7.75Zm0 3a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1-.75-.75Z" clip-rule="evenodd" />
+              </svg>
+              <span class="font-bold text-xs">
+                SMART TEMPLATE
+              </span>
+            </div>
             <%= link_to remove_template_topic_path(topic, template),
               data: {
                 turbo_method: :delete,

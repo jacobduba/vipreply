@@ -18,7 +18,7 @@ class TopicsController < ApplicationController
     # More: https://security.stackexchange.com/a/134587
 
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @templates_with_confidence = @topic.template_topics.includes(:template)
+    @template_topics = @topic.template_topics.includes(:template)
 
     # If true, call navigation controller to do history.back() else hard link
     # history.back() preserves scroll
@@ -90,20 +90,13 @@ class TopicsController < ApplicationController
       return
     end
 
-    @templates_with_confidence = [ TemplateTopic.new(template_id: @template.id, topic_id: @topic.id, confidence_score: 0) ]
+    @template_topics = [ TemplateTopic.new(template_id: @template.id, topic_id: @topic.id) ]
     refresh_topic_reply(@topic)
     nil
   end
 
   def change_templates_regenerate_response
-    template_ids, confidence_scores = params.expect(template_ids: [], confidence_scores: {})
-
-    # The confidence scores are purely cosmetic, if that changes
-    # obviously we should not be loading them from a form in the dom
-    validated_scores = {}
-    confidence_scores.each do |template_id, score|
-      validated_scores[template_id] = score.to_f.clamp(0.0, 1.0)
-    end
+    template_ids = params.expect(template_ids: [])
 
     valid_templates = @account.inbox.templates.where(id: template_ids)
 
@@ -115,12 +108,11 @@ class TopicsController < ApplicationController
     # Yeah I know it's slow but there shouldn't be too many records. I want validations because that's the Rails way
     TemplateTopic.where(topic_id: @topic.id).destroy_all
     valid_templates.each do |template|
-      confidence_score = validated_scores[template.id.to_s] || 0.0
-      TemplateTopic.create!(template: template, topic: @topic, confidence_score: confidence_score)
+      TemplateTopic.create!(template: template, topic: @topic)
     end
 
-    # Reload templates with confidence after updating associations
-    @templates_with_confidence = @topic.template_topics.includes(:template)
+    # Reload templates after updating associations
+    @template_topics = @topic.template_topics.includes(:template)
 
     refresh_topic_reply(@topic)
   end
@@ -128,7 +120,7 @@ class TopicsController < ApplicationController
   # This is for the template form where users edit template text and click "Save template & regenerate reply"
   def update_templates_regenerate_reply
     if params[:templates].blank?
-      @templates_with_confidence = []
+      @template_topics = []
       refresh_topic_reply(@topic)
       return
     end
@@ -151,7 +143,7 @@ class TopicsController < ApplicationController
       end
     end
 
-    @templates_with_confidence = @topic.template_topics.includes(:template)
+    @template_topics = @topic.template_topics.includes(:template)
 
     refresh_topic_reply(@topic)
   end
@@ -167,7 +159,7 @@ class TopicsController < ApplicationController
     @topic.templates.delete(template_id)
     @topic.save
 
-    @templates_with_confidence = @topic.template_topics.includes(:template)
+    @template_topics = @topic.template_topics.includes(:template)
 
     render turbo_stream: [
       turbo_stream.replace("template_form", partial: "topics/template_form", locals: {

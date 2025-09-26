@@ -13,9 +13,4 @@ module ApplicationHelper
       "/auth/google_oauth2"
     end
   end
-
-  def confidence_percentage(confidence_score)
-    return 0 if confidence_score.nil?
-    (confidence_score * 100).round
-  end
 end

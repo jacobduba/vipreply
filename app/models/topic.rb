@@ -111,14 +111,10 @@ class Topic < ApplicationRecord
     # if more than one, the user should manually select the templates
 
     chosen_templates_set_ids = candidate_template_sets_ids_uniq.first
-    # Clear existing templates and add new ones with confidence scores
-    # TODO: remove confidence scores and clean this up?
+    # Clear existing templates and add new ones
     template_topics.destroy_all
     chosen_templates_set_ids.each do |template_id|
-      template_topics.create!(
-        template_id: template_id,
-        confidence_score: 0
-      )
+      template_topics.create!(template_id: template_id)
     end
   end
 

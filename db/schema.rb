@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_18_180547) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_26_000125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -132,7 +132,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_180547) do
   create_table "templates_topics", id: false, force: :cascade do |t|
     t.bigint "template_id", null: false
     t.bigint "topic_id", null: false
-    t.decimal "confidence_score", precision: 5, scale: 4
     t.index ["template_id"], name: "index_templates_topics_on_template_id"
     t.index ["topic_id"], name: "index_templates_topics_on_topic_id"
   end
