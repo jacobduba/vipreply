@@ -194,14 +194,11 @@ class Topic < ApplicationRecord
             CRITICAL: Treat the customer as an equal - do not praise or criticize them.
             If the template contains a link, make sure you provide a link or hyperlink to the customer.
             Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
+
             Always start your response with a greeting followed by the customer's name.
-            Use a friendly and active voice.
-            Start your first message by thanking the customer for contacting us.
-            When the customer gives you requested information, thank them for it.
-            If you need to make the customer wait, thank them for their patience.
-            After the customer completes a task you asked for, thank them.
-            At the end of the conversation, thank the customer for their time.
-            Offer to help the customer with any other questions/concerns they may have.
+            To make the customer feel valued and respected:
+              - Thank the customer for something before
+              - Ask the customer if they need anything else.
           PROMPT
         },
         {
