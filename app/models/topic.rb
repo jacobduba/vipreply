@@ -204,7 +204,7 @@ class Topic < ApplicationRecord
           content: <<~PROMPT
             You are an AI agent answering customer support emails for a business.
             Your goal is to provide helpful responses to customer inquiries.
-            CRITICAL: Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided smart templates. If something is not directly mentioned in the smart templates, do not include it.
+             CRITICAL: Do NOT make up, invent, or fabricate any information. Only use facts explicitly stated in the provided smart cards. If something is not directly mentioned in the smart cards, do not include it.
             If the template contains a link, make sure you provide a link or hyperlink to the customer.
             Do not include any email signature, closing salutation, or sign-off at the end of the email. End the email with the main content only.
             Always start your response with a greeting followed by the customer's name.
@@ -267,7 +267,7 @@ class Topic < ApplicationRecord
       messages: [
         {
           role: "system",
-          content: "Do you have enough information from the smart templates to answer the customer email? Only reply with 'yes' or 'no.'"
+           content: "Do you have enough information from the smart cards to answer the customer email? Only reply with 'yes' or 'no.'"
         },
         {
           role: "user",

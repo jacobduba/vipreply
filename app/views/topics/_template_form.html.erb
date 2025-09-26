@@ -1,6 +1,6 @@
 <% if @template_topics.any? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
-    <%= form.label :email, "Smart templates", class: "block text-sm font-medium text-stone-600 mb-2" %>
+    <%= form.label :email, "Smart cards", class: "block text-sm font-medium text-stone-600 mb-2" %>
     <div class="space-y-2">
       <% @template_topics.each_with_index do |template_topic, i| %>
         <% template = template_topic.template %>
