@@ -2,6 +2,7 @@
 
 class TopicsController < ApplicationController
   include ActionView::Helpers::TextHelper
+  include GeneratorConcern
 
   before_action :authorize_account
   before_action :require_gmail_permissions
@@ -9,19 +10,12 @@ class TopicsController < ApplicationController
   before_action :set_topic
   before_action :authorize_account_owns_topic
 
-  include GeneratorConcern
-
   def show
-    # iframes are used to isolate email code
-    # Why??? I do not trust myself to securely sanitize emails
-    # Yes. this makes the user experience worse
-    # More: https://security.stackexchange.com/a/134587
-
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
     @template_topics = @topic.template_topics.includes(:template)
 
-    # If true, call navigation controller to do history.back() else hard link
-    # history.back() preserves scroll
+    # If true, back button in show does history.back() instead of hard link to inbox.
+    # b/c history.back() preserves scroll
     @from_inbox = request.referrer == inbox_url
   end
 
