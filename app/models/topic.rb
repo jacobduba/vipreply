@@ -148,7 +148,7 @@ class Topic < ApplicationRecord
 
   def generate_reply
     response = OpenRouterClient.chat(
-      models: [ "cohere/command-a:nitro" ],
+      models: [ "openai/gpt-5-chat:nitro" ],
       messages: [
         {
           role: "system",
