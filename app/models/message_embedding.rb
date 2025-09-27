@@ -37,23 +37,6 @@ class MessageEmbedding < ApplicationRecord
       text = QWEN_TOKENIZER.decode(truncated_ids)
     end
 
-    fw = Faraday.new(url: "https://api.fireworks.ai") do |f|
-      f.request :retry, {
-        max: 10,
-        interval: 1,
-        backoff_factor: 2,
-        retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
-        methods: %i[post]
-      }
-      f.request :authorization, "Bearer", Rails.application.credentials.fireworks_api_key
-      f.request :json
-      f.response :json, content_type: "application/json"
-    end.post("inference/v1/embeddings", {
-      input: text,
-      model: "accounts/fireworks/models/qwen3-embedding-8b",
-      dimensions: 1024
-    })
-
-    fw.body["data"][0]["embedding"]
+    FireworksClient.embeddings(input: text)
   end
 end
