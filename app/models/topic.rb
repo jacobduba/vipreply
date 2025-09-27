@@ -25,8 +25,7 @@ class Topic < ApplicationRecord
     templates.any?
   end
 
-  # during merge rename: autoselect_templates
-  def find_best_templates
+  def auto_select_templates
     latest_message = messages.order(date: :desc).first
     return Template.none unless latest_message&.message_embedding&.embedding
 
@@ -56,19 +55,8 @@ class Topic < ApplicationRecord
         Async do
           past_message = message_embedding.message.to_s_anon
 
-          chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
-            f.request :retry, {
-              max: 5,
-              interval: 1,
-              backoff_factor: 2,
-              retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
-              methods: %i[post]
-            }
-            f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
-            f.request :json
-            f.response :json
-          end.post("chat/completions", {
-            model: "openai/gpt-5:nitro",
+    chat_res = OpenRouterClient.chat(
+            models: [ "openai/gpt-5:nitro" ],
             messages: [
               {
                 role: "system",
@@ -84,9 +72,9 @@ class Topic < ApplicationRecord
                 PROMPT
               }
             ]
-          })
+          )
 
-          same_cards_required = chat.body["choices"][0]["message"]["content"].downcase == "yes"
+          same_cards_required = chat_res["choices"][0]["message"]["content"].downcase == "yes"
 
           if same_cards_required
             message_embedding.templates
@@ -104,7 +92,6 @@ class Topic < ApplicationRecord
     self.templates = chosen_templates
   end
 
-  # during merge: list_templates_by_similiarity
   def list_templates_by_relevance
     latest_message = messages.order(date: :desc).first
     # List all templates when no embedding
@@ -115,17 +102,6 @@ class Topic < ApplicationRecord
     target_embedding = latest_message.message_embedding.embedding
     target_embedding_literal = ActiveRecord::Base.connection.quote(target_embedding.to_s)
 
-    # we're using cosine distance
-
-    # inbox.templates
-    #   .left_joins(:message_embeddings)
-    #   .select(<<~SQL)
-    #     templates.id AS id,
-    #     templates.output AS output,
-    #     MAX(1 - ((message_embeddings.embedding <=> #{target_embedding_literal}::vector) / 2)) AS similarity
-    #   SQL
-    #   .group("templates.id, templates.output")
-    #   .order("similarity DESC NULLS LAST")
     inbox.templates
       .left_joins(:message_embeddings)
       .select(<<~SQL)
@@ -171,19 +147,8 @@ class Topic < ApplicationRecord
   end
 
   def generate_reply
-    llm_res = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
-      f.request :retry, {
-        max: 5,
-        interval: 1,
-        backoff_factor: 2,
-        retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
-        methods: %i[post]
-      }
-      f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
-      f.request :json
-      f.response :json
-    end.post("chat/completions", {
-      model: "cohere/command-a:nitro",
+    response = OpenRouterClient.chat(
+      models: [ "cohere/command-a:nitro" ],
       messages: [
         {
           role: "system",
@@ -205,18 +170,17 @@ class Topic < ApplicationRecord
           role: "user",
           content: attached_templates_plus_email
         }
-      ]
-    })
+      ])
 
     # Log to see how many tokens users are using
-    prompt_tokens = llm_res.body["usage"]["prompt_tokens"]
-    completion_tokens = llm_res.body["usage"]["completion_tokens"]
+    prompt_tokens = response["usage"]["prompt_tokens"]
+    completion_tokens = response["usage"]["completion_tokens"]
 
     account = inbox.account
     account.increment!(:input_token_usage, prompt_tokens)
     account.increment!(:output_token_usage, completion_tokens)
 
-    self.generated_reply = llm_res.body["choices"][0]["message"]["content"].strip.tr("—", " - ")
+    self.generated_reply = response["choices"][0]["message"]["content"].strip.tr("—", " - ")
   end
 
   # Delete all messages, and readd them back.
@@ -238,19 +202,8 @@ class Topic < ApplicationRecord
   def detect_autosend
     return unless templates.any?
 
-    chat = Faraday.new(url: "https://openrouter.ai/api/v1") do |f|
-      f.request :retry, {
-        max: 5,
-        interval: 1,
-        backoff_factor: 2,
-        retry_statuses: [ 408, 429, 500, 502, 503, 504, 508 ],
-        methods: %i[post]
-      }
-      f.request :authorization, "Bearer", Rails.application.credentials.openrouter_api_key
-      f.request :json
-      f.response :json
-    end.post("chat/completions", {
-      model: "openai/gpt-5:nitro",
+    response = OpenRouterClient.chat(
+      models: ["openai/gpt-5:nitro"],
       messages: [
         {
           role: "system",
@@ -260,10 +213,9 @@ class Topic < ApplicationRecord
           role: "user",
           content: attached_templates_plus_email
         }
-      ]
-    })
+      ])
 
-    self.will_autosend = chat.body["choices"][0]["message"]["content"].downcase == "yes"
+    self.will_autosend = response["choices"][0]["message"]["content"].downcase == "yes"
   end
 
   def self.cache_from_gmail(inbox, gmail_api_thread)
@@ -318,7 +270,7 @@ class Topic < ApplicationRecord
           topic.will_autosend = false
           topic.generated_reply = ""
         else
-          topic.find_best_templates
+          topic.auto_select_templates
           topic.generate_reply
           topic.detect_autosend
         end
