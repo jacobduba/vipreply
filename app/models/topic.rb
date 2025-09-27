@@ -55,7 +55,7 @@ class Topic < ApplicationRecord
         Async do
           past_message = message_embedding.message.to_s_anon
 
-    chat_res = OpenRouterClient.chat(
+          response = OpenRouterClient.chat(
             models: [ "openai/gpt-5:nitro" ],
             messages: [
               {
@@ -74,7 +74,7 @@ class Topic < ApplicationRecord
             ]
           )
 
-          same_cards_required = chat_res["choices"][0]["message"]["content"].downcase == "yes"
+          same_cards_required = response["choices"][0]["message"]["content"].downcase == "yes"
 
           if same_cards_required
             message_embedding.templates

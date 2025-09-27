@@ -81,10 +81,6 @@ gem "redcarpet", "~> 3.6"
 # Stripe for payment processing
 gem "stripe", "~> 15.0"
 
-# Nice middleware for HTTP requests
-gem "faraday", "~> 2.13"
-gem "faraday-retry", "~> 2.3"
-
 # Non-blocking I/O
 gem "async", "~> 2.32"
 
