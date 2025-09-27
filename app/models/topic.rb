@@ -203,7 +203,7 @@ class Topic < ApplicationRecord
     return unless templates.any?
 
     response = OpenRouterClient.chat(
-      models: ["openai/gpt-5:nitro"],
+      models: [ "openai/gpt-5:nitro" ],
       messages: [
         {
           role: "system",
