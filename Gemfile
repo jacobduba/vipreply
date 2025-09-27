@@ -79,7 +79,7 @@ gem "honeybadger", "~> 5.27"
 gem "redcarpet", "~> 3.6"
 
 # Stripe for payment processing
-gem "stripe", "~> 15.0"
+gem "stripe", "~> 15.5"
 
 # Non-blocking I/O
 gem "async", "~> 2.32"
