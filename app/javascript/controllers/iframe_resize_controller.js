@@ -40,7 +40,6 @@ export default class extends Controller {
     const rect = target.getBoundingClientRect();
     window.scrollTo({
       top: rect.top + window.scrollY - offset,
-      behavior: "smooth",
     });
   };
 }
