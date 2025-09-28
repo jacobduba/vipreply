@@ -1,63 +1,55 @@
 import { Controller } from "@hotwired/stimulus";
 
+// Iframes need h-0 class to reset height before measuring scrollHeight
+// iframes's inner html expands to max size if less, so html scrollheight will be too big
 export default class extends Controller {
-  static targets = ["iframe", "loader", "lastMessage"];
+  static targets = ["iframe", "lastMessage"];
 
   connect() {
-    // I dont know why we need this. But simple iframes won't resize without it.
-    this.setAllIframeHeight();
-    window.addEventListener("resize", this.setAllIframeHeight);
-    this.iframeTargets.forEach((iframe, index) => {
-      // Add loading event
-      iframe.addEventListener("load", () => {
-        this.hideLoaderShowIframe(index);
-        this.setIframeHeight(iframe);
-        this.scrollToLastMessage();
-      });
-      // If its ALREADY LOADED, do it anyway
+    this.resizeAllIframes();
+    window.addEventListener("resize", this.resizeAllIframes);
+    document.addEventListener("turbo:morph", this.resizeAllIframes);
+
+    this.iframeTargets.forEach((iframe) => {
+      iframe.addEventListener("load", this.handleIframeLoad);
+
       if (iframe.contentWindow?.document.readyState === "complete") {
-        this.hideLoaderShowIframe(index);
-        this.setIframeHeight(iframe);
+        this.resizeIframe(iframe);
         this.scrollToLastMessage();
       }
     });
   }
 
   disconnect() {
-    window.removeEventListener("resize", this.setAllIframeHeight);
+    window.removeEventListener("resize", this.resizeAllIframes);
+    document.removeEventListener("turbo:morph", this.resizeAllIframes);
     this.iframeTargets.forEach((iframe) => {
-      iframe.removeEventListener("load", () => this.setIframeHeight(iframe));
+      iframe.removeEventListener("load", this.handleIframeLoad);
     });
   }
 
-  setAllIframeHeight = () => {
-    this.iframeTargets.forEach((iframe) => {
-      this.setIframeHeight(iframe);
-    });
+  handleIframeLoad = (event) => {
+    this.resizeIframe(event.target);
+    this.scrollToLastMessage();
   };
 
-  hideLoaderShowIframe = (index) => {
-    this.loaderTargets[index].style.display = "none";
-    this.iframeTargets[index].style.display = "block";
+  resizeAllIframes = () => {
+    this.iframeTargets.forEach(this.resizeIframe);
+  };
+
+  resizeIframe = (iframe) => {
+    const html = iframe.contentWindow?.document?.documentElement;
+    if (!html) return;
+
+    // Add 2px to account for border/padding
+    iframe.style.height = `${html.scrollHeight}px`;
   };
 
   scrollToLastMessage = () => {
-    // I want to show a little of the previous message so the user knows there is more above
-    const distFromTop = 80;
-    const elementPosition =
-      this.lastMessageTarget.getBoundingClientRect().top + window.scrollY;
+    const offset = 80;
+    const rect = this.lastMessageTarget.getBoundingClientRect();
     window.scrollTo({
-      top: elementPosition - distFromTop,
+      top: rect.top + window.scrollY - offset,
     });
-  };
-
-  setIframeHeight = (iframe) => {
-    const document = iframe.contentWindow.document;
-    const html = document.documentElement;
-
-    if (!html) return;
-
-    const height = html.scrollHeight + 2; // Add 2 pixels to account for border 2px padding at top
-    iframe.style.height = `${height}px`;
   };
 }
