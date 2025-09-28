@@ -11,8 +11,8 @@
     <% if @turbo_cache_control %>
       <meta name="turbo-cache-control" content="no-cache">
     <% end %>
-    <%= turbo_refresh_method_tag :morph %>
-    <%= turbo_refresh_scroll_tag :preserve %>
+    <meta name="turbo-refresh-method" content="morph">
+    <meta name="turbo-refresh-scroll" content="preserve">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
