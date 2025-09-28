@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus";
 // iframes's inner html expands to max size if less, so html scrollheight will be too big
 export default class extends Controller {
   connect() {
-    this.resizeIframe();
+    // this.resizeIframe();
     window.addEventListener("resize", this.resizeIframe);
     this.element.addEventListener("load", this.handleLoad);
 
@@ -28,7 +28,6 @@ export default class extends Controller {
     const html = this.element.contentWindow?.document?.documentElement;
     if (!html) return;
 
-    // Add 2px to account for border/padding
     this.element.style.height = `${html.scrollHeight}px`;
   };
 
