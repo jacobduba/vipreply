@@ -37,8 +37,13 @@ export default class extends Controller {
 
     const offset = 80;
     const rect = target.getBoundingClientRect();
+    // Smooth scroll only for the last - prevents smooth scrolling
+    const behavior = this.element.hasAttribute("is-last-vipreply-message")
+      ? "smooth"
+      : "instant";
     window.scrollTo({
       top: rect.top + window.scrollY - offset,
+      behavior: behavior,
     });
   };
 }

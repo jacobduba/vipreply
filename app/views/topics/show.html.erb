@@ -72,14 +72,14 @@
               <!-- Yes. this makes the user experience worse -->
               <!-- More: https://security.stackexchange.com/a/134587 -->
               <iframe
-                title="Message Preview"
                 srcdoc="<%= message.prepare_email_for_rendering request.base_url, index %>"
                 <% if @messages.last == message %>
-                  id="last-message"
+                  is-last-vipreply-message
                 <% end %>
                 sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                 class="w-full rounded-b-lg h-0"
-                data-controller="iframe-resize">
+                data-controller="iframe-resize"
+                data-turbo-permanent>
               </iframe>
             </div>
           </li>
