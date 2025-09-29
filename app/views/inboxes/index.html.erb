@@ -21,7 +21,7 @@
       <p class="text-stone-700">All customers have a reply!</p>
     </div>
   <% else %>
-    <h1 class="font-bold text-stone-400 text-sm mt-6 uppercase">Requires action</h1>
+    <h1 class="font-bold text-stone-400 text-sm mt-6 uppercase">Needs attention</h1>
     <ul class="divide-y divide-stone-300">
       <% @needs_reply_topics.each do |topic| %>
         <li class="py-2">
@@ -52,7 +52,7 @@
     </ul>
   <% end %>
   <% unless @has_reply_topics.empty? %>
-    <h1 class="font-bold text-stone-400 text-sm mt-4 uppercase">Caught up</h1>
+    <h1 class="font-bold text-stone-400 text-sm mt-4 uppercase">No attention needed</h1>
     <ul class="divide-y divide-stone-300">
       <% @has_reply_topics.each do |topic| %>
         <li class="py-2">
