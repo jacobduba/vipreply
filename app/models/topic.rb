@@ -218,6 +218,25 @@ class Topic < ApplicationRecord
     self.will_autosend = response["choices"][0]["message"]["content"].downcase == "yes"
   end
 
+  def should_auto_dismiss?
+    last_message_str = messages.last.to_s_anon
+
+    response = OpenRouterClient.chat(
+      models: [ "openai/gpt-5:nitro" ],
+      messages: [
+        {
+          role: "system",
+           content: "Is this email NOT a customer support email? Should it be automatically dismissed from the customer support queue? Only reply with 'yes' or 'no.'"
+        },
+        {
+          role: "user",
+          content: last_message_str
+        }
+      ])
+
+    response["choices"][0]["message"]["content"].downcase == "yes"
+  end
+
   def self.cache_from_gmail(inbox, gmail_api_thread)
     thread_id = gmail_api_thread.id
     Topic.with_advisory_lock("inbox:#{inbox.id}:thread_id:#{thread_id}") do
@@ -269,12 +288,22 @@ class Topic < ApplicationRecord
         if topic.has_reply? || is_old_email
           topic.will_autosend = false
           topic.generated_reply = ""
-        else
-          topic.auto_select_templates
-          topic.generate_reply
-          topic.detect_autosend
+          topic.save!
+          return
         end
 
+        if topic.should_auto_dismiss?
+          topic.auto_dismissed = true
+          topic.will_autosend = false
+          topic.status = :has_reply
+          topic.generated_reply = ""
+          topic.save!
+          return
+        end
+
+        topic.auto_select_templates
+        topic.generate_reply
+        topic.detect_autosend
         topic.save!
       end
     end
