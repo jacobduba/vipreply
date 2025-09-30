@@ -8,7 +8,7 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
-  enum :status, %i[requires_action no_action_needed]
+  enum :status, %i[requires_action no_action_needed_marked_by_user]
 
   scope :not_spam, -> { where(is_spam: false) }
 
@@ -259,9 +259,9 @@ class Topic < ApplicationRecord
         to_name = last_message.to_name
         is_old_email = date < 3.days.ago
         status = if from_email == inbox.account.email
-          :no_action_needed
+          :no_action_needed_marked_by_user
         elsif is_old_email
-          :no_action_needed
+          :no_action_needed_marked_by_user
         else
           :requires_action
         end
@@ -295,7 +295,7 @@ class Topic < ApplicationRecord
         if topic.should_auto_dismiss?
           topic.auto_dismissed = true
           topic.will_autosend = false
-          topic.status = :no_action_needed
+          topic.status = :no_action_needed_marked_by_user
           topic.generated_reply = ""
           topic.save!
           return
