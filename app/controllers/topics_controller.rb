@@ -54,7 +54,7 @@ class TopicsController < ApplicationController
   end
 
   def change_status
-    new_status = @topic.has_reply? ? :needs_reply : :has_reply
+    new_status = @topic.no_action_needed? ? :requires_action : :no_action_needed
 
     @topic.update(status: new_status)
 

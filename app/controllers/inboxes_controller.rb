@@ -15,8 +15,8 @@ class InboxesController < ApplicationController
 
     selected_fields = %i[id snippet date subject from_email from_name to_email to_name status
       message_count]
-    @needs_reply_topics = @inbox.topics.not_spam.select(selected_fields).where(status: :needs_reply).order(date: :asc)
-    @has_reply_topics = @inbox.topics.not_spam.select(selected_fields).where(status: :has_reply).order(date: :desc)
+    @requires_action_topics = @inbox.topics.not_spam.select(selected_fields).where(status: :requires_action).order(date: :asc)
+    @no_action_needed_topics = @inbox.topics.not_spam.select(selected_fields).where(status: :no_action_needed).order(date: :desc)
 
     @turbo_cache_control = true
   end

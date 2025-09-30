@@ -8,7 +8,7 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
-  enum :status, %i[needs_reply has_reply]
+  enum :status, %i[requires_action no_action_needed]
 
   scope :not_spam, -> { where(is_spam: false) }
 
@@ -259,11 +259,11 @@ class Topic < ApplicationRecord
         to_name = last_message.to_name
         is_old_email = date < 3.days.ago
         status = if from_email == inbox.account.email
-          :has_reply
+          :no_action_needed
         elsif is_old_email
-          :has_reply
+          :no_action_needed
         else
-          :needs_reply
+          :requires_action
         end
         message_count = gmail_api_thread.messages.count
         awaiting_customer = (from_email == inbox.account.email)
@@ -285,7 +285,7 @@ class Topic < ApplicationRecord
         # Method below need access to saved items
         topic.save!
 
-        if topic.has_reply? || is_old_email
+        if topic.no_action_needed? || is_old_email
           topic.will_autosend = false
           topic.generated_reply = ""
           topic.save!
@@ -295,7 +295,7 @@ class Topic < ApplicationRecord
         if topic.should_auto_dismiss?
           topic.auto_dismissed = true
           topic.will_autosend = false
-          topic.status = :has_reply
+          topic.status = :no_action_needed
           topic.generated_reply = ""
           topic.save!
           return
