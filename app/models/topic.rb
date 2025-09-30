@@ -8,7 +8,7 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
-  enum :status, %i[requires_action no_action_needed_marked_by_user]
+  enum :status, %i[requires_action no_action_required_marked_by_user]
 
   scope :not_spam, -> { where(is_spam: false) }
 
@@ -237,6 +237,16 @@ class Topic < ApplicationRecord
     response["choices"][0]["message"]["content"].downcase == "yes"
   end
 
+  def mark_as_no_action_required!
+    self.status = :no_action_required_marked_by_user
+    save!
+  end
+
+  def mark_as_requires_action!
+    self.status = :requires_action
+    save!
+  end
+
   def self.cache_from_gmail(inbox, gmail_api_thread)
     thread_id = gmail_api_thread.id
     Topic.with_advisory_lock("inbox:#{inbox.id}:thread_id:#{thread_id}") do
@@ -259,9 +269,9 @@ class Topic < ApplicationRecord
         to_name = last_message.to_name
         is_old_email = date < 3.days.ago
         status = if from_email == inbox.account.email
-          :no_action_needed_marked_by_user
+          :no_action_required_marked_by_user
         elsif is_old_email
-          :no_action_needed_marked_by_user
+          :no_action_required_marked_by_user
         else
           :requires_action
         end
@@ -285,7 +295,7 @@ class Topic < ApplicationRecord
         # Method below need access to saved items
         topic.save!
 
-        if topic.no_action_needed? || is_old_email
+        if topic.no_action_required? || is_old_email
           topic.will_autosend = false
           topic.generated_reply = ""
           topic.save!
@@ -295,7 +305,7 @@ class Topic < ApplicationRecord
         if topic.should_auto_dismiss?
           topic.auto_dismissed = true
           topic.will_autosend = false
-          topic.status = :no_action_needed_marked_by_user
+          topic.status = :no_action_required_marked_by_user
           topic.generated_reply = ""
           topic.save!
           return

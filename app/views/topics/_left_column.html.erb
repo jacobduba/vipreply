@@ -1,0 +1,34 @@
+<div data-controller="template-selector-dropdown" data-action="click@window->template-selector-dropdown#closeIfOutsideSelector" class="relative">
+  <div class="flex justify-between lg:mt-3 mb-4">
+    <%= render 'change_status_button' %>
+    <%= link_to template_selector_dropdown_topic_path,
+          data: {
+            turbo_frame: "template-selector",
+            template_selector_dropdown_target: "button",
+            action: "click->template-selector-dropdown#toggle",
+            active: false
+          },
+          class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 data-[active=true]:bg-stone-100" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256" class="size-5">
+        <path d="M208,112H48a16,16,0,0,0-16,16v24a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V128A16,16,0,0,0,208,112Zm0,40H48V128H208v24Zm0-112H48A16,16,0,0,0,32,56V80A16,16,0,0,0,48,96H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40Zm0,40H48V56H208V80ZM160,216a8,8,0,0,1-8,8H136v16a8,8,0,0,1-16,0V224H104a8,8,0,0,1,0-16h16V192a8,8,0,0,1,16,0v16h16A8,8,0,0,1,160,216Z"></path>
+      </svg>
+      Change Smart Cards
+    <% end %>
+  </div>
+  <% if @topic.no_action_required_marked_by_user? %>
+    <div class=" border-2 border-dashed border-stone-300 rounded-lg px-3 py-4 flex flex-col items-center">
+      <div class="text-stone-600 flex gap-2 items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+        <p>You moved topic to No Action Required.</p>
+      </div>
+      <p class="text-center mt-4 text-sm text-stone-500">Replies are disabled for topics in No Action Required. </p>
+      <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic to Action Required.</p>
+    </div>
+  <% elsif @topic.requires_action? %>
+    <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
+    <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
+    <%= render "topics/generated_reply_form", generated_reply: @topic.generated_reply, topic: @topic %>
+  <% end %>
+</div>

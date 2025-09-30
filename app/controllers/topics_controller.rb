@@ -53,8 +53,18 @@ class TopicsController < ApplicationController
     redirect_to topic_path(@topic)
   end
 
+  def mark_as_no_action_required
+    @topic.mark_as_no_action_required!
+    redirect_to @topic
+  end
+
+  def mark_as_requires_action
+    @topic.mark_as_requires_action!
+    redirect_to @topic
+  end
+
   def change_status
-    new_status = @topic.no_action_needed_marked_by_user? ? :requires_action : :no_action_needed_marked_by_user
+    new_status = @topic.no_action_required_marked_by_user? ? :requires_action : :no_action_required_marked_by_user
 
     @topic.update(status: new_status)
 

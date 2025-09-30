@@ -1,13 +1,15 @@
-<%= button_to change_status_topic_path(@topic), form: {id: "change_status_button"}, class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 h-full hover:cursor-pointer" do %>
-  <% if @topic.no_action_needed_marked_by_user? %>
+<% if @topic.no_action_required_marked_by_user? %>
+  <%= button_to mark_as_requires_action_topic_path(@topic), form: {id: "change_status_button"}, class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 h-full hover:cursor-pointer" do %>
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
     </svg>
-    Mark as requires action
-  <% else %>
+    Move to Requires Action
+  <% end %>
+<% elsif @topic.requires_action? %>
+  <%= button_to mark_as_no_action_required_topic_path(@topic), form: {id: "change_status_button"}, class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 h-full hover:cursor-pointer" do %>
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
     </svg>
-    Mark as no action needed
+    Move to No Action Required
   <% end %>
 <% end %>

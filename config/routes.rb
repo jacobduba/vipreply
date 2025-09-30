@@ -55,8 +55,9 @@ Rails.application.routes.draw do
           get "new_template_dropdown"
           post "create_template_dropdown"
           post "generate_reply"
-          post "change_status"
           post "send_email"
+          post "mark_as_requires_action"
+          post "mark_as_no_action_required"
           patch "change_templates_regenerate_response"
           post "update_templates_regenerate_reply"
           delete "remove_template/:template_id",
