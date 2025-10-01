@@ -275,6 +275,10 @@ class Topic < ApplicationRecord
     date < OLD_EMAIL_DAYS_THRESHOLD.days.ago
   end
 
+  def awaiting_customer?
+    from_email == inbox.account.email
+  end
+
   def self.cache_from_gmail(inbox, gmail_api_thread)
     thread_id = gmail_api_thread.id
     Topic.with_advisory_lock("inbox:#{inbox.id}:thread_id:#{thread_id}") do
@@ -296,7 +300,6 @@ class Topic < ApplicationRecord
         to_email = last_message.to_email
         to_name = last_message.to_name
         message_count = gmail_api_thread.messages.count
-        awaiting_customer = (from_email == inbox.account.email)
         snippet = last_message.snippet
 
         topic.assign_attributes(
@@ -307,7 +310,6 @@ class Topic < ApplicationRecord
           from_name: from_name,
           to_email: to_email,
           to_name: to_name,
-          awaiting_customer: awaiting_customer,
           message_count: message_count
         )
 
