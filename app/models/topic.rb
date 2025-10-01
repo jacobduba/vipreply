@@ -15,7 +15,7 @@ class Topic < ApplicationRecord
     requires_action
     no_action_required_marked_by_user
     no_action_required_marked_by_ai
-    no_action_required_user_replied_last
+    no_action_required_awaiting_customer
     no_action_required_is_old_email
   ]
 
@@ -24,7 +24,7 @@ class Topic < ApplicationRecord
   def no_action_required?
     self.no_action_required_marked_by_user? ||
     self.no_action_required_marked_by_ai? ||
-    self.no_action_required_user_replied_last? ||
+    self.no_action_required_awaiting_customer? ||
     self.no_action_required_is_old_email?
   end
 
@@ -321,7 +321,7 @@ class Topic < ApplicationRecord
           topic.generated_reply = ""
           topic.save!
         elsif topic.user_replied_last?
-          topic.status = :no_action_required_user_replied_last
+          topic.status = :no_action_required_awaiting_customer
           topic.will_autosend = false
           topic.generated_reply = ""
           topic.save!
