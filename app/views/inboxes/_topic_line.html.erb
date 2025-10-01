@@ -1,0 +1,40 @@
+<%# Local variables: topic, mode (either :requires_action or :no_action_needed) %>
+<% title_color = mode == :requires_action ? 'text-stone-800' : 'text-stone-500' %>
+<% date_color = mode == :requires_action ? 'text-stone-500' : 'text-stone-400' %>
+<% snippet_color = mode == :requires_action ? 'text-stone-500' : 'text-stone-400' %>
+<li class="py-2">
+  <%= link_to topic_path(topic), class: "group/model" do %>
+    <div class="flex justify-between items-center gap-3">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
+          <p class="<%= title_color %> text-lg group-hover/model:text-blue-500"><%= topic.subject %></p>
+          <% if topic.message_count > 1 %>
+            <p class="text-stone-500 text-lg group-hover/model:text-blue-500">(<%= topic.message_count %>)</p>
+          <% end %>
+        </div>
+        <% if topic.no_action_required_marked_by_ai? %>
+          <span class="inline-flex rounded-md bg-stone-50 px-2 py-1 text-xs font-medium text-stone-500 inset-ring inset-ring-blue-700/10 gap-1 items-center group-hover/model:bg-blue-50 group-hover/model:text-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+              <path fill-rule="evenodd" d="M2 4.75A2.75 2.75 0 0 1 4.75 2h3a2.75 2.75 0 0 1 2.75 2.75v.5a.75.75 0 0 1-1.5 0v-.5c0-.69-.56-1.25-1.25-1.25h-3c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h3c.69 0 1.25-.56 1.25-1.25v-.5a.75.75 0 0 1 1.5 0v.5A2.75 2.75 0 0 1 7.75 14h-3A2.75 2.75 0 0 1 2 11.25v-6.5Zm9.47.47a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 1 1-1.06-1.06l.97-.97H5.25a.75.75 0 0 1 0-1.5h7.19l-.97-.97a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+            </svg>
+            <p>
+              Auto-moved
+            </p>
+          </span>
+        <% end %>
+      </div>
+      <span class="<%= date_color %> flex items-center whitespace-nowrap group-hover/model:text-blue-500">
+        <% if topic.date.to_date == Date.today %>
+          <%= topic.date.strftime("%l:%M %p") %>
+        <% else %>
+          <%= topic.date.strftime("%b %d") %>
+        <% end %>
+      </span>
+    </div>
+    <div class="truncate">
+      <p class="<%= snippet_color %> group-hover/model:text-blue-500 truncate">
+        <%= display_sender(topic, @account.email) %> — <%= topic.snippet.html_safe %>
+      </p>
+    </div>
+  <% end %>
+</li>
