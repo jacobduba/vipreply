@@ -8,9 +8,13 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
-  enum :status, %i[requires_action no_action_required_marked_by_user]
+  enum :status, %i[requires_action no_action_required_marked_by_user no_action_required_marked_by_ai]
 
   scope :not_spam, -> { where(is_spam: false) }
+
+  def no_action_required?
+    self.no_action_required_marked_by_user? || self.no_action_required_marked_by_ai?
+  end
 
   # Maintain compatibility with views that may use from/to
   def from
@@ -299,15 +303,16 @@ class Topic < ApplicationRecord
           topic.will_autosend = false
           topic.generated_reply = ""
           topic.save!
+          Rails.logger.info("Topic #{topic.id} marked as no action required by user")
           return
         end
 
         if topic.should_auto_dismiss?
-          topic.auto_dismissed = true
           topic.will_autosend = false
-          topic.status = :no_action_required_marked_by_user
+          topic.status = :no_action_required_marked_by_ai
           topic.generated_reply = ""
           topic.save!
+          Rails.logger.info("Topic #{topic.id} marked as no action required by AI")
           return
         end
 
@@ -315,6 +320,7 @@ class Topic < ApplicationRecord
         topic.generate_reply
         topic.detect_autosend
         topic.save!
+        Rails.logger.info("Topic #{topic.id} processed")
       end
     end
   end
