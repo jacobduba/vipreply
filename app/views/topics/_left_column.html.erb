@@ -37,7 +37,7 @@
       <p class="text-center mt-4 text-sm text-stone-500">VIPReply determined this topic wasn't a customer support request.</p>
       <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
     </div>
-  <% elsif @topic.no_action_required_user_replied_last? %>
+  <% elsif @topic.no_action_required_awaiting_customer? %>
     <div class=" border-2 border-dashed border-stone-300 rounded-lg px-3 py-4 flex flex-col items-center">
       <div class="text-stone-600 flex gap-2 items-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
