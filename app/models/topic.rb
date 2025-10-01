@@ -153,9 +153,11 @@ class Topic < ApplicationRecord
       .first
   end
 
-  def attached_templates_plus_email
-    latest_message = messages.order(date: :desc).first
+  def latest_message
+    messages.order(date: :desc).first
+  end
 
+  def attached_templates_plus_email
     template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
 
     <<~PROMPT
@@ -163,6 +165,19 @@ class Topic < ApplicationRecord
       #{template_prompt}
       EMAIL:
       #{latest_message}
+    PROMPT
+  end
+
+  def attached_templates_plus_email_plus_reply
+    template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
+
+    <<~PROMPT
+      SMART TEMPLATES:
+      #{template_prompt}
+      EMAIL:
+      #{latest_message}
+      REPLY:
+      #{generated_reply}
     PROMPT
   end
 
@@ -334,8 +349,8 @@ class Topic < ApplicationRecord
           topic.save!
         else
           topic.auto_select_templates
-          topic.generate_reply
           topic.detect_autosend
+          topic.generate_reply
           topic.save!
         end
       end
