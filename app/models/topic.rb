@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Topic < ApplicationRecord
+  # Number of days to consider a topic old during import
+  OLD_EMAIL_DAYS_THRESHOLD = 3
+
   belongs_to :inbox
   has_many :template_topics, dependent: :destroy
   has_many :templates, through: :template_topics
@@ -8,12 +11,25 @@ class Topic < ApplicationRecord
   has_many :messages, dependent: :destroy
   has_many :attachments, through: :messages
 
-  enum :status, %i[requires_action no_action_required_marked_by_user no_action_required_marked_by_ai]
+  enum :status, %i[
+    requires_action
+    no_action_required_marked_by_user
+    no_action_required_marked_by_ai
+    no_action_required_user_replied_last
+    no_action_required_is_old_email
+  ]
 
   scope :not_spam, -> { where(is_spam: false) }
 
   def no_action_required?
-    self.no_action_required_marked_by_user? || self.no_action_required_marked_by_ai?
+    self.no_action_required_marked_by_user? ||
+    self.no_action_required_marked_by_ai? ||
+    self.no_action_required_user_replied_last? ||
+    self.no_action_required_is_old_email?
+  end
+
+  def auto_moved?
+    self.no_action_required_marked_by_ai? || self.no_action_required_is_old_email?
   end
 
   # Maintain compatibility with views that may use from/to
@@ -251,6 +267,14 @@ class Topic < ApplicationRecord
     save!
   end
 
+  def user_replied_last?
+    from_email == inbox.account.email
+  end
+
+  def is_old_email?
+    date < OLD_EMAIL_DAYS_THRESHOLD.days.ago
+  end
+
   def self.cache_from_gmail(inbox, gmail_api_thread)
     thread_id = gmail_api_thread.id
     Topic.with_advisory_lock("inbox:#{inbox.id}:thread_id:#{thread_id}") do
@@ -271,14 +295,6 @@ class Topic < ApplicationRecord
         from_name = last_message.from_name
         to_email = last_message.to_email
         to_name = last_message.to_name
-        is_old_email = date < 3.days.ago
-        status = if from_email == inbox.account.email
-          :no_action_required_marked_by_user
-        elsif is_old_email
-          :no_action_required_marked_by_user
-        else
-          :requires_action
-        end
         message_count = gmail_api_thread.messages.count
         awaiting_customer = (from_email == inbox.account.email)
         snippet = last_message.snippet
@@ -291,7 +307,6 @@ class Topic < ApplicationRecord
           from_name: from_name,
           to_email: to_email,
           to_name: to_name,
-          status: status,
           awaiting_customer: awaiting_customer,
           message_count: message_count
         )
@@ -299,28 +314,28 @@ class Topic < ApplicationRecord
         # Method below need access to saved items
         topic.save!
 
-        if topic.no_action_required? || is_old_email
+        if topic.is_old_email?
+          # During onboarding don't waste time with emails older than 3 days
+          topic.status = :no_action_required_is_old_email
           topic.will_autosend = false
           topic.generated_reply = ""
           topic.save!
-          Rails.logger.info("Topic #{topic.id} marked as no action required by user")
-          return
-        end
-
-        if topic.should_auto_dismiss?
+        elsif topic.user_replied_last?
+          topic.status = :no_action_required_user_replied_last
           topic.will_autosend = false
+          topic.generated_reply = ""
+          topic.save!
+        elsif topic.should_auto_dismiss?
           topic.status = :no_action_required_marked_by_ai
+          topic.will_autosend = false
           topic.generated_reply = ""
           topic.save!
-          Rails.logger.info("Topic #{topic.id} marked as no action required by AI")
-          return
+        else
+          topic.auto_select_templates
+          topic.generate_reply
+          topic.detect_autosend
+          topic.save!
         end
-
-        topic.auto_select_templates
-        topic.generate_reply
-        topic.detect_autosend
-        topic.save!
-        Rails.logger.info("Topic #{topic.id} processed")
       end
     end
   end

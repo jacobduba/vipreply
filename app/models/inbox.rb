@@ -20,7 +20,7 @@ class Inbox < ApplicationRecord
   def get_topics_no_action_required
     self.topics
       .not_spam
-      .where(status: [:no_action_required_marked_by_user, :no_action_required_marked_by_ai])
+      .where(status: [:no_action_required_marked_by_user, :no_action_required_marked_by_ai, :no_action_required_user_replied_last, :no_action_required_is_old_email])
       .order(date: :desc)
   end
 

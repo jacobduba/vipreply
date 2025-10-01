@@ -35,7 +35,29 @@
         <p>VIPReply auto-moved this topic to No Action Required.</p>
       </div>
       <p class="text-center mt-4 text-sm text-stone-500">VIPReply determined this topic wasn't a customer support request.</p>
-      <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic to Requires Action.</p>
+      <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
+    </div>
+  <% elsif @topic.no_action_required_user_replied_last? %>
+    <div class=" border-2 border-dashed border-stone-300 rounded-lg px-3 py-4 flex flex-col items-center">
+      <div class="text-stone-600 flex gap-2 items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+        </svg>
+        <p>You replied last, so topic moved to No Action Required.</p>
+      </div>
+      <p class="text-center mt-4 text-sm text-stone-500">Replies are disabled for topics in No Action Required. </p>
+      <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
+    </div>
+  <% elsif @topic.no_action_required_is_old_email? %>
+    <div class=" border-2 border-dashed border-stone-300 rounded-lg px-3 py-4 flex flex-col items-center">
+      <div class="text-stone-600 flex gap-2 items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        <p>Imported topics older than <%= Topic::OLD_EMAIL_DAYS_THRESHOLD %> days auto-moved to No Action Required.</p>
+      </div>
+      <p class="text-center mt-4 text-sm text-stone-500">Replies are disabled for topics in No Action Required. </p>
+      <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
     </div>
   <% elsif @topic.requires_action? %>
     <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
