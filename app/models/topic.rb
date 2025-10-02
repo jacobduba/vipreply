@@ -227,14 +227,6 @@ class Topic < ApplicationRecord
         }
       ])
 
-    # Log to see how many tokens users are using
-    prompt_tokens = response["usage"]["prompt_tokens"]
-    completion_tokens = response["usage"]["completion_tokens"]
-
-    account = inbox.account
-    account.increment!(:input_token_usage, prompt_tokens)
-    account.increment!(:output_token_usage, completion_tokens)
-
     self.generated_reply = response["choices"][0]["message"]["content"].strip.tr("—", " - ")
   end
 

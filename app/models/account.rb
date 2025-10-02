@@ -12,8 +12,6 @@ class Account < ApplicationRecord
   encrypts :access_token
   encrypts :refresh_token
 
-  attribute :input_token_usage, :integer, default: 0
-  attribute :output_token_usage, :integer, default: 0
   attribute :has_gmail_permissions, :boolean, default: false
 
   enum :billing_status, {
