@@ -53,22 +53,14 @@ class TopicsController < ApplicationController
     redirect_to topic_path(@topic)
   end
 
-  def mark_as_no_action_required
-    @topic.mark_as_no_action_required!
+  def move_to_no_action_required
+    @topic.move_to_no_action_required!
     redirect_to @topic
   end
 
-  def mark_as_requires_action
-    @topic.mark_as_requires_action!
+  def move_to_requires_action
+    @topic.move_to_requires_action!
     redirect_to @topic
-  end
-
-  def change_status
-    new_status = @topic.no_action_required_marked_by_user? ? :requires_action : :no_action_required_marked_by_user
-
-    @topic.update(status: new_status)
-
-    render turbo_stream: turbo_stream.replace("change_status_button", partial: "topics/change_status_button")
   end
 
   def template_selector_dropdown

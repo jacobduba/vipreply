@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_02_184557) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_02_195541) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -151,6 +151,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_02_184557) do
     t.string "to_name"
     t.boolean "will_autosend", default: false
     t.integer "status", default: 0
+    t.boolean "is_selecting_templates", default: true, null: false
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["thread_id"], name: "index_topics_on_thread_id", unique: true
   end

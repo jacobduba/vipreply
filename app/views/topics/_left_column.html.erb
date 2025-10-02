@@ -60,8 +60,11 @@
       <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
     </div>
   <% elsif @topic.requires_action? %>
-    <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
-    <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
-    <%= render "topics/generated_reply_form", generated_reply: @topic.generated_reply, topic: @topic %>
+    <% if @topic.is_selecting_templates? %>
+      <p> YEAH BITCH WE BE SELECTING TEMPLATES</p>
+    <% else %>
+      <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
+      <%= render "topics/generated_reply_form", generated_reply: @topic.generated_reply, topic: @topic %>
+    <% end %>
   <% end %>
 </div>

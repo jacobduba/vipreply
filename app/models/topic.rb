@@ -265,12 +265,12 @@ class Topic < ApplicationRecord
     response["choices"][0]["message"]["content"].downcase == "yes"
   end
 
-  def mark_as_no_action_required!
+  def move_to_no_action_required!
     self.status = :no_action_required_marked_by_user
     save!
   end
 
-  def mark_as_requires_action!
+  def move_to_requires_action!
     self.status = :requires_action
     save!
   end
