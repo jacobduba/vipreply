@@ -109,7 +109,31 @@ class Topic < ApplicationRecord
       .compact
       .uniq
 
-    self.templates = chosen_templates
+    return if chosen_templates.empty?
+
+    template_prompt = chosen_templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
+
+    response = OpenRouterClient.chat(
+      models: [ "openai/gpt-5:nitro" ],
+      messages: [
+        {
+          role: "system",
+           content: "Do you have enough information from the smart cards to answer the customer email? Only reply with 'yes' or 'no.'"
+        },
+        {
+          role: "user",
+          content: <<~PROMPT
+            SMART TEMPLATES:
+            #{template_prompt}
+            EMAIL:
+            #{latest_message}
+          PROMPT
+        }
+      ])
+
+    templates_answer_email = response["choices"][0]["message"]["content"].downcase == "yes"
+
+    self.templates = chosen_templates if templates_answer_email
   end
 
   def list_templates_by_relevance
@@ -157,17 +181,6 @@ class Topic < ApplicationRecord
     messages.order(date: :desc).first
   end
 
-  def attached_templates_plus_email
-    template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
-
-    <<~PROMPT
-      SMART TEMPLATES:
-      #{template_prompt}
-      EMAIL:
-      #{latest_message}
-    PROMPT
-  end
-
   def attached_templates_plus_email_plus_reply
     template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
 
@@ -176,12 +189,14 @@ class Topic < ApplicationRecord
       #{template_prompt}
       EMAIL:
       #{latest_message}
-      REPLY:
+      GENERATED REPLY:
       #{generated_reply}
     PROMPT
   end
 
   def generate_reply
+    template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
+
     response = OpenRouterClient.chat(
       models: [ "openai/gpt-5-chat:nitro" ],
       messages: [
@@ -203,7 +218,12 @@ class Topic < ApplicationRecord
         },
         {
           role: "user",
-          content: attached_templates_plus_email
+          content: <<~PROMPT
+            SMART TEMPLATES:
+            #{template_prompt}
+            EMAIL:
+            #{latest_message}
+          PROMPT
         }
       ])
 
@@ -232,25 +252,6 @@ class Topic < ApplicationRecord
         Topic.cache_from_gmail(inbox, thread_response)
       end
     end
-  end
-
-  def detect_autosend
-    return unless templates.any?
-
-    response = OpenRouterClient.chat(
-      models: [ "openai/gpt-5:nitro" ],
-      messages: [
-        {
-          role: "system",
-           content: "Do you have enough information from the smart cards to answer the customer email? Only reply with 'yes' or 'no.'"
-        },
-        {
-          role: "user",
-          content: attached_templates_plus_email
-        }
-      ])
-
-    self.will_autosend = response["choices"][0]["message"]["content"].downcase == "yes"
   end
 
   def should_auto_dismiss?
@@ -336,23 +337,21 @@ class Topic < ApplicationRecord
           topic.status = :no_action_required_is_old_email
           topic.will_autosend = false
           topic.generated_reply = ""
-          topic.save!
         elsif topic.user_replied_last?
           topic.status = :no_action_required_awaiting_customer
           topic.will_autosend = false
           topic.generated_reply = ""
-          topic.save!
         elsif topic.should_auto_dismiss?
           topic.status = :no_action_required_marked_by_ai
           topic.will_autosend = false
           topic.generated_reply = ""
-          topic.save!
         else
+          topic.status = :requires_action
           topic.auto_select_templates
-          topic.detect_autosend
           topic.generate_reply
-          topic.save!
         end
+
+        topic.save!
       end
     end
   end
