@@ -51,9 +51,14 @@ Rails.application.routes.draw do
 
       resources :topics do
         member do
+          # TODO: delete
           get "template_selector_dropdown"
           get "new_template_dropdown"
           post "create_template_dropdown"
+          # END
+
+
+
           post "generate_reply"
           post "send_email"
           post "move_to_requires_action"

@@ -12,7 +12,8 @@ class TopicsController < ApplicationController
 
   def show
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
-    @template_topics = @topic.template_topics.includes(:template)
+
+    @template_topics = @topic.template_topics.includes(:template) if @topic.requires_action?
 
     # If true, back button in show does history.back() instead of hard link to inbox.
     # b/c history.back() preserves scroll
@@ -62,6 +63,8 @@ class TopicsController < ApplicationController
     @topic.move_to_requires_action!
     redirect_to @topic
   end
+
+
 
   def template_selector_dropdown
     # Get all templates from the inbox, ordered by most recently used

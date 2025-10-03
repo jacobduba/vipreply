@@ -2,17 +2,20 @@
   <div class="flex justify-between lg:mt-3 mb-4">
     <%= render 'change_status_button' %>
     <%= link_to template_selector_dropdown_topic_path,
-          data: {
-            turbo_frame: "template-selector",
-            template_selector_dropdown_target: "button",
-            action: "click->template-selector-dropdown#toggle",
-            active: false
-          },
-          class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 data-[active=true]:bg-stone-100" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 256 256" class="size-5">
-        <path d="M208,112H48a16,16,0,0,0-16,16v24a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V128A16,16,0,0,0,208,112Zm0,40H48V128H208v24Zm0-112H48A16,16,0,0,0,32,56V80A16,16,0,0,0,48,96H208a16,16,0,0,0,16-16V56A16,16,0,0,0,208,40Zm0,40H48V56H208V80ZM160,216a8,8,0,0,1-8,8H136v16a8,8,0,0,1-16,0V224H104a8,8,0,0,1,0-16h16V192a8,8,0,0,1,16,0v16h16A8,8,0,0,1,160,216Z"></path>
+                     data: {
+                       turbo_frame: "template-selector",
+                       template_selector_dropdown_target: "button",
+                       action: "click->template-selector-dropdown#toggle",
+                       active: false
+                     },
+                     class: "text-stone-600 bg-white border border-stone-200 focus:outline-none hover:bg-stone-100 font-medium rounded-lg text-sm px-4 py-2 inline-flex items-center gap-2 data-[active=true]:bg-stone-100" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z" />
       </svg>
-      Change Smart Cards
+      Choose Smart Cards
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+      </svg>
     <% end %>
   </div>
   <% if @topic.no_action_required_marked_by_user? %>
@@ -60,11 +63,8 @@
       <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
     </div>
   <% elsif @topic.requires_action? %>
-    <% if @topic.is_selecting_templates? %>
-      <p> YEAH BITCH WE BE SELECTING TEMPLATES</p>
-    <% else %>
-      <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
-      <%= render "topics/generated_reply_form", generated_reply: @topic.generated_reply, topic: @topic %>
-    <% end %>
+    <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
+    <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
+    <%= render "topics/generated_reply_form", generated_reply: @topic.generated_reply, topic: @topic %>
   <% end %>
 </div>
