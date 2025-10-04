@@ -23,33 +23,7 @@ class TopicsController < ApplicationController
   def send_email
     reply_text = params[:email]
 
-    most_recent_message = @topic.messages.order(date: :desc).first
-    if most_recent_message.nil?
-      Rails.logger.info "Cannot send email: No messages found in this topic."
-      redirect_to topic_path(@topic) and return
-    end
-
-    raw_email_reply = most_recent_message.create_reply(reply_text, @account)
-
-    @account.with_gmail_service do |service|
-      message_object = Google::Apis::GmailV1::Message.new(
-        raw: raw_email_reply,
-        thread_id: @topic.thread_id
-      )
-      service.send_user_message("me", message_object)
-    end
-
-    inbox_id = @account.inbox.id
-    thread_id = @topic.thread_id
-    FetchGmailThreadJob.perform_now inbox_id, thread_id
-
-    @topic.templates.each do |template|
-      unless template.message_embeddings.include?(most_recent_message.message_embedding)
-        template.message_embeddings << most_recent_message.message_embedding
-      end
-    end
-
-    @topic.update(generated_reply: "", templates: [])
+    @topic.send_reply!(reply_text)
 
     redirect_to topic_path(@topic)
   end

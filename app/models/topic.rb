@@ -287,6 +287,32 @@ class Topic < ApplicationRecord
     from_email == inbox.account.email
   end
 
+  def send_reply!(reply_text)
+    most_recent_message = messages.order(date: :desc).first
+    raise "Cannot send email: No messages found in this topic." if most_recent_message.nil?
+
+    account = inbox.account
+    raw_email_reply = most_recent_message.create_reply(reply_text, account)
+
+    account.with_gmail_service do |service|
+      message_object = Google::Apis::GmailV1::Message.new(
+        raw: raw_email_reply,
+        thread_id: thread_id
+      )
+      service.send_user_message("me", message_object)
+    end
+
+    FetchGmailThreadJob.perform_now inbox.id, thread_id
+
+    templates.each do |template|
+      unless template.message_embeddings.include?(most_recent_message.message_embedding)
+        template.message_embeddings << most_recent_message.message_embedding
+      end
+    end
+
+    update(generated_reply: "", templates: [])
+  end
+
   def self.cache_from_gmail(inbox, gmail_api_thread)
     thread_id = gmail_api_thread.id
     Topic.with_advisory_lock("inbox:#{inbox.id}:thread_id:#{thread_id}") do
