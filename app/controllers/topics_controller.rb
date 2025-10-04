@@ -146,7 +146,7 @@ class TopicsController < ApplicationController
     @topic.templates.delete(template_id)
     @topic.save!
 
-    redirect_to @topic
+    refresh_topic_reply(@topic)
   end
 
   private
