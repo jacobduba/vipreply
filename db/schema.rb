@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_03_200601) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_04_200000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -149,7 +149,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_200601) do
     t.boolean "is_spam", default: false
     t.string "from_name"
     t.string "to_name"
-    t.boolean "will_autosend", default: false
     t.integer "status", default: 0
     t.index ["inbox_id"], name: "index_topics_on_inbox_id"
     t.index ["thread_id"], name: "index_topics_on_thread_id", unique: true

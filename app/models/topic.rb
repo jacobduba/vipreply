@@ -353,15 +353,12 @@ class Topic < ApplicationRecord
         if topic.is_old_email?
           # During onboarding don't waste time with emails older than 3 days
           topic.status = :no_action_required_is_old_email
-          topic.will_autosend = false
           topic.generated_reply = ""
         elsif topic.user_replied_last?
           topic.status = :no_action_required_awaiting_customer
-          topic.will_autosend = false
           topic.generated_reply = ""
         elsif topic.should_auto_dismiss?
           topic.status = :no_action_required_marked_by_ai
-          topic.will_autosend = false
           topic.generated_reply = ""
         else
           topic.status = :requires_action
