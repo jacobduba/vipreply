@@ -1,4 +1,4 @@
- <% has_templates = @template_topics.any? %>
+<% has_templates = @topic.templates.any? %>
 <%= form_with url: send_email_topic_path(topic), method: :post, id: "generated_reply_form" do |form| %>
   <%= form.label :email, "Email reply", class: "block text-sm font-medium text-stone-600 mb-2" %>
   <%# autocomplete: "off" disabled input form caching, yeah I know stupid %>

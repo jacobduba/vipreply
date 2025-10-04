@@ -1,9 +1,8 @@
-<% if @template_topics.any? %>
+<% if @topic.templates.any? %>
   <%= form_with url: update_templates_regenerate_reply_topic_path(), id: "template_form" do |form| %>
     <%= form.label :email, "Smart cards", class: "block text-sm font-medium text-stone-600 mb-2" %>
     <div class="space-y-2">
-      <% @template_topics.each_with_index do |template_topic, i| %>
-        <% template = template_topic.template %>
+      <% @topic.templates.each_with_index do |template, i| %>
         <div id="template-<%= i %>" class="border border-stone-200 bg-stone-100 rounded-lg focus-within:border-blue-500/90">
           <% #we need to do error checking on EACH template %>
           <% if output_errors.any? %>

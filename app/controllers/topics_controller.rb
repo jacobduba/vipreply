@@ -13,7 +13,7 @@ class TopicsController < ApplicationController
   def show
     @messages = @topic.messages.order(date: :asc).includes(:attachments)
 
-    @template_topics = @topic.template_topics.includes(:template) if @topic.requires_action?
+    @templates = @topic.templates if @topic.requires_action?
 
     # If true, back button in show does history.back() instead of hard link to inbox.
     # b/c history.back() preserves scroll
@@ -64,8 +64,6 @@ class TopicsController < ApplicationController
     redirect_to @topic
   end
 
-
-
   def template_selector_dropdown
     # Get all templates from the inbox, ordered by most recently used
     # We need to update this since templates are now connected to messages through message_embeddings
@@ -89,9 +87,9 @@ class TopicsController < ApplicationController
       return
     end
 
-    @template_topics = [ TemplateTopic.new(template_id: @template.id, topic_id: @topic.id) ]
+    @topic.templates << @template
+
     refresh_topic_reply(@topic)
-    nil
   end
 
   def change_templates_regenerate_response
@@ -104,14 +102,7 @@ class TopicsController < ApplicationController
       return
     end
 
-    # Yeah I know it's slow but there shouldn't be too many records. I want validations because that's the Rails way
-    TemplateTopic.where(topic_id: @topic.id).destroy_all
-    valid_templates.each do |template|
-      TemplateTopic.create!(template: template, topic: @topic)
-    end
-
-    # Reload templates after updating associations
-    @template_topics = @topic.template_topics.includes(:template)
+    @topic.templates = valid_templates
 
     refresh_topic_reply(@topic)
   end
@@ -119,7 +110,6 @@ class TopicsController < ApplicationController
   # This is for the template form where users edit template text and click "Save template & regenerate reply"
   def update_templates_regenerate_reply
     if params[:templates].blank?
-      @template_topics = []
       refresh_topic_reply(@topic)
       return
     end
@@ -142,8 +132,6 @@ class TopicsController < ApplicationController
       end
     end
 
-    @template_topics = @topic.template_topics.includes(:template)
-
     refresh_topic_reply(@topic)
   end
 
@@ -156,16 +144,9 @@ class TopicsController < ApplicationController
     end
 
     @topic.templates.delete(template_id)
-    @topic.save
+    @topic.save!
 
-    @template_topics = @topic.template_topics.includes(:template)
-
-    render turbo_stream: [
-      turbo_stream.replace("template_form", partial: "topics/template_form", locals: {
-        output_errors: [],
-        topic: @topic
-      })
-    ]
+    redirect_to @topic
   end
 
   private
