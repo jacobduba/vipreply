@@ -8,7 +8,7 @@
                        else
                          "Type your reply..."
                        end %>
-    <%= form.text_area :email, rows: 3, value: (has_templates ? generated_reply : ''), data: { controller: "textbox-autoresize" }, autocomplete: "off", placeholder: placeholder_text, disabled: !has_templates, class: "block p-4 w-full text-sm rounded-lg border resize-none text-stone-900 bg-white border-stone-200 focus:ring-blue-500 focus:border-blue-500/90 focus:outline-none" %>
+    <%= form.text_area :email, rows: 3, value: generated_reply, data: { controller: "textbox-autoresize" }, autocomplete: "off", placeholder: placeholder_text, disabled: !has_templates, class: "block p-4 w-full text-sm rounded-lg border resize-none text-stone-900 bg-white border-stone-200 focus:ring-blue-500 focus:border-blue-500/90 focus:outline-none" %>
   <% else %>
     <div class="border-2 border-dashed border-stone-300 rounded-lg flex justify-center gap-2 items-center p-3 mb-2 text-stone-500">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
