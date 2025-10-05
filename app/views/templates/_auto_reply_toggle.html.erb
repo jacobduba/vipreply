@@ -1,0 +1,10 @@
+<% toggle_path = template.auto_reply? ? disable_auto_reply_template_path(template) : enable_auto_reply_template_path(template) %>
+<%= link_to toggle_path,
+      role: "switch",
+      "aria-checked": template.auto_reply?,
+      data: { turbo_method: :patch, turbo_stream: true },
+      id: dom_id(template, :auto_reply_toggle),
+      class: "group relative inline-flex h-5 w-10 shrink-0 items-center justify-center rounded-full hover:cursor-pointer" do %>
+  <span class="absolute mx-auto h-4 w-9 rounded-full bg-stone-200 ring-1 ring-inset ring-slate-900/5 group-aria-checked:bg-blue-600"></span>
+  <span class="absolute left-0 size-5 rounded-full border border-stone-300 bg-white group-aria-checked:translate-x-5"></span>
+<% end %>

@@ -124,7 +124,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_05_200425) do
     t.bigint "inbox_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "auto_reply"
+    t.boolean "auto_reply", default: false
     t.index ["inbox_id"], name: "index_templates_on_inbox_id"
   end
 

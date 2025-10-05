@@ -31,15 +31,7 @@
                     Auto-reply
                   </span>
                 </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked="false"
-                  class="group relative inline-flex h-5 w-10 shrink-0 items-center justify-center rounded-full outline-offset-2 outline-indigo-600"
-                >
-                  <span class="absolute mx-auto h-4 w-9 rounded-full bg-stone-200 ring-1 ring-inset ring-slate-900/5 group-aria-checked:bg-indigo-600"></span>
-                  <span class="absolute left-0 size-5 rounded-full border border-stone-300 bg-white group-aria-checked:translate-x-5"></span>
-                </button>
+                <%= render "templates/auto_reply_toggle", template: template %>
               </div>
               <%= link_to remove_template_topic_path(topic, template),
                 data: {

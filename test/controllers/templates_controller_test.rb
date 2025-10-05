@@ -15,4 +15,29 @@ class TemplatesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response 404
   end
+
+  test "enables auto reply with turbo stream response" do
+    login_as_account1
+
+    template = templates(:acc1_template1)
+
+    patch enable_auto_reply_template_path(template), as: :turbo_stream
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream], @response.media_type
+    assert template.reload.auto_reply?
+  end
+
+  test "disables auto reply with turbo stream response" do
+    login_as_account1
+
+    template = templates(:acc1_template1)
+    template.update!(auto_reply: true)
+
+    patch disable_auto_reply_template_path(template), as: :turbo_stream
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream], @response.media_type
+    assert_not template.reload.auto_reply?
+  end
 end

@@ -47,7 +47,12 @@ Rails.application.routes.draw do
       get "", to: "inboxes#index", as: :inbox
       get "update", to: "inboxes#update"
 
-      resources :templates
+      resources :templates do
+        member do
+          patch :enable_auto_reply
+          patch :disable_auto_reply
+        end
+      end
 
       resources :topics do
         member do

@@ -7,8 +7,8 @@ class TemplatesController < ApplicationController
   before_action :authorize_account
   before_action :require_gmail_permissions
   before_action :require_subscription
-  before_action :set_template, only: [ :edit, :update, :destroy ]
-  before_action :authorize_account_owns_template, only: [ :edit, :update, :destroy ]
+  before_action :set_template, only: [ :edit, :update, :destroy, :enable_auto_reply, :disable_auto_reply ]
+  before_action :authorize_account_owns_template, only: [ :edit, :update, :destroy, :enable_auto_reply, :disable_auto_reply ]
 
   def index
     @templates = @account.inbox.templates.order(id: :asc)
@@ -62,7 +62,28 @@ class TemplatesController < ApplicationController
     end
   end
 
+  def enable_auto_reply
+    update_auto_reply(true)
+  end
+
+  def disable_auto_reply
+    update_auto_reply(false)
+  end
+
   private
+
+  def update_auto_reply(value)
+    unless @template.update(auto_reply: value)
+      head :unprocessable_entity
+      return
+    end
+
+    render turbo_stream: turbo_stream.replace(
+      view_context.dom_id(@template, :auto_reply_toggle),
+      partial: "templates/auto_reply_toggle",
+      locals: { template: @template }
+    )
+  end
 
   def set_template
     @template = Template.find(params[:id])
