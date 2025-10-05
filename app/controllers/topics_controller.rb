@@ -120,7 +120,9 @@ class TopicsController < ApplicationController
     @topic.templates.delete(template_id)
     @topic.save!
 
-    refresh_topic_reply(@topic)
+    has_templates = @topic.templates.any?
+
+    refresh_topic_reply(@topic, generate_reply: has_templates)
   end
 
   private

@@ -4,8 +4,8 @@ module GeneratorConcern
   extend ActiveSupport::Concern
 
   # Regenerates reply, saves topic, and renders HTML changes
-  def refresh_topic_reply(topic)
-    topic.generate_reply
+  def refresh_topic_reply(topic, generate_reply: true)
+    topic.generate_reply if generate_reply
     topic.save!
     render turbo_stream: [
       turbo_stream.replace("generated_reply_form",
