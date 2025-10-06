@@ -198,6 +198,8 @@ class Topic < ApplicationRecord
   end
 
   def generate_reply
+    return if templates.empty?
+
     response = OpenRouterClient.chat(
       models: [ "openai/gpt-5-chat:nitro" ],
       messages: [
@@ -393,22 +395,25 @@ class Topic < ApplicationRecord
         # Method below need access to saved items
         topic.save!
 
-        if topic.is_old_email?
-          # During onboarding don't waste time with emails older than 3 days
-          topic.status = :no_action_required_is_old_email
-          topic.generated_reply = ""
-        elsif topic.user_replied_last?
-          topic.status = :no_action_required_awaiting_customer
-          topic.generated_reply = ""
-        elsif topic.should_auto_dismiss?
-          topic.status = :no_action_required_marked_by_ai
-          topic.generated_reply = ""
-        else
-          topic.status = :requires_action_human_needed
-          topic.auto_select_templates
-          topic.generate_reply
-          topic.auto_reply_if_safe
-        end
+         if topic.requires_action_ai_auto_replied?
+           # Preserve auto-replied status when re-importing to avoid state reset
+           # Keep the existing auto-replied status and don't re-process
+         elsif topic.is_old_email?
+           # During onboarding don't waste time with emails older than 3 days
+           topic.status = :no_action_required_is_old_email
+           topic.generated_reply = ""
+         elsif topic.user_replied_last?
+           topic.status = :no_action_required_awaiting_customer
+           topic.generated_reply = ""
+         elsif topic.should_auto_dismiss?
+           topic.status = :no_action_required_marked_by_ai
+           topic.generated_reply = ""
+         else
+           topic.status = :requires_action_human_needed
+           topic.auto_select_templates
+           topic.generate_reply
+           topic.auto_reply_if_safe
+         end
 
         topic.save!
       end
