@@ -349,11 +349,7 @@ class Topic < ApplicationRecord
 
     FetchGmailThreadJob.perform_now inbox.id, thread_id
 
-    templates.each do |template|
-      unless template.message_embeddings.include?(most_recent_message.message_embedding)
-        template.message_embeddings << most_recent_message.message_embedding
-      end
-    end
+    most_recent_message.message_embedding.label_as_used_by_templates(templates)
 
     update(generated_reply: "", templates: [])
   end
@@ -424,4 +420,12 @@ class Topic < ApplicationRecord
   end
 
   private
+
+  def associate_templates_with_message_embedding(templates, message_embedding)
+    templates.each do |template|
+      next if template.message_embeddings.include?(message_embedding)
+
+      template.message_embeddings << message_embedding
+    end
+  end
 end

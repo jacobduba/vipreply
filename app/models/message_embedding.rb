@@ -39,4 +39,12 @@ class MessageEmbedding < ApplicationRecord
 
     FireworksClient.embeddings(input: text)
   end
+
+  def label_as_used_by_templates(templates)
+    templates.each do |template|
+      next if template.message_embeddings.include?(self)
+
+      template.message_embeddings << self
+    end
+  end
 end
