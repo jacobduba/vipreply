@@ -344,7 +344,9 @@ class Topic < ApplicationRecord
         raw: raw_email_reply,
         thread_id: thread_id
       )
-      service.send_user_message("me", message_object)
+      result = service.send_user_message("me", message_object)
+
+      debugger
     end
 
     FetchGmailThreadJob.perform_now inbox.id, thread_id
@@ -400,6 +402,7 @@ class Topic < ApplicationRecord
            # Keep the existing auto-replied status and don't re-process
            # YES THIS IS HUGE CODE SMELL.
            # i don't know how to fix but.
+           # Preserve auto-replied status when re-importing to avoid state reset
          elsif topic.is_old_email?
            # During onboarding don't waste time with emails older than 3 days
            topic.status = :no_action_required_is_old_email
