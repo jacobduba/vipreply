@@ -398,6 +398,8 @@ class Topic < ApplicationRecord
          if topic.requires_action_ai_auto_replied?
            # Preserve auto-replied status when re-importing to avoid state reset
            # Keep the existing auto-replied status and don't re-process
+           # YES THIS IS HUGE CODE SMELL.
+           # i don't know how to fix but.
          elsif topic.is_old_email?
            # During onboarding don't waste time with emails older than 3 days
            topic.status = :no_action_required_is_old_email
