@@ -344,9 +344,7 @@ class Topic < ApplicationRecord
         raw: raw_email_reply,
         thread_id: thread_id
       )
-      result = service.send_user_message("me", message_object)
-
-      debugger
+      service.send_user_message("me", message_object)
     end
 
     FetchGmailThreadJob.perform_now inbox.id, thread_id
