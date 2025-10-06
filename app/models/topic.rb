@@ -12,11 +12,12 @@ class Topic < ApplicationRecord
   has_many :attachments, through: :messages
 
   enum :status, %i[
-    requires_action
+    requires_action_human_needed
     no_action_required_marked_by_user
     no_action_required_marked_by_ai
     no_action_required_awaiting_customer
     no_action_required_is_old_email
+    requires_action_ai_auto_replied
   ]
 
   scope :not_spam, -> { where(is_spam: false) }
@@ -26,6 +27,10 @@ class Topic < ApplicationRecord
     self.no_action_required_marked_by_ai? ||
     self.no_action_required_awaiting_customer? ||
     self.no_action_required_is_old_email?
+  end
+
+  def requires_action?
+    self.requires_action_human_needed? || self.requires_action_ai_auto_replied?
   end
 
   def auto_moved?
@@ -125,7 +130,7 @@ class Topic < ApplicationRecord
           content: <<~PROMPT
             SMART TEMPLATES:
             #{template_prompt}
-            EMAIL:
+           EMAIL:
             #{latest_message}
           PROMPT
         }
@@ -182,11 +187,9 @@ class Topic < ApplicationRecord
   end
 
   def attached_templates_plus_email_plus_reply
-    template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
-
     <<~PROMPT
       SMART TEMPLATES:
-      #{template_prompt}
+      #{templates_to_formatted_string}
       EMAIL:
       #{latest_message}
       GENERATED REPLY:
@@ -195,8 +198,6 @@ class Topic < ApplicationRecord
   end
 
   def generate_reply
-    template_prompt = templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
-
     response = OpenRouterClient.chat(
       models: [ "openai/gpt-5-chat:nitro" ],
       messages: [
@@ -220,7 +221,7 @@ class Topic < ApplicationRecord
           role: "user",
           content: <<~PROMPT
             SMART TEMPLATES:
-            #{template_prompt}
+            #{templates_to_formatted_string}
             EMAIL:
             #{latest_message}
           PROMPT
@@ -228,6 +229,48 @@ class Topic < ApplicationRecord
       ])
 
     self.generated_reply = response["choices"][0]["message"]["content"].strip.tr("—", " - ")
+  end
+
+  def templates_to_formatted_string
+    templates.map.with_index { |t, i| "Smart template ##{i + 1}:\n#{t.output}" }.join("\n\n")
+  end
+
+  def auto_reply_if_safe
+    return unless templates.any? && templates.all?(&:auto_reply)
+    return if generated_reply.blank?
+
+    return if hallucinated_reply?
+
+    send_reply!(generated_reply)
+
+    update!(status: :requires_action_ai_auto_replied)
+  end
+
+  def hallucinated_reply?
+    response = OpenRouterClient.chat(
+      models: [ "openai/gpt-5-chat:nitro" ],
+      messages: [
+        {
+          role: "system",
+          content: "Does generated reply introduce any hallucinations? Only reply 'yes' or 'no'"
+        },
+        {
+          role: "user",
+          content: <<~PROMPT
+            SMART TEMPLATES:
+            #{templates_to_formatted_string}
+            EMAIL:
+            #{latest_message}
+            GENERATED REPLY:
+            #{generated_reply}
+          PROMPT
+        }
+      ]
+    )
+
+    content = response["choices"][0]["message"]["content"].to_s.downcase
+
+    content != "no"
   end
 
   # Delete all messages, and readd them back.
@@ -271,7 +314,7 @@ class Topic < ApplicationRecord
   end
 
   def move_to_requires_action!
-    self.status = :requires_action
+    self.status = :requires_action_human_needed
     save!
   end
 
@@ -361,9 +404,10 @@ class Topic < ApplicationRecord
           topic.status = :no_action_required_marked_by_ai
           topic.generated_reply = ""
         else
-          topic.status = :requires_action
+          topic.status = :requires_action_human_needed
           topic.auto_select_templates
           topic.generate_reply
+          topic.auto_reply_if_safe
         end
 
         topic.save!

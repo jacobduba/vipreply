@@ -12,7 +12,7 @@ class Inbox < ApplicationRecord
   def get_topics_requires_action
     self.topics
       .not_spam
-      .where(status: :requires_action)
+      .where(status: [ :requires_action_human_needed, :requires_action_ai_auto_replied ])
       .order(date: :asc)
   end
 

@@ -62,6 +62,17 @@
       <p class="text-center mt-4 text-sm text-stone-500">Replies are disabled for topics in No Action Required. </p>
       <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
     </div>
+  <% elsif @topic.requires_action_ai_auto_replied? %>
+    <div class=" border-2 border-dashed border-stone-300 rounded-lg px-3 py-4 flex flex-col items-center">
+      <div class="text-stone-600 flex gap-2 items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        <p>VIPReply auto-replied to this email...</p>
+      </div>
+      <p class="text-center mt-4 text-sm text-stone-500">Replies are disabled for topics in No Action Required. </p>
+      <p class="text-center text-sm text-stone-500">To reply to this topic, move the topic back to Requires Action.</p>
+    </div>
   <% elsif @topic.requires_action? %>
     <%= turbo_frame_tag "template-selector", data: { template_selector_dropdown_target: "selector"} %>
     <%= render "topics/template_form", input_errors: [], output_errors: [], topic: @topic %>
