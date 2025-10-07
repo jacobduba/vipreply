@@ -7,7 +7,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "app/models/message.rb",
-      "line": 197,
+      "line": 201,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "from(\"#{account.name} <#{account.email}>\")",
       "render_path": null,
@@ -20,6 +20,39 @@
       "confidence": "Medium",
       "cwe_id": [
         89
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "9a072d00d6aff4417446a4d012b9588cd65f4b92f851578ed10d74b949a29888",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/inboxes/_topic_line.html.erb",
+      "line": 46,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "(Unresolved Model).new.snippet",
+      "render_path": [
+        {
+          "type": "template",
+          "name": "inboxes/index",
+          "line": 26,
+          "file": "app/views/inboxes/index.html.erb",
+          "rendered": {
+            "name": "inboxes/_topic_line",
+            "file": "app/views/inboxes/_topic_line.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "inboxes/_topic_line"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "cwe_id": [
+        79
       ],
       "note": ""
     }
