@@ -22,6 +22,8 @@ class Topic < ApplicationRecord
 
   scope :not_spam, -> { where(is_spam: false) }
 
+  after_commit :broadcast_inbox_refresh
+
   def no_action_required?
     self.no_action_required_marked_by_user? ||
     self.no_action_required_marked_by_ai? ||
@@ -427,5 +429,11 @@ class Topic < ApplicationRecord
 
       template.message_embeddings << message_embedding
     end
+  end
+
+  def broadcast_inbox_refresh
+    return unless inbox_id
+
+    Turbo::StreamsChannel.broadcast_refresh_to([ :inbox, inbox_id ])
   end
 end
