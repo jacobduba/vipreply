@@ -83,7 +83,7 @@ Rails.application.routes.draw do
 
   constraints(format: /json/) do
     # Webhooks
-    post "/pubsub/notifications", to: "pubsub#notifications"
+    post "/webhooks/gmail", to: "webhooks#gmail"
     post "/webhooks/stripe", to: "webhooks#stripe"
   end
 end
