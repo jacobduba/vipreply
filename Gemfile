@@ -76,7 +76,7 @@ gem "nokogiri", "~> 1.18"
 gem "honeybadger", "~> 5.27"
 
 # Stripe for payment processing
-gem "stripe", "~> 15.0"
+gem "stripe", "~> 16.0"
 
 # Non-blocking I/O
 gem "async", "~> 2.32"
