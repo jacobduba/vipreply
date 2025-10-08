@@ -4,7 +4,7 @@ class SessionsController < ApplicationController
   before_action :authorize_account, only: [ :upgrade_permissions ]
 
   def sign_in
-    redirect_to root_path if session[:account_id]
+    redirect_to inbox_path if session[:account_id]
     @prompt_consent = flash[:prompt_consent] || false
   end
 
@@ -17,7 +17,7 @@ class SessionsController < ApplicationController
 
   def destroy
     reset_session
-    redirect_to root_path
+    redirect_to sign_in_path
   end
 
   def google_auth

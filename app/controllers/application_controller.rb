@@ -11,13 +11,13 @@ class ApplicationController < ActionController::Base
   def authorize_account
     account_id = session[:account_id]
 
-    return redirect_to root_path unless account_id
+    return redirect_to sign_in_path unless account_id
 
     begin
       @account = Account.find account_id
     rescue ActiveRecord::RecordNotFound
       reset_session
-      return redirect_to root_path
+      return redirect_to sign_in_path
     end
 
     Rails.error.set_context(

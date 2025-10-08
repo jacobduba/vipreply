@@ -75,9 +75,6 @@ gem "nokogiri", "~> 1.18"
 # Honeybadger for error reporting
 gem "honeybadger", "~> 5.27"
 
-# For privacy and terms of service pages
-gem "redcarpet", "~> 3.6"
-
 # Stripe for payment processing
 gem "stripe", "~> 15.0"
 

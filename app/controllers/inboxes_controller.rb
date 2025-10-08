@@ -29,6 +29,6 @@ class InboxesController < ApplicationController
       flash[:alert] = "Failed to update inbox."
     end
 
-    redirect_to root_path
+    redirect_to inbox_path
   end
 end

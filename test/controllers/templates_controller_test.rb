@@ -4,7 +4,7 @@ class TemplatesControllerTest < ActionDispatch::IntegrationTest
   test "redirects unauthenticated when accessing a template" do
     template = templates(:acc1_template1)
     get edit_template_path(template)
-    assert_redirected_to root_path
+    assert_redirected_to sign_in_path
   end
 
   test "account cannot edit other accounts templates" do

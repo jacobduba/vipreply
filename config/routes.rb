@@ -12,11 +12,8 @@ Rails.application.routes.draw do
   get "auth/failure", to: redirect("/")
 
   constraints(format: /html|turbo_stream/) do
-    # Marketing
-    root "marketing#home"
-    get "parking", to: "marketing#parking"
-    get "privacy", to: "marketing#privacy"
-    get "terms", to: "marketing#terms"
+    root "inboxes#index"
+    get "/", to: "inboxes#index", as: :inbox
 
     # Session management
     get "sign_in", to: "sessions#sign_in", as: :sign_in
@@ -37,48 +34,44 @@ Rails.application.routes.draw do
     get "checkout/error", to: "checkout#error"
     get "checkout/cancel", to: "checkout#cancel"
 
+    # Inbox utilities
+    get "refresh", to: "inboxes#update", as: :refresh_inbox
+
     # Settings
     get "settings", to: "settings#index"
     delete "settings/cancel_subscription", to: "settings#cancel_subscription"
     post "settings/reactivate_subscription", to: "settings#reactivate_subscription"
 
-    # Inbox
-    scope :inbox do
-      get "", to: "inboxes#index", as: :inbox
-      get "update", to: "inboxes#update"
-
-      resources :templates do
-        member do
-          patch :enable_auto_reply
-          patch :disable_auto_reply
-        end
+    resources :templates do
+      member do
+        patch :enable_auto_reply
+        patch :disable_auto_reply
       end
-
-      resources :topics do
-        member do
-          # TODO: delete
-          get "template_selector_dropdown"
-          get "new_template_dropdown"
-          post "create_template_dropdown"
-          # END
-
-
-
-          post "generate_reply"
-          post "send_email"
-          post "move_to_requires_action"
-          post "move_to_no_action_required"
-          patch "change_templates_regenerate_response"
-          post "update_templates_regenerate_reply"
-          delete "remove_template/:template_id",
-            action: :remove_template,
-            as: :remove_template
-        end
-      end
-
-      # Attachments
-      get "attachments/:id", to: "attachments#show", as: :attachment
     end
+
+    resources :topics do
+      member do
+        # TODO: delete
+        get "template_selector_dropdown"
+        get "new_template_dropdown"
+        post "create_template_dropdown"
+        # END
+
+
+
+        post "generate_reply"
+        post "send_email"
+        post "move_to_requires_action"
+        post "move_to_no_action_required"
+        patch "change_templates_regenerate_response"
+        post "update_templates_regenerate_reply"
+        delete "remove_template/:template_id",
+          action: :remove_template,
+          as: :remove_template
+      end
+    end
+
+    resources :attachments, only: [ :show ]
   end
 
   constraints(format: /json/) do
