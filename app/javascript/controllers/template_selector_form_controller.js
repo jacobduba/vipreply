@@ -31,9 +31,9 @@ export default class extends Controller {
     }
 
     if (this.totalChecked == 1) {
-      this.buttonTextTarget.textContent = "Choose 1 smart card";
+      this.buttonTextTarget.textContent = "Attach 1 smart card";
     } else {
-      this.buttonTextTarget.textContent = `Choose ${this.totalChecked} smart cards`;
+      this.buttonTextTarget.textContent = `Attach ${this.totalChecked} smart cards`;
     }
   }
 }

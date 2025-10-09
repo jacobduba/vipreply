@@ -35,7 +35,7 @@ Rails.application.routes.draw do
     get "checkout/cancel", to: "checkout#cancel"
 
     # Inbox utilities
-    get "refresh", to: "inboxes#update", as: :refresh_inbox
+    get "update", to: "inboxes#update", as: :refresh_inbox
 
     # Settings
     get "settings", to: "settings#index"

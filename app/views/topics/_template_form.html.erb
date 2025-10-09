@@ -74,21 +74,16 @@
     </div>
   <% end %>
 <% else %>
-  <div id="template_form">
+  <div id="template_form" class="mb-4">
     <p class="block text-sm font-medium text-stone-600 mb-2">Smart cards</p>
-    <div class="border-2 border-dashed border-stone-300 rounded-lg flex justify-center gap-2 items-center p-3 mb-2 text-stone-500">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6" />
-      </svg>
-      <p>No smart cards are chosen.</p>
-    </div>
-    <div class="flex justify-start mt-4 mb-4">
-      <%= button_tag type: 'button', disabled: true, class: "text-stone-500/50 bg-stone-200/50 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center gap-2" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 text-stone-400">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+    <div class=" border-2 border-dashed border-stone-300 rounded-lg px-3 py-4 flex flex-col items-center">
+      <div class="text-stone-600 flex gap-2 items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m8.25-8.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-7.5A2.25 2.25 0 0 1 8.25 18v-1.5m8.25-8.25h-6a2.25 2.25 0 0 0-2.25 2.25v6" />
         </svg>
-        Save templates & regenerate reply
-      <% end %>
+        <p>No smart cards are attached. </p>
+      </div>
+      <p class="text-center mt-1 text-sm text-stone-500">Attach cards to teach VIPReply how to reply to this email.</p>
     </div>
   </div>
 <% end %>
