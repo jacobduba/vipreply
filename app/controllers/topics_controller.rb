@@ -42,6 +42,7 @@ class TopicsController < ApplicationController
     # Get all templates from the inbox, ordered by most recently used
     # We need to update this since templates are now connected to messages through message_embeddings
     @templates = @topic.list_templates_by_relevance
+    @animate_template_selector = params[:animate] != "false"
   end
 
   def new_template_dropdown
