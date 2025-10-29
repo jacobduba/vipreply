@@ -73,7 +73,7 @@ gem "tokenizers"
 gem "nokogiri", "~> 1.18"
 
 # Honeybadger for error reporting
-gem "honeybadger", "~> 5.27"
+gem "honeybadger", "~> 6.1"
 
 # Stripe for payment processing
 gem "stripe", "~> 15.0"
