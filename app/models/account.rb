@@ -137,4 +137,72 @@ class Account < ApplicationRecord
   def has_access?
     trialing? || active?
   end
+
+  def create_demo_data
+    return unless inbox.present?
+
+    demo_data = YAML.load_file(Rails.root.join("config/demo_data.yml"))
+
+    templates = create_demo_templates(demo_data["templates"])
+    create_demo_topics(demo_data["topics"], templates)
+  end
+
+  private
+
+  def create_demo_templates(template_data)
+    template_data.map do |data|
+      inbox.templates.create!(output: data["output"], auto_reply: data["auto_reply"])
+    end
+  end
+
+  def create_demo_topics(topics_data, templates)
+    topics_data.each do |topic_data|
+      messages_data = topic_data["messages"]
+      last_message = messages_data.last
+
+      topic = inbox.topics.create!(
+        thread_id: topic_data["thread_id"],
+        subject: topic_data["subject"],
+        from_name: last_message["from_name"],
+        from_email: last_message["from_email"],
+        to_name: last_message["to_name"],
+        to_email: last_message["to_email"],
+        snippet: last_message["plaintext"].truncate(100),
+        date: message_time(last_message),
+        message_count: messages_data.count,
+        status: topic_data["status"],
+        generated_reply: topic_data["generated_reply"]
+      )
+
+      messages_data.each do |msg_data|
+        topic.messages.create!(
+          message_id: "#{topic_data["thread_id"]}-#{SecureRandom.hex(8)}@mock.metricsmith.com",
+          subject: topic_data["subject"],
+          from_name: msg_data["from_name"],
+          from_email: msg_data["from_email"],
+          to_name: msg_data["to_name"],
+          to_email: msg_data["to_email"],
+          plaintext: msg_data["plaintext"],
+          html: ActionController::Base.helpers.simple_format(msg_data["plaintext"]),
+          snippet: msg_data["plaintext"].truncate(100),
+          date: message_time(msg_data),
+          internal_date: message_time(msg_data),
+          labels: [ "INBOX" ]
+        )
+      end
+
+      selected_templates = topic_data["template_indices"].map { |i| templates[i] }
+      topic.templates = selected_templates if selected_templates.any?
+    end
+  end
+
+  def message_time(msg_data)
+    if msg_data["hours_ago"]
+      msg_data["hours_ago"].hours.ago
+    elsif msg_data["minutes_ago"]
+      msg_data["minutes_ago"].minutes.ago
+    else
+      Time.current
+    end
+  end
 end

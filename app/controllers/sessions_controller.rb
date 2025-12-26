@@ -11,6 +11,35 @@ class SessionsController < ApplicationController
   def sign_up
   end
 
+  def mock
+    # Delete existing mock account and recreate fresh each time
+    Account.find_by(email: "support@metricsmith.com")&.destroy
+
+    account = Account.create!(
+      email: "support@metricsmith.com",
+      provider: "mock",
+      uid: "mock-metricsmith",
+      name: "MetricSmith Support",
+      first_name: "MetricSmith",
+      last_name: "Support",
+      image_url: nil,
+      has_gmail_permissions: true,
+      billing_status: :active,
+      subscription_period_end: 1.year.from_now,
+      cancel_at_period_end: false,
+      session_count: 1,
+      last_active_at: Time.current
+    )
+
+    account.create_inbox
+    account.inbox.update!(initial_import_jobs_remaining: 0)
+    account.create_demo_data
+
+    reset_session
+    session[:account_id] = account.id
+    redirect_to inbox_path
+  end
+
   def upgrade_permissions
     @display_name = @account.name || @account.email
   end

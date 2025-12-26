@@ -1,0 +1,106 @@
+templates:
+  - output: "Our Pro plan is $49/month and includes unlimited dashboards, up to 10 team members, and priority support. The Enterprise plan is $199/month with unlimited everything plus dedicated account management and custom integrations. We don't offer any startup discounts."
+    auto_reply: false
+
+  - output: "To export your data, go to Settings > Data Export > Select Format (CSV, JSON, or Excel). You can export individual dashboards or all data at once. Exports are available for the last 12 months of data."
+    auto_reply: true
+
+  - output: "To reset your password, click 'Forgot Password' on the login page. You'll receive an email with a reset link valid for 24 hours. If you don't see the email, check your spam folder."
+    auto_reply: true
+
+  - output: "Our API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. If you need higher limits, please contact us to discuss custom arrangements."
+    auto_reply: false
+
+  - output: "MetricSmith integrates with Slack, Microsoft Teams, Salesforce, HubSpot, Google Analytics, and Stripe. To set up an integration, go to Settings > Integrations and click 'Connect' next to the service you want."
+    auto_reply: true
+
+topics:
+  - thread_id: "mock-thread-001"
+    subject: "Question about pricing plans"
+    status: requires_action_human_needed
+    template_indices: [0]
+    generated_reply: "Hi Sarah,\n\nThank you for considering MetricSmith for your startup!\n\nOur Pro plan is $49/month and includes unlimited dashboards, up to 10 team members, and priority support. The Enterprise plan is $199/month with unlimited everything plus dedicated account management and custom integrations.\n\nSince you mentioned having 15 team members, the Enterprise plan would be the best fit. I'd be happy to discuss startup discounts - we do offer special pricing for early-stage companies."
+    messages:
+      - from_name: "Sarah Chen"
+        from_email: "sarah.chen@techstartup.io"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi there,\n\nI'm evaluating MetricSmith for our startup. We have about 15 team members and need to track metrics across multiple products.\n\nCould you tell me more about your pricing plans and what's included in each tier? Also, do you offer any startup discounts?\n\nThanks,\nSarah"
+        hours_ago: 2
+
+  - thread_id: "mock-thread-002"
+    subject: "Can't export dashboard to CSV"
+    status: requires_action_human_needed
+    template_indices: [1]
+    generated_reply: "Hi Marcus,\n\nI'm sorry to hear you're having trouble with the export feature.\n\nTo export your data, go to Settings > Data Export > Select Format (CSV, JSON, or Excel). You can export individual dashboards or all data at once. Exports are available for the last 12 months of data.\n\nIf the button is still grayed out after trying these steps, there might be a temporary issue with your account. Please let me know and I'll investigate further."
+    messages:
+      - from_name: "Marcus Johnson"
+        from_email: "marcus@designlab.co"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hello,\n\nI've been trying to export my Q3 dashboard to CSV but the export button seems to be grayed out. I'm on the Pro plan and this worked fine last week.\n\nIs there a known issue or am I missing something?\n\nMarcus"
+        hours_ago: 1
+
+  - thread_id: "mock-thread-003"
+    subject: "Password reset not working"
+    status: requires_action_ai_auto_replied
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Emily Rodriguez"
+        from_email: "emily.r@acmecorp.com"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi,\n\nI forgot my password and tried to reset it but I never received the email. I've checked spam and everything. Can you help?\n\nEmily"
+        hours_ago: 3
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Emily Rodriguez"
+        to_email: "emily.r@acmecorp.com"
+        plaintext: "Hi Emily,\n\nTo reset your password, click 'Forgot Password' on the login page. You'll receive an email with a reset link valid for 24 hours. If you don't see the email, check your spam folder.\n\nIf you still haven't received it, your company's email filter might be blocking it. Try adding support@metricsmith.com to your contacts and request another reset.\n\nLet me know if you need further assistance!"
+        hours_ago: 2
+
+  - thread_id: "mock-thread-004"
+    subject: "API rate limiting questions"
+    status: requires_action_human_needed
+    template_indices: [3]
+    generated_reply: "Hi David,\n\nGreat question about our API rate limits.\n\nOur API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. If you need higher limits, please contact us to discuss custom arrangements.\n\nSince you mentioned 2000 requests per minute during peak hours, upgrading to our Enterprise plan would give you plenty of headroom. Would you like to schedule a call to discuss your integration needs?"
+    messages:
+      - from_name: "David Park"
+        from_email: "david.park@dataflow.dev"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hey team,\n\nWe're building an integration with MetricSmith and need to understand the API rate limits better. Our application makes about 2000 requests per minute during peak hours.\n\nWhat are the current limits and is there a way to increase them?\n\nDavid"
+        minutes_ago: 30
+
+  - thread_id: "mock-thread-005"
+    subject: "Slack integration setup help"
+    status: requires_action_human_needed
+    template_indices: [4]
+    generated_reply: "Hi Jennifer,\n\nYes, we absolutely support Slack integration!\n\nMetricSmith integrates with Slack, Microsoft Teams, Salesforce, HubSpot, Google Analytics, and Stripe. To set up an integration, go to Settings > Integrations and click 'Connect' next to the service you want.\n\nOnce connected, you can configure alerts to post to specific channels when your metrics cross defined thresholds. Let me know if you need help with the setup!"
+    messages:
+      - from_name: "Jennifer Walsh"
+        from_email: "jwalsh@retailplus.com"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi!\n\nI want to set up alerts in Slack when certain metrics hit thresholds. Does MetricSmith support Slack integration? If so, how do I set it up?\n\nJennifer"
+        minutes_ago: 45
+
+  - thread_id: "mock-thread-006"
+    subject: "Re: Monthly report feedback"
+    status: no_action_required_awaiting_customer
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Alex Thompson"
+        from_email: "alex@growthmetrics.io"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "The new report format looks great! Just one question - can we customize the logo that appears in the header?"
+        hours_ago: 24
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Alex Thompson"
+        to_email: "alex@growthmetrics.io"
+        plaintext: "Hi Alex,\n\nYes! You can customize the logo by going to Settings > Branding > Upload Logo. The logo will appear on all your reports and shared dashboards.\n\nLet me know if you have any other questions!"
+        hours_ago: 23
