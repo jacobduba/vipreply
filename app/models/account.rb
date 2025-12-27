@@ -182,7 +182,7 @@ class Account < ApplicationRecord
 
     # Create outbound message locally (simulates sent email)
     # TODO? Replace Gmail labels with VIPReply-specific label system it just seems weird
-    topic.messages.create!(
+    new_message = topic.messages.create!(
       message_id: "#{topic.thread_id}-#{SecureRandom.hex(8)}@mock.vipreply.local",
       subject: "Re: #{topic.subject}",
       from_name: name,
@@ -197,8 +197,17 @@ class Account < ApplicationRecord
       labels: [ "SENT" ]
     )
 
-    # FetchGmailThreadJob marks as awaiting customer response, so mock should too
-    topic.update!(status: :no_action_required_awaiting_customer)
+    # FetchGmailThreadJob updates the topic to be accurate, so mock should too
+    topic.update!(
+      status: :no_action_required_awaiting_customer,
+      snippet: new_message.snippet,
+      date: new_message.date,
+      from_email: new_message.from_email,
+      from_name: new_message.from_name,
+      to_email: new_message.to_email,
+      to_name: new_message.to_name,
+      message_count: topic.messages.count
+    )
   end
 
   def create_demo_templates(template_data)
