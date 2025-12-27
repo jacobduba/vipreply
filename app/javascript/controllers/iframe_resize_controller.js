@@ -32,23 +32,32 @@ export default class extends Controller {
   // Every message iframe scrolls to the last message when it loads.
   // So if the last message loads before previous messages the scroll goes down to the last message
   scrollToTarget() {
-    const target = document.querySelector("[is-last-vipreply-message]");
-    if (!target) return;
+    const lastMessageIframe = document.getElementById("last-message-iframe");
+    if (!lastMessageIframe) return;
 
-    const offset = 80;
-    const rect = target.getBoundingClientRect();
+    const lastMessageContainer = lastMessageIframe.parentElement.parentElement;
+    const containerRect = lastMessageContainer.getBoundingClientRect();
 
     // Non-last messages use instant scroll to quickly move down without scrolling
     // through the whole thread. The last message smooth scrolls for a clean effect
     // when new messages arrive.
-    // Cool side effect you'll notice is if the last message smooth scrolled to the bottom already,
-    // it appears to "stay in place" with the instant scrolls for the rest of the messages
-    const scrollSmoothly = this.element.hasAttribute("is-last-vipreply-message")
+    const scrollSmoothly = this.element.id === "last-message-iframe"
       ? "smooth"
       : "instant";
 
+    const header = document.getElementById("main-header");
+    const headerHeight = header ? header.offsetHeight : 0;
+    const marginTop = parseFloat(
+      getComputedStyle(lastMessageContainer).marginTop,
+    );
+    const distanceFromViewportTop = containerRect.top;
+    const currentScrollPosition = window.scrollY;
+    const elementPositionOnPage =
+      distanceFromViewportTop + currentScrollPosition;
+    const scrollTarget = elementPositionOnPage - headerHeight - marginTop;
+
     window.scrollTo({
-      top: rect.top + window.scrollY - offset,
+      top: scrollTarget,
       behavior: scrollSmoothly,
     });
   }

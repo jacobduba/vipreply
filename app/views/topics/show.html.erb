@@ -51,11 +51,10 @@
               <!-- Why??? I do not trust myself to securely sanitize emails -->
               <!-- Yes. this makes the user experience worse -->
               <!-- More: https://security.stackexchange.com/a/134587 -->
-              <!-- h-0 resets height before measuring scrollHeight, otherwise iframe expands to max -->
               <iframe
                 srcdoc="<%= message.prepare_email_for_rendering request.base_url, index %>"
                 <% if @messages.last == message %>
-                  is-last-vipreply-message
+                  id="last-message-iframe"
                 <% end %>
                 sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                 class="w-full rounded-b-lg h-0"
