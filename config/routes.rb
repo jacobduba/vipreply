@@ -21,7 +21,7 @@ Rails.application.routes.draw do
     get "sign_up", to: "sessions#sign_up", as: :sign_up
     delete "logout", to: "sessions#destroy"
     get "upgrade_permissions", to: "sessions#upgrade_permissions", as: :upgrade_permissions
-    get "mock", to: "sessions#mock", as: :mock_sign_in unless Rails.env.production?
+    get "mock", to: "sessions#mock", as: :mock_sign_in if Rails.env.development?
 
     # Analytics
     get "analytics", to: "analytics#index"
