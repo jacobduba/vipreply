@@ -138,6 +138,19 @@ class Account < ApplicationRecord
     trialing? || active?
   end
 
+  # Delivery logic is provider-specific, so it lives on Account.
+  # When we support multiple inboxes per account, this moves to Inbox.
+  def deliver_reply(topic, reply_text)
+    case provider
+    when "google_oauth2"
+      deliver_reply_via_gmail(topic, reply_text)
+    when "mock"
+      deliver_reply_mock(topic, reply_text)
+    else
+      raise "Unknown provider: #{provider}"
+    end
+  end
+
   def create_demo_data
     return unless inbox.present?
 
@@ -148,6 +161,45 @@ class Account < ApplicationRecord
   end
 
   private
+
+  def deliver_reply_via_gmail(topic, reply_text)
+    most_recent_message = topic.messages.order(date: :desc).first
+    raw_email_reply = most_recent_message.create_reply(reply_text, self)
+
+    with_gmail_service do |service|
+      message_object = Google::Apis::GmailV1::Message.new(
+        raw: raw_email_reply,
+        thread_id: topic.thread_id
+      )
+      service.send_user_message("me", message_object)
+    end
+
+    FetchGmailThreadJob.perform_now topic.inbox.id, topic.thread_id
+  end
+
+  def deliver_reply_mock(topic, reply_text)
+    most_recent_message = topic.messages.order(date: :desc).first
+
+    # Create outbound message locally (simulates sent email)
+    # TODO? Replace Gmail labels with VIPReply-specific label system it just seems weird
+    topic.messages.create!(
+      message_id: "#{topic.thread_id}-#{SecureRandom.hex(8)}@mock.vipreply.local",
+      subject: "Re: #{topic.subject}",
+      from_name: name,
+      from_email: email,
+      to_name: most_recent_message.from_name,
+      to_email: most_recent_message.from_email,
+      plaintext: reply_text,
+      html: ActionController::Base.helpers.simple_format(reply_text),
+      snippet: reply_text.truncate(100),
+      date: Time.current,
+      internal_date: Time.current,
+      labels: [ "SENT" ]
+    )
+
+    # FetchGmailThreadJob marks as awaiting customer response, so mock should too
+    topic.update!(status: :no_action_required_awaiting_customer)
+  end
 
   def create_demo_templates(template_data)
     template_data.map do |data|
