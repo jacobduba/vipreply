@@ -338,19 +338,10 @@ class Topic < ApplicationRecord
     most_recent_message = messages.order(date: :desc).first
     raise "Cannot send email: No messages found in this topic." if most_recent_message.nil?
 
-    account = inbox.account
-    raw_email_reply = most_recent_message.create_reply(reply_text, account)
+    inbox.account.deliver_reply(self, reply_text)
 
-    account.with_gmail_service do |service|
-      message_object = Google::Apis::GmailV1::Message.new(
-        raw: raw_email_reply,
-        thread_id: thread_id
-      )
-      service.send_user_message("me", message_object)
-    end
-
-    FetchGmailThreadJob.perform_now inbox.id, thread_id
-
+    # Label the message that was replied to (not the new outbound message)
+    # so templates can be associated with the customer's original question
     most_recent_message.message_embedding.label_as_used_by_templates(templates)
 
     update(generated_reply: "", templates: [])

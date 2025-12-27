@@ -11,6 +11,7 @@ Rails.application.routes.draw do
   get "auth/:provider/callback", to: "sessions#google_auth", as: :auth_callback
   get "auth/failure", to: redirect("/")
 
+  # Prevent showing error when you go to another extension like .zip just show a does not exist page
   constraints(format: /html|turbo_stream/) do
     root "inboxes#index"
     get "/", to: "inboxes#index", as: :inbox
@@ -20,6 +21,7 @@ Rails.application.routes.draw do
     get "sign_up", to: "sessions#sign_up", as: :sign_up
     delete "logout", to: "sessions#destroy"
     get "upgrade_permissions", to: "sessions#upgrade_permissions", as: :upgrade_permissions
+    get "mock", to: "sessions#mock", as: :mock_sign_in if Rails.env.development?
 
     # Analytics
     get "analytics", to: "analytics#index"

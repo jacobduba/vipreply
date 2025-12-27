@@ -1,0 +1,192 @@
+templates:
+  - output: "Our Pro plan is $49/month and includes unlimited dashboards, up to 10 team members, and priority support. The Enterprise plan is $199/month with unlimited everything plus dedicated account management and custom integrations. We don't offer any startup discounts."
+    auto_reply: false
+
+  - output: "To export your data, go to Settings > Data Export > Select Format (CSV, JSON, or Excel). You can export individual dashboards or all data at once. Exports are available for the last 12 months of data."
+    auto_reply: true
+
+  - output: "To reset your password, click 'Forgot Password' on the login page. You'll receive an email with a reset link valid for 24 hours. If you don't see the email, check your spam folder."
+    auto_reply: true
+
+  - output: "MetricSmith integrates with Slack, Microsoft Teams, Salesforce, HubSpot, Google Analytics, and Stripe. To set up an integration, go to Settings > Integrations and click 'Connect' next to the service you want."
+    auto_reply: true
+
+  - output: "Your account has been canceled and you will not be charged going forward. We've issued a prorated refund for the remaining days on your billing cycle. We're sorry to see you go - if you ever want to come back, your data will be saved for 30 days."
+    auto_reply: false
+
+  - output: "Thank you for reporting this issue. To investigate, we'd need permission to access your account data and view your dashboard configuration. Is that okay with you? Once we have your go-ahead, we'll look into what's causing the discrepancy."
+    auto_reply: false
+
+topics:
+  - thread_id: "mock-thread-001"
+    subject: "Question about pricing plans"
+    status: no_action_required_awaiting_customer
+    template_indices: [0]
+    generated_reply: ""
+    messages:
+      - from_name: "Sarah Chen"
+        from_email: "sarah.chen@techstartup.io"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi there,\n\nI'm evaluating MetricSmith for our startup. We have about 15 team members and need to track metrics across multiple products.\n\nCould you tell me more about your pricing plans and what's included in each tier? Also, do you offer any startup discounts?\n\nThanks,\nSarah"
+        hours_ago: 24
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Sarah Chen"
+        to_email: "sarah.chen@techstartup.io"
+        plaintext: "Hi Sarah,\n\nOur Pro plan is $49/month and includes unlimited dashboards, up to 10 team members, and priority support. The Enterprise plan is $199/month with unlimited everything plus dedicated account management and custom integrations. We don't offer any startup discounts."
+        hours_ago: 23
+
+  - thread_id: "mock-thread-002"
+    subject: "Can't export dashboard to CSV"
+    status: no_action_required_awaiting_customer
+    template_indices: [1]
+    generated_reply: ""
+    messages:
+      - from_name: "Marcus Johnson"
+        from_email: "marcus@designlab.co"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hello,\n\nI've been trying to export my Q3 dashboard to CSV but the export button seems to be grayed out. I'm on the Pro plan and this worked fine last week.\n\nIs there a known issue or am I missing something?\n\nMarcus"
+        hours_ago: 25
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Marcus Johnson"
+        to_email: "marcus@designlab.co"
+        plaintext: "Hi Marcus,\n\nTo export your data, go to Settings > Data Export > Select Format (CSV, JSON, or Excel). You can export individual dashboards or all data at once. Exports are available for the last 12 months of data."
+        hours_ago: 24
+
+  - thread_id: "mock-thread-007"
+    subject: "Need to cancel my subscription"
+    status: requires_action_human_needed
+    template_indices: [4]
+    generated_reply: "Hi Rachel,\n\nYour account has been canceled and you will not be charged going forward. We've issued a prorated refund for the remaining days on your billing cycle. We're sorry to see you go - if you ever want to come back, your data will be saved for 30 days."
+    messages:
+      - from_name: "Rachel Kim"
+        from_email: "rachel.kim@startupventures.io"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi,\n\nI need to cancel our Pro subscription. We've decided to go with a different solution that better fits our workflow.\n\nCan you process the cancellation and let me know if we'll receive a prorated refund for the remaining days this month?\n\nThanks,\nRachel"
+        hours_ago: 5
+
+  - thread_id: "mock-thread-008"
+    subject: "Dashboard showing incorrect revenue numbers"
+    status: requires_action_human_needed
+    template_indices: [5]
+    generated_reply: "Hi Carlos,\n\nThank you for reporting this issue. To investigate, we'd need permission to access your account data and view your dashboard configuration. Is that okay with you? Once we have your go-ahead, we'll look into what's causing the discrepancy."
+    messages:
+      - from_name: "Carlos Mendez"
+        from_email: "carlos@ecommflow.com"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hey,\n\nI noticed some of the numbers on my dashboard seem a bit off compared to what I see in Stripe. It's not a huge deal but wanted to flag it.\n\nCarlos"
+        hours_ago: 1
+
+  - thread_id: "mock-thread-003"
+    subject: "Password reset not working"
+    status: requires_action_ai_auto_replied
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Emily Rodriguez"
+        from_email: "emily.r@acmecorp.com"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi,\n\nI forgot my password and tried to reset it but I never received the email. I've checked spam and everything. Can you help?\n\nEmily"
+        hours_ago: 3
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Emily Rodriguez"
+        to_email: "emily.r@acmecorp.com"
+        plaintext: "Hi Emily,\n\nTo reset your password, click 'Forgot Password' on the login page. You'll receive an email with a reset link valid for 24 hours. If you don't see the email, check your spam folder."
+        hours_ago: 2
+
+  - thread_id: "mock-thread-004"
+    subject: "API rate limiting questions"
+    status: requires_action_human_needed
+    template_indices: []
+    generated_reply: "Hi David,\n\nGreat question about our API rate limits.\n\nOur API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. If you need higher limits, please contact us to discuss custom arrangements.\n\nSince you mentioned 2000 requests per minute during peak hours, upgrading to our Enterprise plan would give you plenty of headroom. Would you like to schedule a call to discuss your integration needs?"
+    messages:
+      - from_name: "David Park"
+        from_email: "david.park@dataflow.dev"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hey team,\n\nWe're building an integration with MetricSmith and need to understand the API rate limits better. Our application makes about 2000 requests per minute during peak hours.\n\nWhat are the current limits and is there a way to increase them?\n\nDavid"
+        minutes_ago: 30
+
+  - thread_id: "mock-thread-005"
+    subject: "Slack integration setup help"
+    status: no_action_required_awaiting_customer
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Jennifer Walsh"
+        from_email: "jwalsh@retailplus.com"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi!\n\nI want to set up alerts in Slack when certain metrics hit thresholds. Does MetricSmith support Slack integration? If so, how do I set it up?\n\nJennifer"
+        hours_ago: 26
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Jennifer Walsh"
+        to_email: "jwalsh@retailplus.com"
+        plaintext: "Hi Jennifer,\n\nMetricSmith integrates with Slack, Microsoft Teams, Salesforce, HubSpot, Google Analytics, and Stripe. To set up an integration, go to Settings > Integrations and click 'Connect' next to the service you want."
+        hours_ago: 25
+
+  - thread_id: "mock-thread-006"
+    subject: "Monthly report feedback"
+    status: no_action_required_awaiting_customer
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Alex Thompson"
+        from_email: "alex@growthmetrics.io"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "The new report format looks great! Just one question - can we customize the logo that appears in the header?"
+        hours_ago: 48
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "Alex Thompson"
+        to_email: "alex@growthmetrics.io"
+        plaintext: "Hi Alex,\n\nYes! You can customize the logo by going to Settings > Branding > Upload Logo. The logo will appear on all your reports and shared dashboards.\n\nLet me know if you have any other questions!"
+        hours_ago: 47
+
+  - thread_id: "mock-thread-009"
+    subject: "Stop wasting budget on ineffective ads"
+    status: no_action_required_marked_by_ai
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Jason Miller"
+        from_email: "jason@adflow.io"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hey,\n\nI noticed you're running ads for MetricSmith but likely leaving money on the table. We help B2B SaaS companies lower their CPA by average of 40% within the first month.\n\nDo you have time for a 10-min audit of your current campaigns?\n\nBest,\nJason"
+        hours_ago: 2
+
+  - thread_id: "mock-thread-010"
+    subject: "10x your support team's efficiency"
+    status: no_action_required_marked_by_ai
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Brittany Cole"
+        from_email: "brittany@replyfast.ai"
+        to_name: "MetricSmith Support"
+        to_email: "support@metricsmith.com"
+        plaintext: "Hi MetricSmith team,\n\nI noticed you're handling customer support manually and wanted to reach out. Companies like yours are saving 20+ hours/week with our platform.\n\nWant me to send over a case study?\n\nBest,\nBrittany"
+        hours_ago: 28
+
+  - thread_id: "mock-thread-011"
+    subject: "Your statement is ready"
+    status: no_action_required_marked_by_ai
+    template_indices: []
+    generated_reply: ""
+    messages:
+      - from_name: "Chase Bank"
+        from_email: "no-reply@chase.com"
+        to_name: "MetricSmith"
+        to_email: "support@metricsmith.com"
+        plaintext: "Your December statement is now available. Log in to your account to view your statement and recent transactions.\n\nThank you for being a Chase customer."
+        hours_ago: 52

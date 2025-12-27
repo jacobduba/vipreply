@@ -137,4 +137,133 @@ class Account < ApplicationRecord
   def has_access?
     trialing? || active?
   end
+
+  # Delivery logic is provider-specific, so it lives on Account.
+  # When we support multiple inboxes per account, this moves to Inbox.
+  def deliver_reply(topic, reply_text)
+    case provider
+    when "google_oauth2"
+      deliver_reply_via_gmail(topic, reply_text)
+    when "mock"
+      deliver_reply_mock(topic, reply_text)
+    else
+      raise "Unknown provider: #{provider}"
+    end
+  end
+
+  def create_demo_data
+    return unless inbox.present?
+
+    demo_data = YAML.load_file(Rails.root.join("config/demo_data.yml"))
+
+    templates = create_demo_templates(demo_data["templates"])
+    create_demo_topics(demo_data["topics"], templates)
+  end
+
+  private
+
+  def deliver_reply_via_gmail(topic, reply_text)
+    most_recent_message = topic.messages.order(date: :desc).first
+    raw_email_reply = most_recent_message.create_reply(reply_text, self)
+
+    with_gmail_service do |service|
+      message_object = Google::Apis::GmailV1::Message.new(
+        raw: raw_email_reply,
+        thread_id: topic.thread_id
+      )
+      service.send_user_message("me", message_object)
+    end
+
+    FetchGmailThreadJob.perform_now topic.inbox.id, topic.thread_id
+  end
+
+  def deliver_reply_mock(topic, reply_text)
+    most_recent_message = topic.messages.order(date: :desc).first
+
+    # Create outbound message locally (simulates sent email)
+    # TODO? Replace Gmail labels with VIPReply-specific label system it just seems weird
+    new_message = topic.messages.create!(
+      message_id: "#{topic.thread_id}-#{SecureRandom.hex(8)}@mock.vipreply.local",
+      subject: "Re: #{topic.subject}",
+      from_name: name,
+      from_email: email,
+      to_name: most_recent_message.from_name,
+      to_email: most_recent_message.from_email,
+      plaintext: reply_text,
+      html: ActionController::Base.helpers.simple_format(reply_text),
+      snippet: reply_text.truncate(100),
+      date: Time.current,
+      internal_date: Time.current,
+      labels: [ "SENT" ]
+    )
+
+    # FetchGmailThreadJob updates the topic to be accurate, so mock should too
+    topic.update!(
+      status: :no_action_required_awaiting_customer,
+      snippet: new_message.snippet,
+      date: new_message.date,
+      from_email: new_message.from_email,
+      from_name: new_message.from_name,
+      to_email: new_message.to_email,
+      to_name: new_message.to_name,
+      message_count: topic.messages.count
+    )
+  end
+
+  def create_demo_templates(template_data)
+    template_data.map do |data|
+      inbox.templates.create!(output: data["output"], auto_reply: data["auto_reply"])
+    end
+  end
+
+  def create_demo_topics(topics_data, templates)
+    topics_data.each do |topic_data|
+      messages_data = topic_data["messages"]
+      last_message = messages_data.last
+
+      topic = inbox.topics.create!(
+        thread_id: topic_data["thread_id"],
+        subject: topic_data["subject"],
+        from_name: last_message["from_name"],
+        from_email: last_message["from_email"],
+        to_name: last_message["to_name"],
+        to_email: last_message["to_email"],
+        snippet: last_message["plaintext"].truncate(100),
+        date: message_time(last_message),
+        message_count: messages_data.count,
+        status: topic_data["status"],
+        generated_reply: topic_data["generated_reply"]
+      )
+
+      messages_data.each do |msg_data|
+        topic.messages.create!(
+          message_id: "#{topic_data["thread_id"]}-#{SecureRandom.hex(8)}@mock.metricsmith.com",
+          subject: topic_data["subject"],
+          from_name: msg_data["from_name"],
+          from_email: msg_data["from_email"],
+          to_name: msg_data["to_name"],
+          to_email: msg_data["to_email"],
+          plaintext: msg_data["plaintext"],
+          html: ActionController::Base.helpers.simple_format(msg_data["plaintext"]),
+          snippet: msg_data["plaintext"].truncate(100),
+          date: message_time(msg_data),
+          internal_date: message_time(msg_data),
+          labels: [ "INBOX" ]
+        )
+      end
+
+      selected_templates = topic_data["template_indices"].map { |i| templates[i] }
+      topic.templates = selected_templates if selected_templates.any?
+    end
+  end
+
+  def message_time(msg_data)
+    if msg_data["hours_ago"]
+      msg_data["hours_ago"].hours.ago
+    elsif msg_data["minutes_ago"]
+      msg_data["minutes_ago"].minutes.ago
+    else
+      Time.current
+    end
+  end
 end
