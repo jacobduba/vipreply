@@ -7,10 +7,10 @@ ruby "3.4.6"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.0"
 
-gem "propshaft", "~> 1.1"
+gem "propshaft", "~> 1.3"
 
 # Postgres
-gem "pg", "~> 1.5"
+gem "pg", "~> 1.6"
 
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
@@ -46,10 +46,10 @@ gem "bootsnap", require: false
 # gem "image_processing", "~> 1.2"
 
 # Vector search with Postgres
-gem "neighbor", "~> 0.5.2"
+gem "neighbor", "~> 0.6.0"
 
 # TailwindCSS
-gem "tailwindcss-rails", "~> 4.1"
+gem "tailwindcss-rails", "~> 4.4"
 
 # Omniauth for connecting inboxes
 gem "omniauth", "~> 2.1"
@@ -60,8 +60,8 @@ gem "omniauth-rails_csrf_protection", "~> 1.0"
 gem "google-api-client", "~> 0.53"
 
 # Solid Queue for background jobs like generating replies
-gem "mission_control-jobs", "~> 1.0"
-gem "solid_queue", "~> 1.1"
+gem "mission_control-jobs", "~> 1.1"
+gem "solid_queue", "~> 1.2"
 
 # Mail for formatting text
 gem "mail", "~> 2.8"
@@ -73,10 +73,10 @@ gem "tokenizers"
 gem "nokogiri", "~> 1.18"
 
 # Honeybadger for error reporting
-gem "honeybadger", "~> 5.27"
+gem "honeybadger", "~> 6.1"
 
 # Stripe for payment processing
-gem "stripe", "~> 15.0"
+gem "stripe", "~> 17.1"
 
 # Non-blocking I/O
 gem "async", "~> 2.32"
