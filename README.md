@@ -95,6 +95,8 @@ To test webhooks locally, run in a separate terminal:
 bin/stripe
 ```
 
+You will need to change the webhook secret in development secrets to the secret that bin/stripe outputs.
+
 This will forward Stripe events to http://localhost:3000/webhooks/stripe
 
 ### Embeddings
