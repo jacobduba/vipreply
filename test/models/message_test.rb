@@ -8,7 +8,7 @@ class MessageTest < ActiveSupport::TestCase
       .to_return_json(body: { embeddings: { float: [ Array.new(1024, 0) ] } })
     stub_request(:post, "https://api.groq.com/openai/v1/chat/completions")
       .to_return_json(body: { choices: [ { message: { content: "test" } } ] })
-    stub_request(:post, "https://api.fireworks.ai/inference/v1/embeddings")
+    stub_request(:post, "https://openrouter.ai/api/v1/embeddings")
       .to_return_json(body: { data: [ { embedding: Array.new(1024, 0) } ] })
   end
 
