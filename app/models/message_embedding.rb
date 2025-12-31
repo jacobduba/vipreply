@@ -37,7 +37,7 @@ class MessageEmbedding < ApplicationRecord
       text = QWEN_TOKENIZER.decode(truncated_ids)
     end
 
-    FireworksClient.embeddings(input: text)
+    OpenRouterClient.embeddings(input: text)
   end
 
   def label_as_used_by_templates(templates)

@@ -17,7 +17,7 @@
     <div class="w-full lg:w-[calc(50%-1rem)] order-1 lg:order-2">
       <ul class="lg:pb-14 pb-4">
         <% @messages.each_with_index do |message, index| %>
-          <li class="mt-3 mb-4 border border-stone-200 bg-white rounded-lg">
+          <li id="<%= dom_id(message) %>" class="mt-3 mb-4 border border-stone-200 bg-white rounded-lg">
             <div class="p-2 text-sm">
               <div class="flex justify-between">
                 <p class="truncate">
@@ -51,20 +51,20 @@
               <!-- Why??? I do not trust myself to securely sanitize emails -->
               <!-- Yes. this makes the user experience worse -->
               <!-- More: https://security.stackexchange.com/a/134587 -->
+              <!-- data-turbo-permanent requires a unique ID to match elements across morphs -->
               <iframe
+                id="message-iframe-<%= message.id %>"
                 srcdoc="<%= message.prepare_email_for_rendering request.base_url, index %>"
-                <% if @messages.last == message %>
-                  id="last-message-iframe"
-                <% end %>
                 sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                 class="w-full rounded-b-lg h-0"
                 data-controller="iframe-resize"
-                data-turbo-permanent>
+                data-turbo-permanent
+                <%= "data-last-message" if @messages.last == message %>>
               </iframe>
             </div>
           </li>
         <% end %>
       </ul>
-    </div>
-  </div>
-</div>
+              </div>
+            </div>
+          </div>
