@@ -32,7 +32,7 @@ export default class extends Controller {
   // Every message iframe scrolls to the last message when it loads.
   // So if the last message loads before previous messages the scroll goes down to the last message
   scrollToTarget() {
-    const lastMessageIframe = document.getElementById("last-message-iframe");
+    const lastMessageIframe = document.querySelector("[data-last-message]");
     if (!lastMessageIframe) return;
 
     const lastMessageContainer = lastMessageIframe.parentElement.parentElement;
@@ -41,7 +41,7 @@ export default class extends Controller {
     // Non-last messages use instant scroll to quickly move down without scrolling
     // through the whole thread. The last message smooth scrolls for a clean effect
     // when new messages arrive.
-    const scrollSmoothly = this.element.id === "last-message-iframe"
+    const scrollSmoothly = this.element.hasAttribute("data-last-message")
       ? "smooth"
       : "instant";
 
