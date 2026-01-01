@@ -86,7 +86,7 @@ topics:
         to_name: "David Park"
         to_email: "david.park@dataflow.dev"
         plaintext: "Hi David,\n\nOur API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. Since your application makes about 2000 requests per minute, you'd exceed the Pro plan limit but be within the Enterprise range.\n\nWe can also set up custom rate limits for high-volume integrations just let us know your requirements and we'll work something out."
-        hours_ago: 4
+        hours_ago: 5
 
   - thread_id: "mock-thread-003"
     subject: "Password reset not working"
@@ -105,7 +105,7 @@ topics:
         to_name: "Emily Rodriguez"
         to_email: "emily.r@acmecorp.com"
         plaintext: "Hi Emily,\n\nTo reset your password, click 'Forgot Password' on the login page. You'll receive an email with a reset link valid for 24 hours. If you don't see the email, check your spam folder."
-        hours_ago: 2
+        hours_ago: 3
 
   - thread_id: "mock-thread-008"
     subject: "Dashboard showing incorrect revenue numbers"
