@@ -14,8 +14,8 @@ templates:
   - output: "Your account has been canceled and you will not be charged going forward. We've issued a prorated refund for the remaining days on your billing cycle. We're sorry to see you go - if you ever want to come back, your data will be saved for 30 days."
     auto_reply: false
 
-  - output: "Thank you for reporting this issue. To investigate, we'd need permission to access your account data and view your dashboard configuration. Is that okay with you? Once we have your go-ahead, we'll look into what's causing the discrepancy."
-    auto_reply: false
+  - output: "Our API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. Since your application makes about 2000 requests per minute, you'd exceed the Pro plan limit but be within the Enterprise range.\n\nWe can also set up custom rate limits for high-volume integrations just let us know your requirements and we'll work something out."
+    auto_reply: true
 
 topics:
   - thread_id: "mock-thread-001"
@@ -67,20 +67,26 @@ topics:
         to_name: "MetricSmith Support"
         to_email: "support@metricsmith.com"
         plaintext: "Hi,\n\nI need to cancel our Pro subscription. We've decided to go with a different solution that better fits our workflow.\n\nCan you process the cancellation and let me know if we'll receive a prorated refund for the remaining days this month?\n\nThanks,\nRachel"
-        hours_ago: 5
+        hours_ago: 1
 
-  - thread_id: "mock-thread-008"
-    subject: "Dashboard showing incorrect revenue numbers"
-    status: requires_action_human_needed
-    template_indices: [5]
-    generated_reply: "Hi Carlos,\n\nThank you for reporting this issue. To investigate, we'd need permission to access your account data and view your dashboard configuration. Is that okay with you? Once we have your go-ahead, we'll look into what's causing the discrepancy."
+  - thread_id: "mock-thread-004"
+    subject: "API rate limiting questions"
+    status: requires_action_ai_auto_replied
+    template_indices: []
+    generated_reply: ""
     messages:
-      - from_name: "Carlos Mendez"
-        from_email: "carlos@ecommflow.com"
+      - from_name: "David Park"
+        from_email: "david.park@dataflow.dev"
         to_name: "MetricSmith Support"
         to_email: "support@metricsmith.com"
-        plaintext: "Hey,\n\nI noticed some of the numbers on my dashboard seem a bit off compared to what I see in Stripe. It's not a huge deal but wanted to flag it.\n\nCarlos"
-        hours_ago: 1
+        plaintext: "Hey team,\n\nWe're building an integration with MetricSmith and need to understand the API rate limits better. Our application makes about 2000 requests per minute during peak hours.\n\nWhat are the current limits and is there a way to increase them?\n\nDavid"
+        hours_ago: 5
+      - from_name: "MetricSmith Support"
+        from_email: "support@metricsmith.com"
+        to_name: "David Park"
+        to_email: "david.park@dataflow.dev"
+        plaintext: "Hi David,\n\nOur API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. Since your application makes about 2000 requests per minute, you'd exceed the Pro plan limit but be within the Enterprise range.\n\nWe can also set up custom rate limits for high-volume integrations just let us know your requirements and we'll work something out."
+        hours_ago: 4
 
   - thread_id: "mock-thread-003"
     subject: "Password reset not working"
@@ -101,17 +107,17 @@ topics:
         plaintext: "Hi Emily,\n\nTo reset your password, click 'Forgot Password' on the login page. You'll receive an email with a reset link valid for 24 hours. If you don't see the email, check your spam folder."
         hours_ago: 2
 
-  - thread_id: "mock-thread-004"
-    subject: "API rate limiting questions"
+  - thread_id: "mock-thread-008"
+    subject: "Dashboard showing incorrect revenue numbers"
     status: requires_action_human_needed
     template_indices: []
-    generated_reply: "Hi David,\n\nGreat question about our API rate limits.\n\nOur API rate limit is 1000 requests per minute for Pro plans and 5000 requests per minute for Enterprise. If you need higher limits, please contact us to discuss custom arrangements.\n\nSince you mentioned 2000 requests per minute during peak hours, upgrading to our Enterprise plan would give you plenty of headroom. Would you like to schedule a call to discuss your integration needs?"
+    generated_reply: ""
     messages:
-      - from_name: "David Park"
-        from_email: "david.park@dataflow.dev"
+      - from_name: "Carlos Mendez"
+        from_email: "carlos@ecommflow.com"
         to_name: "MetricSmith Support"
         to_email: "support@metricsmith.com"
-        plaintext: "Hey team,\n\nWe're building an integration with MetricSmith and need to understand the API rate limits better. Our application makes about 2000 requests per minute during peak hours.\n\nWhat are the current limits and is there a way to increase them?\n\nDavid"
+        plaintext: "Hey,\n\nI noticed some of the numbers on my dashboard seem a bit off compared to what I see in Stripe. It's not a huge deal but wanted to flag it.\n\nCarlos"
         minutes_ago: 30
 
   - thread_id: "mock-thread-005"

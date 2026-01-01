@@ -228,7 +228,7 @@ class Account < ApplicationRecord
         from_email: last_message["from_email"],
         to_name: last_message["to_name"],
         to_email: last_message["to_email"],
-        snippet: last_message["plaintext"].truncate(100),
+        snippet: last_message["plaintext"],
         date: message_time(last_message),
         message_count: messages_data.count,
         status: topic_data["status"],
@@ -245,7 +245,7 @@ class Account < ApplicationRecord
           to_email: msg_data["to_email"],
           plaintext: msg_data["plaintext"],
           html: ActionController::Base.helpers.simple_format(msg_data["plaintext"]),
-          snippet: msg_data["plaintext"].truncate(100),
+          snippet: msg_data["plaintext"],
           date: message_time(msg_data),
           internal_date: message_time(msg_data),
           labels: [ "INBOX" ]
