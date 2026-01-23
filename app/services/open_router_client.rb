@@ -33,7 +33,7 @@ class OpenRouterClient
     parsed = JSON.parse(response.body)
     latency = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start_time
 
-    POSTHOG.capture({
+    POSTHOG&.capture({
       distinct_id: "user_#{posthog_user_id}",
       event: "$ai_generation",
       properties: {
