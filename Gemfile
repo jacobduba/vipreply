@@ -75,6 +75,9 @@ gem "nokogiri", "~> 1.18"
 # Honeybadger for error reporting
 gem "honeybadger", "~> 6.1"
 
+# PostHog for analytics
+gem "posthog-ruby", require: "posthog"
+
 # Stripe for payment processing
 gem "stripe", "~> 17.1"
 

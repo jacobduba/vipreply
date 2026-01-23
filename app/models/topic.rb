@@ -98,7 +98,8 @@ class Topic < ApplicationRecord
                   #{past_message}
                 PROMPT
               }
-            ]
+            ],
+            posthog_user_id: inbox.account.id
           )
 
           same_cards_required = response["choices"][0]["message"]["content"].downcase == "yes"
@@ -136,7 +137,9 @@ class Topic < ApplicationRecord
             #{latest_message}
           PROMPT
         }
-      ])
+      ],
+      posthog_user_id: inbox.account.id
+    )
 
     templates_answer_email = response["choices"][0]["message"]["content"].downcase == "yes"
 
@@ -230,7 +233,9 @@ class Topic < ApplicationRecord
             #{latest_message}
           PROMPT
         }
-      ])
+      ],
+      posthog_user_id: inbox.account.id
+    )
 
     self.generated_reply = response["choices"][0]["message"]["content"].strip.tr("—", " - ")
   end
@@ -269,7 +274,8 @@ class Topic < ApplicationRecord
             #{generated_reply}
           PROMPT
         }
-      ]
+      ],
+      posthog_user_id: inbox.account.id
     )
 
     content = response["choices"][0]["message"]["content"].to_s.downcase
@@ -307,7 +313,9 @@ class Topic < ApplicationRecord
           role: "user",
           content: last_message_str
         }
-      ])
+      ],
+      posthog_user_id: inbox.account.id
+    )
 
     response["choices"][0]["message"]["content"].downcase == "yes"
   end
