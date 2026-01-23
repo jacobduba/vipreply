@@ -79,7 +79,7 @@ gem "honeybadger", "~> 6.1"
 gem "posthog-ruby", require: "posthog"
 
 # Stripe for payment processing
-gem "stripe", "~> 17.1"
+gem "stripe", "~> 18.2"
 
 # Non-blocking I/O
 gem "async", "~> 2.32"
