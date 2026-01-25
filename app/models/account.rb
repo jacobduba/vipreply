@@ -151,6 +151,7 @@ class Account < ApplicationRecord
         has_gmail_permissions: has_gmail_permissions,
         subscription_period_end: subscription_period_end,
         cancel_at_period_end: cancel_at_period_end,
+        last_active_at: last_active_at,
         created_at: created_at
       }
     })
