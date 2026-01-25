@@ -85,6 +85,7 @@ class SessionsController < ApplicationController
 
     begin
       account.save!
+      account.identify_in_posthog
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error e.message
       flash[:alert] = "There was an error linking your Google account. Please try again."

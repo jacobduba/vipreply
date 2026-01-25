@@ -41,11 +41,16 @@ class ApplicationController < ActionController::Base
 
   def track_daily_activity
     return unless @account&.persisted?
+    return if @account.provider == "mock"
 
     time = Time.current
 
-    @account.session_count += 1 if @account.last_active_at + 30.minutes < time
-    @account.last_active_at = Time.current
+    if @account.last_active_at + 30.minutes < time
+      POSTHOG.capture({
+        distinct_id: "user_#{@account.id}",
+        event: "session_started"
+      })
+    end
 
     @account.save!
   end

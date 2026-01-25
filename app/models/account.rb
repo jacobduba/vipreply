@@ -138,6 +138,24 @@ class Account < ApplicationRecord
     trialing? || active?
   end
 
+  def identify_in_posthog
+    raise "Cannot identify mock accounts in PostHog" if provider == "mock"
+
+    POSTHOG.identify({
+      distinct_id: "user_#{id}",
+      properties: {
+        email: email,
+        name: name,
+        provider: provider,
+        billing_status: billing_status,
+        has_gmail_permissions: has_gmail_permissions,
+        subscription_period_end: subscription_period_end,
+        cancel_at_period_end: cancel_at_period_end,
+        created_at: created_at
+      }
+    })
+  end
+
   # Delivery logic is provider-specific, so it lives on Account.
   # When we support multiple inboxes per account, this moves to Inbox.
   def deliver_reply(topic, reply_text)

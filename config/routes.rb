@@ -23,9 +23,6 @@ Rails.application.routes.draw do
     get "upgrade_permissions", to: "sessions#upgrade_permissions", as: :upgrade_permissions
     get "mock", to: "sessions#mock", as: :mock_sign_in if Rails.env.development?
 
-    # Analytics
-    get "analytics", to: "analytics#index"
-
     # Dashboard for Solid Queue
     mount MissionControl::Jobs::Engine, at: "/jobs"
 
