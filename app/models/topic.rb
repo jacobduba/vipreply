@@ -87,7 +87,7 @@ class Topic < ApplicationRecord
             messages: [
               {
                 role: "system",
-                content: "Do these two customer emails require the exact same template reply and/or action taken? Only reply 'yes' or 'no.'"
+                content: "Do these two customer emails require the same template reply and/or action taken? Only reply 'yes' or 'no.'"
               },
               {
                 role: "user",
