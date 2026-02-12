@@ -54,7 +54,7 @@ gem "tailwindcss-rails", "~> 4.4"
 # Omniauth for connecting inboxes
 gem "omniauth", "~> 2.1"
 gem "omniauth-google-oauth2", "~> 1.2"
-gem "omniauth-rails_csrf_protection", "~> 1.0"
+gem "omniauth-rails_csrf_protection", "~> 2.0"
 
 # For interacting with Gmail api
 gem "google-api-client", "~> 0.53"
